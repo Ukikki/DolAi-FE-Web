@@ -1,0 +1,146 @@
+body {
+  background-color: #F2F5F7;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+/* 상단바 */
+.navbar {
+  height: 5%;
+  background-color: white;
+  display: flex;
+  justify-content: center; /* 중앙 정렬 */
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid #B2B2B2;
+}
+.navbar img {
+  width: 5.05vw;
+  position: absolute;
+  padding-bottom: 4px;
+  left: 34px; /* 로고를 왼쪽으로 고정 */
+}
+.navbar-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 1vh;
+  gap: 1.56vw;
+}
+.icon-container {
+  width: 4.06vw;
+  height: 5.66vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px 10px 0 0;
+  transition: background 0.2s ease-in-out;
+}
+.icon-container.selected {
+  background: #F2F5F7; /* 선택된 아이콘의 배경색 */
+}
+
+/* 상단바 아래 */
+.main {
+  display: flex;
+  flex: 1;
+  padding: 30px 24px;
+  gap: 20px;
+}
+
+/* 최근 회의 + To Do 리스트 */
+.left-section {
+  width: 30%;
+  display: flex;
+  flex-direction: column; /* 상하 배열 */
+  gap: 20px;
+}
+.left-panel {
+  height: 50%;
+  padding: 0.8vh;
+  background: white;
+  border-radius: 24px;
+  border: solid 1px #B2B2B2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.left-panel p {
+  font-family: "Jamsil_M";
+  font-size: 1.25vw;
+  color:black;
+  text-align: center;
+}
+
+/* 그래프 영역 */
+.graph-section {
+  width: 40%;
+  background: white;
+  border-radius: 20px;
+  text-align: center;
+  border: solid 1px #B2B2B2;
+  position:relative;
+}
+/* 배경 이미지 */
+.login-bg {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  object-fit: cover; 
+  display: block;
+}
+.login-logo {
+  width: 9.8vw;
+  height: 12vh;
+  object-fit: cover; 
+  position:absolute;
+  top : 40%;
+  transform: translate(-50%, -50%); /* 중앙 배치 */
+}
+/* 로그인 컨테이너 */
+.login-container {
+  position: relative; 
+}
+/* 로그인 폼 */
+.login-form {
+  position: absolute;
+  top: 82%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 중앙 배치 */
+  display: flex;
+  flex-direction: column; 
+  gap: 20px; /* 버튼 간의 간격 */
+  justify-content: center;
+  align-items: center;
+}
+
+/* 카카오 로그인 버튼 */
+.login-btn {
+  width:  20vw;
+  height: 6vh;
+  background-image: url('/images/login_kakao.png');
+  background-size: cover; 
+  border: none;
+  cursor: pointer;
+  background-color: transparent
+}
+/* 구글 로그인 버튼 */
+.login-btn2 {
+  width:  20vw;
+  height: 6vh;
+  background-image: url('/images/login_google.png');
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+  background-color: transparent
+}
+/* 캘린더 영역 */
+.calendar-section {
+  width: 30%;
+  flex: 1;
+  background: white;
+  border-radius: 20px;
+  border: solid 1px #B2B2B2;
+}

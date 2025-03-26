@@ -1,0 +1,333 @@
+/* 전체 컨테이너 */
+.documentsContainer {
+  width: 100%;
+  min-height: 100vh; //전체 페이지 높이
+  background: #f5f5f5; 
+}
+
+/* 두 번째 줄 */
+.navbarSecondRow {
+  height: 2.5vw; /* 48px -> vw */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F2F5F7;
+  border-bottom: 0.05vw solid #ddd; /* 1px -> vw */
+  padding: 0 1.04vw; /* 20px -> vw */
+}
+
+/* 왼쪽 섹션 */
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 0.52vw; /* 10px -> vw */
+}
+.arrowIcon {
+  cursor: pointer;
+}
+.docsFolderIcon {
+  width: 1.25vw; /* 24px -> vw */
+  height: 1.25vw;
+}
+.pathText {
+  font-size: 0.73vw; /* 14px -> vw */
+  color: #333;
+  background-color: #fff; /* 흰색 배경 */
+  padding: 0.3vw 1vw;   /* 상하: 0.3vw, 좌우: 1vw */
+  width: 50vw; 
+  display: inline-block; /* 배경이 텍스트 영역에 적용되도록 */
+  border-radius: 0.2vw;  /* 필요 시 둥근 모서리 추가 */
+}
+
+/* 오른쪽 섹션 */
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+}
+
+/* 검색 래퍼 */
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 20vw; /* 200px -> vw */
+  padding: 0.31vw 0.63vw; /* 6px 12px -> vw */
+  border: 0.05vw solid #ccc;
+  border-radius: 0.42vw;
+  background-color: #fff;
+}
+
+/* "문서 검색" 텍스트 */
+.searchText {
+  font-size: 0.73vw;
+  color: #555;
+}
+
+/* 돋보기 아이콘 */
+.searchIcon {
+  width: 1.04vw; /* 20px -> vw */
+  height: 1.04vw;
+  cursor: pointer;
+}
+
+/* 사이드바 */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 5.99vw; /* 115px -> vw */
+  width:18vw; /* 350px -> vw */
+  height: calc(100vh - 5.62vw); /* 108px -> vw */
+  //화면전체높이에서 상단 영역을 뺀 값 // 이거 해야 사이드바랑 위 닿음
+  background: #E5E7E8;
+  padding: 1.04vw;
+  overflow-y: auto;
+}
+
+.folderTitle {
+  font-size: 1.25vw;
+  margin-bottom: 0.52vw;
+  font-family: "Jamsil_R";
+}
+.fileInfo {
+  font-size: 0.73vw;
+  color: #555;
+  margin-bottom: 5.21vw;//수정일-생상 사이 간격(아래 여백)
+
+  display: flex;
+  flex-direction: column;
+
+  .infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.21vw 0;
+    padding: 0.21vw 0;
+    border-bottom: 0.16vw solid #ddd;
+  }
+
+//유형,크기,생성일
+  .label {
+    font-weight: bold;
+    color: #333;
+  }
+//오른쪽 값(txt)
+  .value {
+    text-align: right;
+  }
+}
+
+.documentOptions {
+  margin-top: 1.56vw;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25vw;
+  
+  .optionBtn {
+    padding: 0.42vw;
+    border: none;
+    border-radius: 0.21vw;
+    cursor: pointer;
+    background: #e5e7e8;
+    color: #555;
+    font-weight: 600;
+    text-align: left;
+  }
+}
+
+.optionIcon {
+  font-size: 1vw;
+  width: 1.04vw;
+  height: 1.04vw;
+  margin-right: 0.16vw;
+  text-align: left;
+}
+//정렬버튼
+.sortMenuContainer {
+  position: relative; /* 드롭다운 위치를 위해 */
+  display: inline-block;
+}
+
+.sortButton {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 아이콘과 텍스트 사이 간격 */
+  padding: 6px 8px;
+  
+  cursor: pointer;
+
+  &:hover {
+    background: #eee;
+  }
+}
+
+.sortIcon {
+  width: 15px; /* 원하는 아이콘 크기 */
+  height: 15px;
+}
+
+.sortText {
+  font-size: 14px;
+  color: #333;
+}
+
+/* 드롭다운 */
+.sortDropdown {
+  position: absolute;
+  top: 100%;  /* 버튼 바로 아래 */
+  left: 0;
+  margin-top: 4px;
+  width: 120px;
+  background: #F2F5F7;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 4px 0;
+  }
+}
+
+
+/* 선택된 폴더 */
+.selectedFolderDisplay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 2.6vw;//텍스트와의 간격
+  gap: 0.31vw;
+}
+.selectedFolderIcon {
+  width: 2.6vw;
+  height: 2.6vw;
+  margin-right: 0.42vw;
+}
+
+
+/* 색상 변경 UI */
+.colorOptions {
+  display: flex;
+  gap: 0.42vw;
+  margin-bottom: 2.6vw;//색상변경-pdf
+}
+.redCircle, .yellowCircle, .greenCircle,
+.blueCircle, .purpleCircle, .pinkCircle {
+  width: 1.04vw;
+  height: 1.04vw;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.redCircle { background: #e74c3c; }
+.yellowCircle { background: #f1c40f; }
+.greenCircle { background: #2ecc71; }
+.blueCircle { background: #3498db; }
+.purpleCircle { background: #9b59b6; }
+.pinkCircle { background: pink; }
+
+/* 폴더 목록 */
+.folderGrid {
+  margin-left: 20vw;//사이드바랑 같게 해야됨
+  margin-top: 0.42vw;
+  display: grid;
+  grid-template-columns: repeat(7, 6.25vw);
+  gap: 1.04vw;
+  padding: 1.04vw;
+  background: #f2f5f7;
+}
+
+.folderItem {
+  width: 6.25vw;
+  height: 6.25vw;
+  background: #f2f5f7;
+  border-radius: 0.52vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.folderIcon {
+  width: 5.21vw;
+  height: 5.21vw;
+  margin-bottom: 0.26vw;
+}
+.folderName {
+  font-size: 0.73vw;
+  font-family: "Jamsil_R";
+  text-align: center;
+  color: #333;
+}
+
+/* 파일 목록 */
+.fileGrid {
+  margin-left: 12.5vw;
+  margin-top: 0.42vw;
+  display: grid;
+  grid-template-columns: repeat(4, 6.25vw);//한줄에 4개의 파일
+  gap: 1.04vw;
+  padding: 1.04vw;
+  background: #f2f5f7;
+}
+
+/* 파일 아이템 */
+.fileItem {
+  width: 6.25vw;
+  height: 6.25vw;
+  background: #f2f5f7;
+  border-radius: 0.52vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.fileIcon {
+  width: 3.13vw;
+  height: 3.13vw;
+  margin-bottom: 0.26vw;
+}
+
+.fileName {
+  font-size: 0.73vw;
+  text-align: center;
+  color: #333;
+}
+
+/* 선택된 파일 */
+.selectedFileDisplay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.31vw;
+  margin-bottom: 0.52vw;
+  text-align: left;
+}
+
+.selectedFileIcon {
+  width: 2.5vw;
+  height: 2.5vw;
+  margin-right: 0.42vw;
+}
+
+.fileTitle {
+  font-size: 1.04vw;
+  margin-bottom: 0.52vw;
+  font-family: "Jamsil_R";
+  text-align: left;
+}

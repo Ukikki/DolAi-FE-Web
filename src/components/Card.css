@@ -1,0 +1,64 @@
+/* 최근 회의 */
+.card {
+  width: 90%;
+  height: 7.03vh; /* 72px */
+  background: #F2F5F7;
+  border: solid 1px #B2B2B2;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 1.27vh;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
+}
+/* todo */
+.todo-card {
+  width: 90%;
+  height: 8.79vh; /* 약 90px */
+  background: #F2F5F7;
+  border: solid 1px #B2B2B2;
+  border-radius: 10px;
+  margin-bottom: 1.95vh;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
+}
+/* 체크박스 스타일 */
+.todo-card input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-left: 3vh;
+  accent-color: #3572EF; /* 체크 색상 */
+  margin-right: 2vh;
+}
+
+.meeting-content {
+  display: flex;
+  padding: 2vh;
+  justify-content: space-between; /* 양쪽 정렬 */
+  width: 100%;
+}
+.todo-content {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+.meeting-title {
+  font-family: "Jamsil_R";
+  font-size: 1vw; /* 약 20px */
+  color:black;
+}
+.meeting-date {
+  font-family: "Jamsil_R";
+  font-size: 0.7vw; /* 약 14px */
+  color: #757575;
+  text-align: right;
+  padding-top : 1%;
+}
+  
+.todo-time {
+  font-family: "Jamsil_R";
+  font-size: 0.7vw; /* 약 14px */
+  color: #757575;
+  padding-bottom: 1%;
+}

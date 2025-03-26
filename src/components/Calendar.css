@@ -1,0 +1,242 @@
+.react-calendar {
+  width: 90%;
+  margin: 0 auto;
+  border: none !important; /* 기본 테두리 제거 */
+}
+.react-calendar__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1vw;
+  background: white;
+  position: relative;
+  aspect-ratio: 1; /* 정사각형 */
+}
+.react-calendar__navigation__label {
+  background: white !important;
+  color: #F87171;
+  font-size: 1vw;
+  font-family: "Jamsil_R";
+}
+/* 네비게이션 색상 설정 */
+.react-calendar__navigation__arrow {
+  color: #F87171;
+}
+/* 요일 아래 밑줄 제거 */
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+  font-size: 0.9vw;
+}
+/* 일요일: 빨간색 */
+.react-calendar__month-view__weekdays__weekday--weekend abbr[title="일요일"] {
+  color: #F87171;
+}
+/* 토요일: 파란색 */
+.react-calendar__month-view__weekdays__weekday--weekend abbr[title="토요일"] {
+  color: #2E7AF2;
+}
+/* 토요일 날짜를 파란색으로 */
+.sat {
+  color: #2E7AF2;
+}
+/* 일요일 날짜를 파란색으로 */
+.sun {
+  color: #F87171;
+}
+/* 공휴일 날짜를 파란색으로 */
+.holiday {
+  color: #F87171 !important;
+}
+/* 오늘 날짜 */ 
+.react-calendar__tile--now .calendar-day {
+  color: white;
+  background: #2E7AF2;
+  border-radius: 50%;
+  pointer-events: none;
+  width: 1.7vw;
+  height: 1.7vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 선택한 날짜 */ 
+.react-calendar__tile--active .calendar-day {
+  color:black;
+  background: #ffeb99;
+  border-radius: 50%;
+  width: 2vw;
+  height: 2vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 선택하면 나타나는 배경색 제거 */ 
+.react-calendar__tile--active {
+  background-color: transparent !important;
+}
+.calendar-container {
+  margin: 0 auto;
+  width: 90%;
+  margin-top : 3vh;
+  height: fit-content;
+  color:black;
+}
+.calendar-header {
+  position: relative;
+}
+.plus-button {
+  position: absolute;
+  right: 0.07vw;
+  top: 11px;
+  cursor: pointer;
+  color: #F87171;
+}
+.dot {
+  width: 0.3vw;
+  height: 0.3vw;
+  background-color: #5DC074;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 5px;  /* 날짜 아래에 배치 */
+  transform: translateX(-50%);
+}
+/* 첫 번째 dot 위치 */
+.dot-1 {
+  left: 50%;
+}
+/* 두 번째 dot 위치 */
+.dot-2 {
+  left: 35%
+}
+/* 세 번째 dot 위치 */
+.dot-3 {
+  left: 65%; 
+}
+.event-container {
+  margin-top: 1.5vh;
+  max-height: 37vh; /* 최대 높이 */
+  overflow-y: auto;   /* 스크롤 */
+}
+.event-card {
+  height: 8.79vh; /* 약 90px */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items:flex-start;
+  background: #F2F5F7;
+  border: solid 1px #B2B2B2;
+  border-radius: 10px;
+  padding-inline: 3vh;
+  margin-bottom: 1.9vh;
+  cursor: pointer;
+}
+
+/* 다이얼로그용 */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.dialog {
+  background: white;
+  width: 400px;
+  padding: 2%;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+.dialog-tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2vh;
+  position: relative;
+}
+.dialog-tabs button {
+  flex: 1;
+  border: none;
+  color: #757575;
+  cursor: pointer;
+  background:transparent;
+  font-family: "Jamsil_M";
+  font-size: 1.1vw;
+  padding-bottom: 2vh;
+  position: relative;
+}
+.dialog-tabs button.active {
+  color: black;
+}
+.dialog-tabs button.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0.5vh;
+  background: #F87171;
+  border-radius: 10px;
+}
+.dialog-content {
+  min-height: 200px;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tab-content input {
+  padding: 12px;
+  border: 2px solid #BDBDBD;
+  border-radius: 10px;
+  color:black;
+  font-size: 1.1vw;
+  font-family: "Jamsil_R";
+  margin-bottom: 0.7vh;
+}
+.non-border {
+  border: none !important;
+  font-size: 0.9vw !important;
+}
+input[type="datetime-local"] {
+  font-size: 0.8vw;
+  color:#757575;
+}
+.btn-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 1vh;
+}
+.add-btn {
+  width: 120px;
+  height: 40px;
+  align-self: flex-end;
+  padding: 8px 12px;
+  background: #2E7AF2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1vw;
+  font-family: "Jamsil_R";
+}
+.close-btn {
+  width: 120px;
+  height: 40px;
+  align-self: flex-end;
+  padding: 8px 12px;
+  border: 2px solid #2E7AF2;
+  background: transparent;
+  color: black;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1vw;
+  font-family: "Jamsil_R";
+}
