@@ -4,6 +4,8 @@ import Dashboard from "./pages/Dashboard";
 import Meetings from "./pages/Meetings";
 import DocumentsPage from "./documents/components/DocumentsPage";
 import FolderDetailPage from "./documents/components/FolderDetailPage"; // 폴더 상세 페이지
+import BackOffice from "./pages/BackOffice";
+
 import "./App.css";
 
 function AppContent() {
@@ -21,7 +23,7 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
-      <Route path="/meetings" element={<Meetings selected={selected} navigate={navigate} />} />
+      <Route path="/meetings" element={<Meetings navigate={navigate} />} />
       <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
       {/* 폴더 상세 페이지 */}
       <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
@@ -33,6 +35,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppContent />
+      {/* <BackOffice /> */}
     </BrowserRouter>
   );
 }

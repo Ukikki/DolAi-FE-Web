@@ -77,7 +77,6 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
         <section className="graph-section">
         <div className="login-container">
           <img src="../images/login_bg.png" alt="login bg" className="login-bg"/>
-          <img src="../images/login_dolai.png" alt="login dolai" className="login-logo"/>
           <div className="login-form">
             <button className="login-btn" onClick={handleLogin}></button> {/* 카카오 */}
             <button className="login-btn2" onClick={handleLogin}></button> {/* 구글 */}

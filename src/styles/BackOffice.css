@@ -1,0 +1,14 @@
+.BO-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw; /* 뷰포트 전체 너비 */
+  height: 100vh; /* 뷰포트 전체 높이 */
+  background-color: #252525;
+}
+
+.admin-logo {
+  width: 5.05vw;
+  position: absolute;
+  top: 32px;
+  left: 63px;
+}

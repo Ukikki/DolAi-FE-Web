@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
-import "/Users/hansung/Desktop/DolAi/DolAi-FE/src/App.css"; 
 import styles from "../styles/documents.module.scss";      
 import SortMenu from "./SortMenu";
 
@@ -78,19 +77,19 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             className={`icon-container ${selected === "home" ? "selected" : ""}`}
             onClick={() => navigate("/")}
           >
-            <Home size={33} style={{ cursor: "pointer" }} />
+            <Home style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
           </div>
           <div
             className={`icon-container ${selected === "video" ? "selected" : ""}`}
             onClick={() => navigate("/meetings")}
           >
-            <Video size={33} style={{ cursor: "pointer" }} />
+            <Video style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
           </div>
           <div
             className={`icon-container ${selected === "document" ? "selected" : ""}`}
             onClick={() => navigate("/documents")}
           >
-            <FileText size={33} style={{ cursor: "pointer" }} />
+            <FileText style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
           </div>
         </nav>
       </header>

@@ -1,0 +1,46 @@
+.meet-navbar-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 1vh;
+  gap: 3.6vw;
+}
+.meet-icon-container {
+  width: 2.08vw;
+  height: 5.66vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.meet-board {
+  width: 2vw;
+  height: 2vw;
+  cursor: pointer;
+  background-image: url("../images/meet_board.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.meet-leave {
+  width: 8.3vw;
+  cursor: pointer;
+  position: absolute;
+  background-image: url("../images/meet_leave.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  right: 15px;
+}
+
+/* 카메라 */
+.video-container {
+  width: 100vw;
+  height: 94vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: scaleX(-1);
+}
+.video-view {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
