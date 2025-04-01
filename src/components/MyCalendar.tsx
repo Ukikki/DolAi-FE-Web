@@ -3,15 +3,18 @@ import Calendar from "react-calendar";
 import Holidays from "date-holidays";
 import 'react-calendar/dist/Calendar.css';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Plus } from "lucide-react";
-import { useTodoList } from "./ToDo";
 import "./Calendar.css";
 import "./Card.css";
+
+interface CalendarProps {
+  addTodo: (task: string, time: string) => void;
+}
 
 // 공휴일 -> API로 변경 예정
 const holidays = new Holidays("KR"); // 한국
 const hd = holidays.getHolidays(new Date().getFullYear()).map(h => new Date(h.date).toLocaleDateString("sv-SE"));
 
-const MyCalendar: React.FC = () => {
+const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   // 예시
   const [events, setEvents] = useState([
@@ -21,7 +24,6 @@ const MyCalendar: React.FC = () => {
     { title: "UI 디자인 검토", start: "2025-03-15T10:00" },
   ]);
   const [filteredEvents, setFilteredEvents] = useState(events);
-  const { addTodo } = useTodoList(); // addTodo를 가져오기
 
   // 다이얼로그
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -33,12 +35,15 @@ const MyCalendar: React.FC = () => {
   const openDialog = () => setIsDialogOpen(true);
   const closeDialog = () => setIsDialogOpen(false);
 
+  // 날짜 클릭 
   const handleDateClick = (date: Date) => {
     if (!date) return;
     const clickedDate = date.toLocaleDateString("sv-SE"); // YYYY-MM-DD 형식
     setSelectedDate(clickedDate);
     setFilteredEvents(events.filter(event => event.start.startsWith(clickedDate)));
   };
+
+  // 캘린더 이벤트 추가
   const addEvent = () => {
     if (newEventTitle && newEventDate) {
       const updatedEvents = [...events, { title: newEventTitle, start: newEventDate }];
@@ -49,6 +54,8 @@ const MyCalendar: React.FC = () => {
       closeDialog();
     }
   };
+
+  // todo 이벤트 추가
   const handleAddTodo = () => {
     if (newTodo && newTodoTime) {
       addTodo(newTodo, newTodoTime);
