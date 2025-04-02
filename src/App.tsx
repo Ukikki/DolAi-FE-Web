@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Meetings from "./pages/Meetings";
 import DocumentsPage from "./documents/components/DocumentsPage";
 import FolderDetailPage from "./documents/components/FolderDetailPage"; // 폴더 상세 페이지
+import AuthCallback from "./pages/AuthCallback";
 import BackOffice from "./pages/BackOffice";
 
 import "./App.css";
@@ -27,6 +28,7 @@ function AppContent() {
       <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
       {/* 폴더 상세 페이지 */}
       <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
     </Routes>
   );
 }

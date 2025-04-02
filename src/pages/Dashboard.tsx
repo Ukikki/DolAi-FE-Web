@@ -2,6 +2,7 @@ import { Card } from "../components/Card";
 import { ToDoList, useTodoList } from "../components/ToDo";
 import Calendar from "../components/MyCalendar";
 import { Home, Video, FileText } from "lucide-react";
+import { redirectToSocialAuth } from '../services/authService';
 
 interface DashboardProps {
   selected: String;
@@ -16,15 +17,14 @@ const recentMeetings = [
   { id: 4, title: "DolAi ERD 계획", date: "2025.01.20" },
 ];
 
-// 임시
+// 최근 회의목록 임시
 const handleCardClick = (id: number) => {
   alert(`${id}`);
 };
-const handleLogin = () => {
-  alert("버튼 클릭");
-};
+
+
 export default function Dashboard({ selected, navigate } : DashboardProps) {
-  const { todos } = useTodoList(); // todos 가져오기
+  const { todos, addTodo } = useTodoList(); // todos와 addTodo 함수
 
   return (
     <div className="container">
@@ -78,15 +78,15 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
         <div className="login-container">
           <img src="../images/login_bg.png" alt="login bg" className="login-bg"/>
           <div className="login-form">
-            <button className="login-btn" onClick={handleLogin}></button> {/* 카카오 */}
-            <button className="login-btn2" onClick={handleLogin}></button> {/* 구글 */}
+            <button className="login-btn" onClick={() => redirectToSocialAuth('kakao')} /> {/* 카카오 */}
+            <button className="login-btn2" onClick={() => redirectToSocialAuth('google')} />{/* 구글 */}
           </div>
         </div>
         </section>
 
         {/* 캘린더 영역 */}
         <aside className="calendar-section">
-          <Calendar />
+          <Calendar addTodo={addTodo} />
         </aside>
       </main>
     </div>
