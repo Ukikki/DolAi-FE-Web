@@ -11,10 +11,21 @@ body {
   height: 5%;
   background-color: white;
   display: flex;
-  justify-content: center; /* 중앙 정렬 */
+  justify-content: space-between;
   align-items: center;
   position: relative;
   border-bottom: 1px solid #B2B2B2;
+}
+.navbar-left,
+.navbar-center,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-center {
+  flex: 1;
+  justify-content: center;
 }
 .navbar img {
   width: 5.05vw;
@@ -40,6 +51,13 @@ body {
 }
 .icon-container.selected {
   background: #F2F5F7; /* 선택된 아이콘의 배경색 */
+}
+.icon-logout {
+  position:absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  right: 40px;
 }
 
 /* 상단바 아래 */

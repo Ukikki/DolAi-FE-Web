@@ -1,15 +1,9 @@
 import { useState, useEffect } from "react";
 import { NavigateFunction } from "react-router-dom";
-import {
-  Home,
-  Video,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-
+import { Home, Video, FileText, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
+import { handleSocialLogout } from "../../utils/logout";
 
 interface DocumentsProps {
   selected: string;
@@ -17,26 +11,17 @@ interface DocumentsProps {
 }
 
 interface Folder {
-  id: number;
+  // 백엔드에서 반환하는 폴더 데이터 구조에 맞게 id, name, parentDirectoryId, type 등 사용
+  id: Int16Array;
   name: string;
-  color: string;
-  // 추후 수정일, 생성일, 파일 크기 등의 속성이 추가되면 필드도 함께 추가하세요.
+  parentDirectoryId: string | null;
+  type: "PERSONAL" | "SHARED";
+  // UI에서 폴더 아이콘을 사용하기 위한 색상 (백엔드에서 제공하지 않는 경우 기본값으로 설정)
+  color?: string;
 }
 
-const initialFolders: Folder[] = [
-  { id: 1, name: "20250304", color: "yellow" },
-  { id: 2, name: "red folder", color: "red" },
-  { id: 3, name: "green folder", color: "green" },
-  { id: 4, name: "blue folder", color: "blue" },
-  { id: 5, name: "purple folder", color: "purple" },
-  { id: 6, name: "pink folder", color: "pink" },
-  { id: 7, name: "점심메뉴", color: "yellow" },
-  { id: 8, name: "저녁메뉴", color: "red" },
-  { id: 9, name: "돌아이회의", color: "green" },
-  { id: 10, name: "교슈님", color: "blue" },
-  { id: 11, name: "여행", color: "purple" },
-  { id: 12, name: "비밀", color: "pink" },
-];
+// 초기 폴더 목록: localStorage에 저장된 데이터가 없으면 빈 배열 사용
+const initialFolders: Folder[] = [];
 
 const folderIcons: Record<string, string> = {
   red: "/images/redfolder.png",
@@ -48,7 +33,7 @@ const folderIcons: Record<string, string> = {
 };
 
 export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
-  // localStorage에서 폴더 목록 불러오기 (없으면 initialFolders)
+  // localStorage에서 폴더 목록 불러오기 (없으면 initialFolders 사용)
   const [folderList, setFolderList] = useState<Folder[]>(() => {
     const stored = localStorage.getItem("folderList");
     return stored ? JSON.parse(stored) : initialFolders;
@@ -74,6 +59,26 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     localStorage.setItem("folderList", JSON.stringify(folderList));
   }, [folderList]);
 
+  // 백엔드에서 폴더(디렉토리) 데이터를 가져오는 useEffect
+  useEffect(() => {
+    // 최상위 디렉토리(부모 디렉토리가 없을 경우) 데이터를 가져오기 위해 parentDirectoryId를 전달하지 않음
+    fetch("/directories")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        // 백엔드가 SuccessDataResponse 형식으로 응답한다고 가정(실제 응답에 맞게 수정)
+        const directories = data.data;
+        setFolderList(directories);
+      })
+      .catch((error) => {
+        console.error("폴더를 불러오는데 실패했습니다:", error);
+      });
+  }, []);
+
   // 빈 영역 우클릭 시: 폴더 추가 메뉴 표시
   const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -86,19 +91,51 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     setContextMenuPos(null);
   };
 
-  // 모달에서 "추가" 버튼 클릭 시 새 폴더 생성
+  // 모달에서 "추가" 버튼 클릭 시 새 폴더 생성 후 백엔드에 저장
   const handleConfirmAddFolder = () => {
     if (newFolderName.trim() !== "") {
-      const newFolder: Folder = {
-        id: folderList.length ? Math.max(...folderList.map((f) => f.id)) + 1 : 1,
+      // 새 폴더 데이터를 객체로 생성 (필요한 다른 필드도 추가 가능)
+      const newFolderData = {
         name: newFolderName.trim(),
-        color: "yellow", // 기본 색상 지정 (필요시 변경 가능)
+        parentDirectoryId: null, // 최상위 디렉토리인 경우 null
+        type: "PERSONAL",        // 공유 폴더일 경우 "SHARED"로 변경
+        meetingId: null,
       };
-      setFolderList([...folderList, newFolder]);
+  
+      // POST 요청을 통해 백엔드의 /directories 엔드포인트에 새 폴더 정보를 전송
+      fetch("/directories", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+        },
+        body: JSON.stringify(newFolderData),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => {
+          // 백엔드에서 새로 생성한 폴더 정보를 응답으로 보낸다고 가정합니다.
+          // 응답 구조에 따라 data 또는 data.data 를 사용해야 할 수 있습니다.
+          const createdFolder: Folder = {
+            ...data.data,       // 예를 들어, 응답이 { data: { ... } } 형식인 경우
+            color: "blue",      // UI에서 사용할 기본 색상 지정 (필요에 따라 변경)
+          };
+          // 상태 업데이트: 기존 폴더 목록에 새 폴더 추가
+          setFolderList([...folderList, createdFolder]);
+        })
+        .catch((error) => {
+          console.error("폴더 추가 실패:", error);
+        });
     }
+    // 모달 닫기 및 입력값 초기화
     setShowAddFolderModal(false);
     setNewFolderName("");
   };
+  
 
   // SortMenu에서 정렬 값 변경 시 호출
   function handleSortChange(newSortKey: string, newSortOrder: string) {
@@ -119,7 +156,11 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   // 폴더 색상 변경 (예시)
   function handleColorChange(newColor: string) {
     if (!selectedFolderObj) return;
-    // 선택한 폴더의 색상을 변경하는 로직 추가
+    // 선택한 폴더의 color 값을 업데이트하는 로직 추가 (백엔드와 연동 시 별도 API 호출 필요)
+    const updatedFolders = folderList.map((folder) =>
+      folder.id === selectedFolderObj.id ? { ...folder, color: newColor } : folder
+    );
+    setFolderList(updatedFolders);
   }
 
   // 폴더 선택 및 이동
@@ -135,7 +176,6 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
       return;
     }
     const fileName = selectedFolderObj.name;
-    // 최소한의 빈 ZIP 파일 (End of central directory record 22바이트)
     const emptyZipHeader = new Uint8Array([
       0x50, 0x4B, 0x05, 0x06,
       0x00, 0x00, 0x00, 0x00,
@@ -152,16 +192,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   }
 
   // 검색어 필터링 및 정렬 처리
-  const filteredFolders = folderList.filter((folder) =>
-    folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFolders = folderList.filter(
+    (folder) => folder.name && folder.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
   const sortedFolders = filteredFolders.slice().sort((a, b) => {
-    let compare = 0;
-    if (sortKey === "name") {
-      compare = a.name.localeCompare(b.name);
-    } else {
-      compare = a.name.localeCompare(b.name);
-    }
+    let compare = a.name.localeCompare(b.name);
     return sortOrder === "asc" ? compare : -compare;
   });
 
@@ -173,27 +209,29 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
       }}
     >
       <header className="navbar">
-        <img src="../images/main_logo.png" alt="DolAi Logo" />
-        <nav className="navbar-icons">
-          <div
-            className={`icon-container ${selected === "home" ? "selected" : ""}`}
-            onClick={() => navigate("/")}
-          >
-            <Home style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
+        <div className="navbar-left">
+          <img src="../images/main_logo.png" alt="DolAi Logo" />
+        </div>
+
+        <div className="navbar-center">
+          <nav className="navbar-icons">
+            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+              <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+              <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+              <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+          </nav>
+        </div>
+
+        <div className="navbar-right">
+          <div className="icon-logout" onClick={handleSocialLogout}>
+            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
           </div>
-          <div
-            className={`icon-container ${selected === "video" ? "selected" : ""}`}
-            onClick={() => navigate("/meetings")}
-          >
-            <Video style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
-          </div>
-          <div
-            className={`icon-container ${selected === "document" ? "selected" : ""}`}
-            onClick={() => navigate("/documents")}
-          >
-            <FileText style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
-          </div>
-        </nav>
+        </div>
       </header>
 
       <div className={styles.navbarSecondRow}>
@@ -236,13 +274,13 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           {selectedFolderObj ? (
             <div className={styles.selectedFolderDisplay}>
               <img
-                src={folderIcons[selectedFolderObj.color]}
-                alt={`${selectedFolderObj.color} folder`}
+                src={folderIcons[selectedFolderObj.color || "blue"]}
+                alt={`${selectedFolderObj.color || "blue"} folder`}
                 className={styles.selectedFolderIcon}
               />
               <h2 className={styles.folderTitle}>{selectedFolderObj.name}</h2>
               <div className={styles.sidebarButtons}>
-                
+                {/* 추가 버튼 구현 가능 */}
               </div>
             </div>
           ) : (
@@ -273,53 +311,23 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           <div className={styles.info}>
             <h5>색상</h5>
             <div className={styles.colorOptions}>
-              <div
-                className={styles.redCircle}
-                onClick={() => handleColorChange("red")}
-              />
-              <div
-                className={styles.yellowCircle}
-                onClick={() => handleColorChange("yellow")}
-              />
-              <div
-                className={styles.greenCircle}
-                onClick={() => handleColorChange("green")}
-              />
-              <div
-                className={styles.blueCircle}
-                onClick={() => handleColorChange("blue")}
-              />
-              <div
-                className={styles.purpleCircle}
-                onClick={() => handleColorChange("purple")}
-              />
-              <div
-                className={styles.pinkCircle}
-                onClick={() => handleColorChange("pink")}
-              />
+              <div className={styles.redCircle} onClick={() => handleColorChange("red")} />
+              <div className={styles.yellowCircle} onClick={() => handleColorChange("yellow")} />
+              <div className={styles.greenCircle} onClick={() => handleColorChange("green")} />
+              <div className={styles.blueCircle} onClick={() => handleColorChange("blue")} />
+              <div className={styles.purpleCircle} onClick={() => handleColorChange("purple")} />
+              <div className={styles.pinkCircle} onClick={() => handleColorChange("pink")} />
             </div>
           </div>
           <div className={styles.documentOptions}>
             <button className={styles.optionBtn}>
-              <img
-                src="/images/doc_pdf.png"
-                alt="PDF 변환"
-                className={styles.optionIcon}
-              />
+              <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
             </button>
             <button className={styles.optionBtn} onClick={handleDeleteFolder}>
-              <img
-                src="/images/doc_del.png"
-                alt="삭제"
-                className={styles.optionIcon}
-              />
+              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} />
             </button>
             <button className={styles.optionBtn} onClick={handleDownloadFolder}>
-              <img
-                src="/images/doc_down.png"
-                alt="다운받기"
-                className={styles.optionIcon}
-              />
+              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} />
             </button>
           </div>
         </aside>
@@ -327,14 +335,14 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         <section className={styles.folderGrid} onContextMenu={handleContextMenu}>
           {sortedFolders.map((folder) => (
             <div
-              key={folder.id}
+              key={String(folder.id) || folder.name} 
               className={styles.folderItem}
               onClick={() => setSelectedFolder(folder.name)}
               onDoubleClick={() => handleFolderClick(folder)}
             >
               <img
-                src={folderIcons[folder.color]}
-                alt={`${folder.color} folder`}
+                src={folderIcons[folder.color || "blue"]}
+                alt={`${folder.color || "blue"} folder`}
                 className={styles.folderIcon}
               />
               <p className={styles.folderName}>{folder.name}</p>
@@ -346,11 +354,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         {contextMenuPos && (
           <div
             className={styles.contextMenu}
-            style={{
-              top: contextMenuPos.y,
-              left: contextMenuPos.x,
-              position: "absolute",
-            }}
+            style={{ top: contextMenuPos.y, left: contextMenuPos.x, position: "absolute" }}
           >
             <div onClick={handleAddFolder} className={styles.contextMenuItem}>
               폴더 추가

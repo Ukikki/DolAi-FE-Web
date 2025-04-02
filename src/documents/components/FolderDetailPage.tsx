@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { NavigateFunction, useParams } from "react-router-dom";
-import { Home, Video, FileText, Search, ChevronLeft, ChevronRight } from "lucide-react";//search 나중에 추가
+import { Home, Video, FileText, Search, ChevronLeft, ChevronRight, LogOut } from "lucide-react";//search 나중에 추가
 import styles from "../styles/documents.module.scss";       // documents.module.scss
+import { handleSocialLogout } from "../../utils/logout";
 
 interface FolderDetailProps {
   selected: string;
@@ -43,27 +44,29 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
     <div className="container">
       {/* 첫 번째 줄: 상단바 */}
       <header className="navbar">
-        <img src="../images/main_logo.png" alt="DolAi Logo" />
-        <nav className="navbar-icons">
-          <div
-            className={`icon-container ${selected === "home" ? "selected" : ""}`}
-            onClick={() => navigate("/")}
-          >
-            <Home size={33} style={{ cursor: "pointer" }} />
+        <div className="navbar-left">
+          <img src="../images/main_logo.png" alt="DolAi Logo" />
+        </div>
+
+        <div className="navbar-center">
+          <nav className="navbar-icons">
+            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+              <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+              <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+              <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+          </nav>
+        </div>
+
+        <div className="navbar-right">
+          <div className="icon-logout" onClick={handleSocialLogout}>
+            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
           </div>
-          <div
-            className={`icon-container ${selected === "video" ? "selected" : ""}`}
-            onClick={() => navigate("/meetings")}
-          >
-            <Video size={33} style={{ cursor: "pointer" }} />
-          </div>
-          <div
-            className={`icon-container ${selected === "document" ? "selected" : ""}`}
-            onClick={() => navigate("/documents")}
-          >
-            <FileText size={33} style={{ cursor: "pointer" }} />
-          </div>
-        </nav>
+        </div>
       </header>
 
     {/* 두 번째 줄: 화살표(뒤로, 앞으로) + 폴더 아이콘 + 경로 + 검색창 */}

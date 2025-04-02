@@ -1,8 +1,9 @@
 import { Card } from "../components/Card";
 import { ToDoList, useTodoList } from "../components/ToDo";
 import Calendar from "../components/MyCalendar";
-import { Home, Video, FileText } from "lucide-react";
+import { Home, Video, FileText, LogOut } from "lucide-react";
 import { redirectToSocialAuth } from '../services/authService';
+import { handleSocialLogout } from "../utils/logout";
 
 interface DashboardProps {
   selected: String;
@@ -30,23 +31,29 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
     <div className="container">
       {/* 상단 네비게이션 */}
       <header className="navbar">
-        <img src="../images/main_logo.png" alt="DolAi Logo" />
-        <nav className="navbar-icons">
-          <div className={`icon-container ${selected === "home" ? "selected" : ""}`}
-            onClick={() => navigate("/")}>
-          <Home style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
-          </div>
+        <div className="navbar-left">
+          <img src="../images/main_logo.png" alt="DolAi Logo" />
+        </div>
 
-          <div className={`icon-container ${selected === "video" ? "selected" : ""}`}
-            onClick={() => navigate("/meetings")}>
-          <Video style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
-          </div>
+        <div className="navbar-center">
+          <nav className="navbar-icons">
+            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+              <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+              <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+              <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+          </nav>
+        </div>
 
-          <div className={`icon-container ${selected === "document" ? "selected" : ""}`}
-            onClick={() => navigate("/documents")}>
-            <FileText style={{ width: "1.71875vw", height: "1.71875vw", cursor: "pointer" }} />
+        <div className="navbar-right">
+          <div className="icon-logout" onClick={handleSocialLogout}>
+            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="main">

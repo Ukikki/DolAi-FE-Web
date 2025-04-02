@@ -1,3 +1,17 @@
+.meet-navbar {
+  height: 5%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.meet-navbar img {
+  width: 5.05vw;
+  position: absolute;
+  padding-bottom: 4px;
+  left: 34px; /* 로고를 왼쪽으로 고정 */
+}
 .meet-navbar-icons {
   display: flex;
   justify-content: center;

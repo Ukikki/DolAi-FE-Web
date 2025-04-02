@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Home, Video, FileText } from "lucide-react";
+import { Home, Video, FileText, LogOut } from "lucide-react";
 import styles from "../styles/documents.module.scss";
+import { handleSocialLogout } from "../utils/logout";
 
 interface DocumentsProps {
   selected: string;
@@ -45,32 +46,30 @@ export default function Documents({ selected, navigate }: DocumentsProps) {
   return (
     <div className={styles.documentsContainer}>
       {/* 상단 네비게이션 */}
-      <header className={styles.navbar}>
-        <img src="/images/main_logo.png" alt="DolAi Logo" className={styles.logo} />
-        <nav className={styles["navbar-icons"]}>
-          <div
-            className={`icon-container ${selected === "home" ? "selected" : ""}`}
-            onClick={() => navigate("/")}
-          >
-            <Home size={33} style={{ cursor: "pointer" }} />
+      <header className="navbar">
+        <div className="navbar-left">
+          <img src="../images/main_logo.png" alt="DolAi Logo" />
+        </div>
+
+        <div className="navbar-center">
+          <nav className="navbar-icons">
+            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+              <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+              <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+              <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
+            </div>
+          </nav>
+        </div>
+
+        <div className="navbar-right">
+          <div className="icon-logout" onClick={handleSocialLogout}>
+            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
           </div>
-          <div
-            className={`icon-container ${selected === "video" ? "selected" : ""}`}
-            onClick={() => navigate("/meetings")}
-          >
-            <Video size={33} style={{ cursor: "pointer" }} />
-          </div>
-          <div
-            className={`icon-container ${selected === "document" ? "selected" : ""}`}
-            onClick={() => {
-              if (selected !== "document") {
-                navigate("/documents");
-              }
-            }}
-          >
-            <FileText size={33} style={{ cursor: "pointer" }} />
-          </div>
-        </nav>
+        </div>
       </header>
 
       {/* 메인 컨텐츠 영역 */}

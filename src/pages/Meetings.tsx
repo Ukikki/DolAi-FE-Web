@@ -58,7 +58,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
   return (
     <div className="container">
     {/* 상단 네비게이션 */}
-    <header className= "navbar">
+    <header className= "meet-navbar">
       <img src="../images/main_logo.png" alt="DolAi Logo" />
       <nav className="meet-navbar-icons">
         <div className="meet-icon-container" onClick={() => setIsCameraOn(!isCameraOn)}>

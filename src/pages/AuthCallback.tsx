@@ -20,13 +20,15 @@ const handleSocialLogin = async (provider: 'kakao' | 'google') => {
       provider,  // 'kakao' 또는 'google'
       code,      // 소셜 인증 코드
     }, {
-  withCredentials: true, // 이거 필요할 수도 있어
-});
+    withCredentials: true, // 이거 필요할 수도 있어
+  });
 
-    const jwt = response.data.data.accessToken;
-    localStorage.setItem('jwt', jwt);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
-    console.log('로그인 성공!', jwt);
+  const jwt = response.data.data.tokens.accessToken;
+  const refreshToken = response.data.data.tokens.refreshToken;
+  localStorage.setItem('jwt', jwt);
+  localStorage.setItem('refreshToken', refreshToken);
+  axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+  console.log('로그인 성공!', jwt);
   } catch (error) {
     console.error('소셜 로그인 에러:', error);
   }
