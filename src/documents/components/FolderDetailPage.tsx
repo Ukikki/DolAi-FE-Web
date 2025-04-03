@@ -40,6 +40,8 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
   // 선택된 파일 상태
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
 
+  
+
   return (
     <div className="container">
       {/* 첫 번째 줄: 상단바 */}
@@ -158,28 +160,13 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
 
           <div className={styles.documentOptions}>
             <button className={styles.optionBtn}>
-              <img 
-                src="/images/File.png" 
-                alt="PDF 변환" 
-                className={styles.optionIcon} 
-              />
-              PDF 변환
+              <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
             </button>
-            <button className={styles.optionBtn}>
-              <img 
-                src="/images/delete.png" 
-                alt="삭제" 
-                className={styles.optionIcon} 
-              />
-              삭제
+            <button className={styles.optionBtn} >
+              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} />
             </button>
-            <button className={styles.optionBtn}>
-              <img 
-                src="/images/download.png" 
-                alt="공유하기" 
-                className={styles.optionIcon} 
-              />
-              공유하기
+            <button className={styles.optionBtn} >
+              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} />
             </button>
           </div>
         </aside>

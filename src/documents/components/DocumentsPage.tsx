@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { NavigateFunction } from "react-router-dom";
-import { Home, Video, FileText, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import {
+  Home, Video, FileText,
+  ChevronLeft, ChevronRight, LogOut
+} from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
 import { handleSocialLogout } from "../../utils/logout";
@@ -11,16 +14,13 @@ interface DocumentsProps {
 }
 
 interface Folder {
-  // 백엔드에서 반환하는 폴더 데이터 구조에 맞게 id, name, parentDirectoryId, type 등 사용
-  id: Int16Array;
+  id: number; 
   name: string;
   parentDirectoryId: string | null;
   type: "PERSONAL" | "SHARED";
-  // UI에서 폴더 아이콘을 사용하기 위한 색상 (백엔드에서 제공하지 않는 경우 기본값으로 설정)
   color?: string;
 }
 
-// 초기 폴더 목록: localStorage에 저장된 데이터가 없으면 빈 배열 사용
 const initialFolders: Folder[] = [];
 
 const folderIcons: Record<string, string> = {
@@ -33,76 +33,68 @@ const folderIcons: Record<string, string> = {
 };
 
 export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
-  // localStorage에서 폴더 목록 불러오기 (없으면 initialFolders 사용)
   const [folderList, setFolderList] = useState<Folder[]>(() => {
     const stored = localStorage.getItem("folderList");
     return stored ? JSON.parse(stored) : initialFolders;
   });
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+
+  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  // 빈 영역 우클릭(폴더 추가)용 컨텍스트 메뉴 좌표
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
-
-  // 정렬 상태
   const [sortKey, setSortKey] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
-
-  // 모달(팝업) 관련: 폴더 추가
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
-  const selectedFolderObj = folderList.find((f) => f.name === selectedFolder);
+  const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
 
-  // folderList 상태가 변경되면 localStorage에 저장
   useEffect(() => {
     localStorage.setItem("folderList", JSON.stringify(folderList));
   }, [folderList]);
 
-  // 백엔드에서 폴더(디렉토리) 데이터를 가져오는 useEffect
   useEffect(() => {
-    // 최상위 디렉토리(부모 디렉토리가 없을 경우) 데이터를 가져오기 위해 parentDirectoryId를 전달하지 않음
     fetch("/directories")
       .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
       })
       .then((data) => {
-        // 백엔드가 SuccessDataResponse 형식으로 응답한다고 가정(실제 응답에 맞게 수정)
-        const directories = data.data;
-        setFolderList(directories);
+        console.log("불러온 디렉터리 데이터:", data);
+  
+        const folders = data.data.map((item: any) => ({
+          id: item.directoryId, // ✅ 여기서 id를 매핑!
+          name: item.name,
+          parentDirectoryId: item.parentDirectoryId ?? null,
+          type: "PERSONAL", // 필요 시 SHARED 조건 분기도 가능
+          color: "blue", // 기본 색상
+        }));
+  
+        setFolderList(folders);
       })
       .catch((error) => {
-        console.error("폴더를 불러오는데 실패했습니다:", error);
+        console.error("폴더 불러오기 실패:", error);
       });
   }, []);
 
-  // 빈 영역 우클릭 시: 폴더 추가 메뉴 표시
   const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setContextMenuPos({ x: e.clientX, y: e.clientY });
   };
 
-  // 빈 영역 우클릭 메뉴에서 "폴더 추가" 클릭 시 모달 표시
   const handleAddFolder = () => {
     setShowAddFolderModal(true);
     setContextMenuPos(null);
   };
 
-  // 모달에서 "추가" 버튼 클릭 시 새 폴더 생성 후 백엔드에 저장
   const handleConfirmAddFolder = () => {
     if (newFolderName.trim() !== "") {
-      // 새 폴더 데이터를 객체로 생성 (필요한 다른 필드도 추가 가능)
       const newFolderData = {
         name: newFolderName.trim(),
-        parentDirectoryId: null, // 최상위 디렉토리인 경우 null
-        type: "PERSONAL",        // 공유 폴더일 경우 "SHARED"로 변경
+        parentDirectoryId: null,
+        type: "PERSONAL",
         meetingId: null,
       };
-  
-      // POST 요청을 통해 백엔드의 /directories 엔드포인트에 새 폴더 정보를 전송
+
       fetch("/directories", {
         method: "POST",
         headers: {
@@ -112,64 +104,117 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         body: JSON.stringify(newFolderData),
       })
         .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           return res.json();
         })
         .then((data) => {
-          // 백엔드에서 새로 생성한 폴더 정보를 응답으로 보낸다고 가정합니다.
-          // 응답 구조에 따라 data 또는 data.data 를 사용해야 할 수 있습니다.
           const createdFolder: Folder = {
-            ...data.data,       // 예를 들어, 응답이 { data: { ... } } 형식인 경우
-            color: "blue",      // UI에서 사용할 기본 색상 지정 (필요에 따라 변경)
+            ...data.data,
+            color: "blue",
           };
-          // 상태 업데이트: 기존 폴더 목록에 새 폴더 추가
           setFolderList([...folderList, createdFolder]);
         })
         .catch((error) => {
           console.error("폴더 추가 실패:", error);
         });
     }
-    // 모달 닫기 및 입력값 초기화
     setShowAddFolderModal(false);
     setNewFolderName("");
   };
-  
 
-  // SortMenu에서 정렬 값 변경 시 호출
   function handleSortChange(newSortKey: string, newSortOrder: string) {
     setSortKey(newSortKey);
     setSortOrder(newSortOrder);
   }
 
-  // 사이드바의 "폴더 삭제" 버튼 클릭 시, 선택된 폴더 삭제
   function handleDeleteFolder() {
-    if (!selectedFolderObj) return;
-    if (window.confirm(`정말 ${selectedFolderObj.name} 폴더를 삭제하시겠습니까?`)) {
-      const updatedFolders = folderList.filter((f) => f.id !== selectedFolderObj.id);
-      setFolderList(updatedFolders);
-      setSelectedFolder(null);
+    if (!selectedFolderObj) {
+      alert("삭제할 폴더가 선택되지 않았습니다.");
+      return;
+    }
+
+    if (
+      window.confirm(
+        `정말 ${selectedFolderObj.name} 디렉터리를 삭제하시겠습니까? 해당 디렉터리 안의 모든 문서도 함께 삭제됩니다.`
+      )
+    ) {
+      console.log("삭제 요청 ID:", selectedFolderObj.id);
+
+      fetch(`/directories/${selectedFolderObj.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          alert(data.message);
+          const updatedFolders = folderList.filter((f) => f.id !== selectedFolderObj.id);
+          setFolderList(updatedFolders);
+          setSelectedFolderId(null);
+        })
+        .catch((error) => {
+          console.error("폴더 삭제 실패:", error);
+          alert("폴더 삭제에 실패했습니다. 다시 시도해주세요.");
+        });
     }
   }
 
-  // 폴더 색상 변경 (예시)
   function handleColorChange(newColor: string) {
-    if (!selectedFolderObj) return;
-    // 선택한 폴더의 color 값을 업데이트하는 로직 추가 (백엔드와 연동 시 별도 API 호출 필요)
+    if (!selectedFolderObj) {
+      alert("폴더가 선택되지 않았습니다.");
+      return;
+    }
+  
+    // 1. UI에 먼저 반영 (Optimistic UI)
     const updatedFolders = folderList.map((folder) =>
       folder.id === selectedFolderObj.id ? { ...folder, color: newColor } : folder
     );
     setFolderList(updatedFolders);
+  
+    // 2. 서버에 PATCH 요청
+    fetch(`/directories/${selectedFolderObj.id}/color`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({ color: newColor }), // 서버는 { color: "blue" } 와 같은 JSON 수신
+    })
+      .then((res) => {
+        if (!res.ok) {
+          // 서버에서 500 에러 등 반환할 경우 catch로 넘김
+          return res.json().then((err) => {
+            throw new Error(err.message || `색상 변경 실패: ${res.status}`);
+          });
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("색상 변경 성공:", data.message);
+      })
+      .catch((err) => {
+        console.error("색상 변경 중 오류:", err.message);
+        alert("색상 변경에 실패했습니다.\n" + err.message);
+  
+        // 실패 시 UI 롤백 (선택 사항)
+        const rolledBack = folderList.map((folder) =>
+          folder.id === selectedFolderObj.id ? { ...folder, color: selectedFolderObj.color || "blue" } : folder
+        );
+        setFolderList(rolledBack);
+      });
   }
+  
 
-  // 폴더 선택 및 이동
   function handleFolderClick(folder: Folder) {
-    setSelectedFolder(folder.name);
+    setSelectedFolderId(folder.id);
     navigate(`/folder/${encodeURIComponent(folder.name)}`);
   }
 
-  // 다운로드: 선택된 폴더(빈 폴더)를 ZIP 파일로 다운로드
   function handleDownloadFolder() {
     if (!selectedFolderObj) {
       alert("다운받을 폴더가 선택되지 않았습니다.");
@@ -191,23 +236,17 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     link.click();
   }
 
-  // 검색어 필터링 및 정렬 처리
   const filteredFolders = folderList.filter(
     (folder) => folder.name && folder.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
   const sortedFolders = filteredFolders.slice().sort((a, b) => {
     let compare = a.name.localeCompare(b.name);
     return sortOrder === "asc" ? compare : -compare;
   });
 
   return (
-    <div
-      className="container"
-      onClick={() => {
-        setContextMenuPos(null);
-      }}
-    >
+    <div className="container" onClick={() => setContextMenuPos(null)}>
       <header className="navbar">
         <div className="navbar-left">
           <img src="../images/main_logo.png" alt="DolAi Logo" />
@@ -236,29 +275,13 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
       <div className={styles.navbarSecondRow}>
         <div className={styles.leftSection}>
-          <ChevronLeft
-            size={24}
-            className={styles.arrowIcon}
-            onClick={() => navigate(-1)}
-          />
-          <ChevronRight
-            size={24}
-            className={styles.arrowIcon}
-            onClick={() => navigate(1)}
-          />
-          <img
-            src="/images/bluefolder.png"
-            alt="Docs folder"
-            className={styles.docsFolderIcon}
-          />
-          <span className={styles.pathText}>Docs &gt; </span>
+          <ChevronLeft size={24} className={styles.arrowIcon} onClick={() => navigate(-1)} />
+          <ChevronRight size={24} className={styles.arrowIcon} onClick={() => navigate(1)} />
+          <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
+          <span className={styles.pathText}>Docs &gt;</span>
         </div>
         <div className={styles.rightSection}>
-          <SortMenu
-            sortKey={sortKey}
-            sortOrder={sortOrder}
-            onSortChange={handleSortChange}
-          />
+          <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
           <input
             type="text"
             placeholder="문서 검색"
@@ -279,9 +302,6 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                 className={styles.selectedFolderIcon}
               />
               <h2 className={styles.folderTitle}>{selectedFolderObj.name}</h2>
-              <div className={styles.sidebarButtons}>
-                {/* 추가 버튼 구현 가능 */}
-              </div>
             </div>
           ) : (
             <h2 className={styles.folderTitle}>문서 선택</h2>
@@ -308,17 +328,20 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
               <span className={styles.value}>2024년 2월 8일 16:10</span>
             </div>
           </div>
+
           <div className={styles.info}>
             <h5>색상</h5>
             <div className={styles.colorOptions}>
-              <div className={styles.redCircle} onClick={() => handleColorChange("red")} />
-              <div className={styles.yellowCircle} onClick={() => handleColorChange("yellow")} />
-              <div className={styles.greenCircle} onClick={() => handleColorChange("green")} />
-              <div className={styles.blueCircle} onClick={() => handleColorChange("blue")} />
-              <div className={styles.purpleCircle} onClick={() => handleColorChange("purple")} />
-              <div className={styles.pinkCircle} onClick={() => handleColorChange("pink")} />
+              {Object.keys(folderIcons).map((color) => (
+                <div
+                  key={color}
+                  className={styles[`${color}Circle`]}
+                  onClick={() => handleColorChange(color)}
+                />
+              ))}
             </div>
           </div>
+
           <div className={styles.documentOptions}>
             <button className={styles.optionBtn}>
               <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
@@ -335,9 +358,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         <section className={styles.folderGrid} onContextMenu={handleContextMenu}>
           {sortedFolders.map((folder) => (
             <div
-              key={String(folder.id) || folder.name} 
+              key={folder.id}
               className={styles.folderItem}
-              onClick={() => setSelectedFolder(folder.name)}
+              onClick={() => {
+                console.log("클릭된 폴더 ID:", folder.id);
+                setSelectedFolderId(folder.id);
+              }}
               onDoubleClick={() => handleFolderClick(folder)}
             >
               <img
@@ -350,7 +376,6 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           ))}
         </section>
 
-        {/* 빈 영역 우클릭 시 "폴더 추가" 컨텍스트 메뉴 */}
         {contextMenuPos && (
           <div
             className={styles.contextMenu}
@@ -373,12 +398,10 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                 placeholder="폴더 이름을 입력하세요"
               />
               <div className={styles.modalButtons}>
-                <button
-                  onClick={() => {
-                    setShowAddFolderModal(false);
-                    setNewFolderName("");
-                  }}
-                >
+                <button onClick={() => {
+                  setShowAddFolderModal(false);
+                  setNewFolderName("");
+                }}>
                   취소
                 </button>
                 <button onClick={handleConfirmAddFolder}>추가</button>

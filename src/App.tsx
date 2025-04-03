@@ -8,7 +8,7 @@ import DocumentsPage from "./documents/components/DocumentsPage";
 import FolderDetailPage from "./documents/components/FolderDetailPage"; // 폴더 상세 페이지
 import AuthCallback from "./pages/AuthCallback";
 // import BackOffice from "./pages/BackOffice";
-import GraphView from "./components/GraphView";
+//import GraphView from "./components/GraphView";
 
 import "./App.css";
 
