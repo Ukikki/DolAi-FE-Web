@@ -1,0 +1,174 @@
+/* 양쪽 영역 */
+.set-sides-section {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 20px;
+  border: solid 1px #B2B2B2;
+  padding-left: 2.6vw;
+}
+/* 중간 영역 */
+.set-middle-section {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 20px;
+  border: solid 1px #B2B2B2;
+  padding-left: 2.6vw;
+}
+/* 헤더글 */
+.set-pHeader {
+  font-family: "Jamsil_B";
+  color:black;
+  font-size: 1.6vw;
+  margin-top: 5.3vh;
+}
+
+/* 프로필 */
+.set-user-profile {
+  margin-left: 5.1vw;
+  margin-top: 3vh;
+}
+.set-user-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4.2vw;
+  margin-left: 1vw;
+  margin-top: 3.8vh;
+}
+.set-user-name {
+  font-family: "Jamsil_M";
+  color:black;
+  font-size: 1.4vw;
+}
+.set-userEdit-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.set-user-email {
+  font-family: "Jamsil_R";
+  color:#6D6D6D;
+  font-size: 1vw;
+  margin-left: 1vw;
+  margin-top: 1.6vh;
+}
+/* 연필 클릭 모달 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4); /* 반투명 배경 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* 알림 */
+.set-nHeader {
+  font-family: "Jamsil_B";
+  color:black;
+  font-size: 1.6vw;
+  margin-top: 7.8vh;
+}
+.toggle-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2vh 1vw;
+  font-size: 1vw;
+}
+.toggle-label {
+  font-family: "Jamsil_R";
+  color: black;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 3.6vw;
+  height: 1.6vw;
+  margin-right: 2.6vw;
+}
+/* 토글 바 */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #E6E6E6;
+  transition: 0.5s;
+  border-radius: 1vw;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: "Jamsil_R";
+  font-size: 0.7vw;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.4vw;    
+  width: 1.4vw;
+  top: 50%;
+  left: 0.2vw;
+  background-color: white;
+  transform: translateY(-50%);
+  transition: 0.2s;
+  border-radius: 50%;
+  z-index: 1;
+}
+input:checked + .slider {
+  background-color: #4c6ef5;
+  justify-content: flex-end;
+  color: white;
+}
+input:checked + .slider:before {
+  transform: translate(1.8vw, -50%);
+}
+/* 로그아웃 버튼 */
+.logout-button {
+  margin-bottom: 1vw;
+  font-size: 1vw;
+  color: #F87171;
+  text-align: center;
+  font-family: "Jamsil_R";
+  cursor: pointer;
+  padding-right: 2.6vw;
+}
+
+/* 친구 */
+.search-friends-wrapper {
+  display: flex;
+  align-items: center;
+  background: #F2F5F7;
+  width: 32.7vw;
+  height: 2.6vw;
+  border-radius: 20px;
+  font-family: "Jamsil_R";
+  color: #757575;
+  margin-top: 1.6vw;
+}
+.set-friend-search-icon {
+  width: 1.1vw;
+  height: 1.1vw;
+  color: #757575;
+  cursor: pointer;
+  padding-left: 0.9vw;
+}
+
+/* 알림 */

@@ -38,6 +38,13 @@ html, body {
 
 /* 폰트 적용 */
 @font-face {
+  font-family: "Jamsil_L";
+  src: url("/fonts/Jamsil_Light.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "Jamsil_R";
   src: url("/fonts/Jamsil_Regular.ttf") format("truetype");
   font-weight: normal;
@@ -47,6 +54,12 @@ html, body {
 @font-face {
   font-family: "Jamsil_M";
   src: url("/fonts/Jamsil_Medium.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Jamsil_B";
+  src: url("/fonts/Jamsil_Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
