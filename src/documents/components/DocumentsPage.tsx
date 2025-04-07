@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { NavigateFunction } from "react-router-dom";
 import {
   Home, Video, FileText,
-  ChevronLeft, ChevronRight, LogOut
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
-import { handleSocialLogout } from "../../utils/logout";
+import { useUser } from "../../hooks/useUser";
+import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
 
 interface DocumentsProps {
   selected: string;
@@ -47,6 +48,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   const [newFolderName, setNewFolderName] = useState("");
 
   const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
+  const { user } = useUser(); // 로그인 상태 함수
 
   useEffect(() => {
     localStorage.setItem("folderList", JSON.stringify(folderList));
@@ -267,10 +269,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         </div>
 
         <div className="navbar-right">
-          <div className="icon-logout" onClick={handleSocialLogout}>
-            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
-          </div>
-        </div>
+        <div className="user-profile">
+        {user?.profile_image ? (
+            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
+            ): (
+          <div style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "default"}} />
+        )}</div></div>
       </header>
 
       <div className={styles.navbarSecondRow}>

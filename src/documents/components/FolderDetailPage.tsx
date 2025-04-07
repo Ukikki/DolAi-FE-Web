@@ -2,7 +2,8 @@ import { useState } from "react";
 import { NavigateFunction, useParams } from "react-router-dom";
 import { Home, Video, FileText, Search, ChevronLeft, ChevronRight, LogOut } from "lucide-react";//search 나중에 추가
 import styles from "../styles/documents.module.scss";       // documents.module.scss
-import { handleSocialLogout } from "../../utils/logout";
+import { useUser } from "../../hooks/useUser";
+import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
 
 interface FolderDetailProps {
   selected: string;
@@ -39,7 +40,7 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
 
   // 선택된 파일 상태
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
-
+  const { user } = useUser(); // 로그인 상태 함수
   
 
   return (
@@ -65,10 +66,12 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
         </div>
 
         <div className="navbar-right">
-          <div className="icon-logout" onClick={handleSocialLogout}>
-            <LogOut style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
-          </div>
-        </div>
+        <div className="user-profile">
+        {user?.profile_image ? (
+            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
+            ): (
+          <div style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "default"}} />
+        )}</div></div>
       </header>
 
     {/* 두 번째 줄: 화살표(뒤로, 앞으로) + 폴더 아이콘 + 경로 + 검색창 */}
