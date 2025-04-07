@@ -14,7 +14,7 @@ export const redirectToSocialAuth = (provider: 'kakao' | 'google'): void => {
   if (provider === 'kakao') {
     authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${encodeURIComponent(kakaoRedirectUri)}&response_type=code`;
   } else if (provider === 'google') {
-    authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=openid%20email%20profile&access_type=offline`;
+    authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${googleClientId}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=select_account`;
   }
 
   window.location.href = authUrl;

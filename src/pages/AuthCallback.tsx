@@ -20,7 +20,7 @@ const handleSocialLogin = async (provider: 'kakao' | 'google') => {
       provider,  // 'kakao' 또는 'google'
       code,      // 소셜 인증 코드
     }, {
-    withCredentials: true, // 이거 필요할 수도 있어
+    withCredentials: true, 
   });
 
   const jwt = response.data.data.tokens.accessToken;
