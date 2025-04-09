@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavigateFunction } from "react-router-dom";
 import { Card } from "../components/Card";
 import { ToDoList, useTodoList } from "../components/ToDo";
 import Calendar from "../components/MyCalendar";
@@ -7,12 +8,12 @@ import { Home, Video, FileText } from "lucide-react";
 import { redirectToSocialAuth } from '../services/authService';
 import { useUser } from "../hooks/useUser";
 import { useCreateMeeting } from "../hooks/useCreateMeeting"; 
-import CreateMeetingModal from "../components/CreateMeetingModal";
+import CreateMeetingModal from "../components/modal/CreateMeeting";
 import { getProfileImageUrl } from "../utils/getProfileImageUrl";
 
 interface DashboardProps {
   selected: String;
-  navigate: (path: string) => void;
+  navigate: NavigateFunction;
 }
 
 // 예시
@@ -39,7 +40,7 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
     try {
       await createMeeting({ title, startTime });
       setShowModal(false);
-      navigate("/meetings");
+      navigate("/meetings", { state: { showInvite: true } });
     } catch (e) {
       alert("회의 생성에 실패했어요!");
     }

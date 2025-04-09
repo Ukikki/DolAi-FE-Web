@@ -4,6 +4,7 @@ import { useState } from "react";
 
 interface FriendInviteProps {
   isVisible: boolean;
+  onClose?: () => void;
 }
 
 export default function FriendInvite({ isVisible }: FriendInviteProps) {
