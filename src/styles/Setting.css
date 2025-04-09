@@ -170,5 +170,165 @@ input:checked + .slider:before {
   cursor: pointer;
   padding-left: 0.9vw;
 }
+.friend-requests-list {
+  margin-top: 2vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;
+}
+
+.friend-request-item {
+  display: flex;
+  align-items: center;
+  padding: 1vh 1vw;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.friend-request-profile {
+  width: 3vw;
+  height: 3vw;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1vw;
+}
+
+.friend-request-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.friend-request-name {
+  font-family: "Jamsil_B";
+  font-size: 1vw;
+  color: #333;
+}
+
+.friend-request-email {
+  font-family: "Jamsil_R";
+  font-size: 0.9vw;
+  color: #757575;
+}
+
+.friend-request-actions {
+  display: flex;
+  gap: 0.5vw;
+}
+
+.accept-btn,
+.reject-btn {
+  padding: 0.5vh 1vw;
+  font-size: 0.9vw;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.accept-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+.friend-add-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2vh;
+}
+
+.friend-add-input {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.5vh 1vw;
+  font-size: 1vw;
+}
+
+.friend-add-btn {
+  background-color: #4c6ef5;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5vh 1vw;
+  font-size: 1vw;
+  cursor: pointer;
+}
+.friends-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2vh;
+}
+
+.friends-actions {
+  display: flex;
+  gap: 0.5vw;
+}
+
+.friend-action-btn {
+  font-size: 0.9vw;
+  padding: 0.4vw 1vw;
+  border-radius: 6px;
+  border: none;
+  background-color: #4c6ef5;
+  color: white;
+  cursor: pointer;
+}
+
+.friend-action-btn.gray {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.friend-list-box {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.5vh;
+  gap: 1vh;
+}
+
+.friend-list-item {
+  display: flex;
+  align-items: center;
+  padding: 0.8vh 1vw;
+  border-bottom: 1px solid #ddd;
+}
+
+.friend-avatar {
+  width: 2.5vw;
+  height: 2.5vw;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1vw;
+}
+
+.friend-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.friend-name {
+  font-family: "Jamsil_B";
+  font-size: 1vw;
+}
+
+.friend-email {
+  font-family: "Jamsil_R";
+  font-size: 0.9vw;
+  color: #757575;
+}
+
+.friend-remove {
+  color: #aaa;
+  font-size: 1.3vw;
+  cursor: pointer;
+  padding: 0 0.5vw;
+}
 
 /* 알림 */

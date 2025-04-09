@@ -17,7 +17,7 @@ interface DocumentsProps {
 }
 
 interface Folder {
-  id: number; 
+  id: number;
   name: string;
   parentDirectoryId: string | null;
   type: "PERSONAL" | "SHARED";
@@ -36,18 +36,22 @@ const folderIcons: Record<string, string> = {
 };
 
 export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
+  // 폴더 리스트 및 관련 상태
   const [folderList, setFolderList] = useState<Folder[]>(() => {
     const stored = localStorage.getItem("folderList");
     return stored ? JSON.parse(stored) : initialFolders;
   });
-
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [sortKey, setSortKey] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+
+  // 모달 관련 상태
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [renameInput, setRenameInput] = useState("");
 
   const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
   const { user } = useUser(); // 로그인 상태 함수
@@ -64,10 +68,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     }
   };
 
+  // 폴더 리스트를 localStorage에 저장
   useEffect(() => {
     localStorage.setItem("folderList", JSON.stringify(folderList));
   }, [folderList]);
 
+  // 서버에서 폴더 데이터 불러오기
   useEffect(() => {
     fetch("/directories")
       .then((res) => {
@@ -76,15 +82,13 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
       })
       .then((data) => {
         console.log("불러온 디렉터리 데이터:", data);
-  
         const folders = data.data.map((item: any) => ({
-          id: item.directoryId, // ✅ 여기서 id를 매핑!
+          id: item.directoryId, // id 매핑
           name: item.name,
           parentDirectoryId: item.parentDirectoryId ?? null,
-          type: "PERSONAL", // 필요 시 SHARED 조건 분기도 가능
+          type: "PERSONAL",
           color: "blue", // 기본 색상
         }));
-  
         setFolderList(folders);
       })
       .catch((error) => {
@@ -92,16 +96,19 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
       });
   }, []);
 
+  // 컨텍스트 메뉴 핸들러 (화면 어딘가 클릭 시 메뉴 숨김)
   const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setContextMenuPos({ x: e.clientX, y: e.clientY });
   };
 
+  // 폴더 추가 모달 열기
   const handleAddFolder = () => {
     setShowAddFolderModal(true);
     setContextMenuPos(null);
   };
 
+  // 폴더 추가 확인
   const handleConfirmAddFolder = () => {
     if (newFolderName.trim() !== "") {
       const newFolderData = {
@@ -138,24 +145,20 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     setNewFolderName("");
   };
 
+  // 정렬 상태 변경
   function handleSortChange(newSortKey: string, newSortOrder: string) {
     setSortKey(newSortKey);
     setSortOrder(newSortOrder);
   }
 
+  // 폴더 삭제
   function handleDeleteFolder() {
     if (!selectedFolderObj) {
       alert("삭제할 폴더가 선택되지 않았습니다.");
       return;
     }
-
-    if (
-      window.confirm(
-        `정말 ${selectedFolderObj.name} 디렉터리를 삭제하시겠습니까? 해당 디렉터리 안의 모든 문서도 함께 삭제됩니다.`
-      )
-    ) {
+    if (window.confirm(`정말 ${selectedFolderObj.name} 디렉터리를 삭제하시겠습니까? 해당 디렉터리 안의 모든 문서도 함께 삭제됩니다.`)) {
       console.log("삭제 요청 ID:", selectedFolderObj.id);
-
       fetch(`/directories/${selectedFolderObj.id}`, {
         method: "DELETE",
         headers: {
@@ -180,30 +183,26 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     }
   }
 
+  // 폴더 색상 변경
   function handleColorChange(newColor: string) {
     if (!selectedFolderObj) {
       alert("폴더가 선택되지 않았습니다.");
       return;
     }
-  
-    // 1. UI에 먼저 반영 (Optimistic UI)
     const updatedFolders = folderList.map((folder) =>
       folder.id === selectedFolderObj.id ? { ...folder, color: newColor } : folder
     );
     setFolderList(updatedFolders);
-  
-    // 2. 서버에 PATCH 요청
     fetch(`/directories/${selectedFolderObj.id}/color`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
       },
-      body: JSON.stringify({ color: newColor }), // 서버는 { color: "blue" } 와 같은 JSON 수신
+      body: JSON.stringify({ color: newColor }),
     })
       .then((res) => {
         if (!res.ok) {
-          // 서버에서 500 에러 등 반환할 경우 catch로 넘김
           return res.json().then((err) => {
             throw new Error(err.message || `색상 변경 실패: ${res.status}`);
           });
@@ -216,21 +215,48 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
       .catch((err) => {
         console.error("색상 변경 중 오류:", err.message);
         alert("색상 변경에 실패했습니다.\n" + err.message);
-  
-        // 실패 시 UI 롤백 (선택 사항)
         const rolledBack = folderList.map((folder) =>
           folder.id === selectedFolderObj.id ? { ...folder, color: selectedFolderObj.color || "blue" } : folder
         );
         setFolderList(rolledBack);
       });
   }
-  
 
+  // 폴더 이름 변경
+  function handleRenameFolder(newName: string) {
+    if (!selectedFolderObj) return;
+    fetch(`/directories/${selectedFolderObj.id}/name`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({ name: newName }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("이름 변경 실패");
+        return res.json();
+      })
+      .then((data) => {
+        alert("이름이 변경되었습니다!");
+        const updatedFolders = folderList.map((folder) =>
+          folder.id === selectedFolderObj.id ? { ...folder, name: newName } : folder
+        );
+        setFolderList(updatedFolders);
+      })
+      .catch((err) => {
+        console.error("이름 변경 중 오류:", err);
+        alert("이름 변경에 실패했습니다.");
+      });
+  }
+
+  // 폴더 더블클릭 시 해당 폴더로 이동
   function handleFolderClick(folder: Folder) {
     setSelectedFolderId(folder.id);
     navigate(`/folder/${encodeURIComponent(folder.name)}`);
   }
 
+  // 폴더 다운로드 (빈 zip 파일)
   function handleDownloadFolder() {
     if (!selectedFolderObj) {
       alert("다운받을 폴더가 선택되지 않았습니다.");
@@ -252,10 +278,10 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     link.click();
   }
 
-  const filteredFolders = folderList.filter(
-    (folder) => folder.name && folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // 검색 및 정렬 처리
+  const filteredFolders = folderList.filter((folder) =>
+    folder.name && folder.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const sortedFolders = filteredFolders.slice().sort((a, b) => {
     let compare = a.name.localeCompare(b.name);
     return sortOrder === "asc" ? compare : -compare;
@@ -267,7 +293,6 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         <div className="navbar-left">
           <img src="../images/main_logo.png" alt="DolAi Logo" />
         </div>
-
         <div className="navbar-center">
           <nav className="navbar-icons">
             <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
@@ -283,7 +308,6 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             </div>
           </nav>
         </div>
-
         <div className="navbar-right">
         <div className="user-profile">
         {user?.profile_image ? (
@@ -385,6 +409,11 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                 setSelectedFolderId(folder.id);
               }}
               onDoubleClick={() => handleFolderClick(folder)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setSelectedFolderId(folder.id);
+                setContextMenuPos({ x: e.clientX, y: e.clientY });
+              }}
             >
               <img
                 src={folderIcons[folder.color || "blue"]}
@@ -396,6 +425,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           ))}
         </section>
 
+        {/* 컨텍스트 메뉴: 오른쪽 클릭 시 폴더 추가 및 이름 바꾸기 옵션 제공 */}
         {contextMenuPos && (
           <div
             className={styles.contextMenu}
@@ -404,9 +434,46 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             <div onClick={handleAddFolder} className={styles.contextMenuItem}>
               폴더 추가
             </div>
+            <div
+              onClick={() => {
+                setShowRenameModal(true);
+                setContextMenuPos(null);
+              }}
+              className={styles.contextMenuItem}
+            >
+              이름 바꾸기
+            </div>
           </div>
         )}
 
+        {/* 이름 바꾸기 모달 */}
+        {showRenameModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h2>폴더 이름 바꾸기</h2>
+              <input
+                type="text"
+                value={renameInput}
+                onChange={(e) => setRenameInput(e.target.value)}
+                placeholder="새 이름을 입력하세요"
+              />
+              <div className={styles.modalButtons}>
+                <button onClick={() => setShowRenameModal(false)}>취소</button>
+                <button
+                  onClick={() => {
+                    handleRenameFolder(renameInput);
+                    setShowRenameModal(false);
+                    setRenameInput("");
+                  }}
+                >
+                  변경
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 새 폴더 추가 모달 */}
         {showAddFolderModal && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>
@@ -418,10 +485,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                 placeholder="폴더 이름을 입력하세요"
               />
               <div className={styles.modalButtons}>
-                <button onClick={() => {
-                  setShowAddFolderModal(false);
-                  setNewFolderName("");
-                }}>
+                <button
+                  onClick={() => {
+                    setShowAddFolderModal(false);
+                    setNewFolderName("");
+                  }}
+                >
                   취소
                 </button>
                 <button onClick={handleConfirmAddFolder}>추가</button>

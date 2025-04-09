@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { NavigateFunction, useParams } from "react-router-dom";
-import { Home, Video, FileText, Search, ChevronLeft, ChevronRight, LogOut } from "lucide-react";//search 나중에 추가
-import styles from "../styles/documents.module.scss";       // documents.module.scss
+import {
+  Home,
+  Video,
+  FileText,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
+import styles from "../styles/documents.module.scss";
 import { useUser } from "../../hooks/useUser";
 import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
+import SortMenu from "./SortMenu"; // 정렬 메뉴 컴포넌트 추가
 
 interface FolderDetailProps {
   selected: string;
@@ -14,7 +23,7 @@ interface FolderDetailProps {
 interface FileItem {
   id: number;
   name: string;
-  type: string; // "docx", "pdf", "image", "txt", etc.
+  type: string; // "docx", "pdf", "image", "txt", 등...
 }
 
 /** 파일 형식별 아이콘 경로 매핑 */
@@ -27,7 +36,7 @@ const fileIcons: Record<string, string> = {
 };
 
 export default function FolderDetailPage({ selected, navigate }: FolderDetailProps) {
-  // URL 파라미터로 폴더ID를 가져올 수 있음 (예: useParams), 여기서는 생략
+  // URL 파라미터로 폴더ID를 사용할 수 있음 (예: useParams), 여기서는 생략
   // const { folderId } = useParams<{ folderId: string }>();
 
   // 예시 파일 목록
@@ -41,7 +50,28 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
   // 선택된 파일 상태
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const { user } = useUser(); // 로그인 상태 함수
-  
+
+  // 정렬 및 검색 관련 상태 추가
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  // 정렬 변경 핸들러 (SortMenu에서 호출)
+  function handleSortChange(newSortKey: string, newSortOrder: string) {
+    setSortKey(newSortKey);
+    setSortOrder(newSortOrder);
+  }
+
+  // 검색어에 따른 파일 필터링
+  const filteredFiles = fileList.filter((file) =>
+    file.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 정렬 (여기서는 파일 이름 기준 정렬) , 나중에 파일 크기, 수정일, 생성일 순서로 정렬
+  const sortedFiles = filteredFiles.slice().sort((a, b) => {
+    const compare = a.name.localeCompare(b.name);
+    return sortOrder === "asc" ? compare : -compare;
+  });
 
   return (
     <div className="container">
@@ -53,60 +83,98 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
 
         <div className="navbar-center">
           <nav className="navbar-icons">
-            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+            <div
+              className={`icon-container ${selected === "home" ? "selected" : ""}`}
+              onClick={() => navigate("/")}
+            >
               <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+            <div
+              className={`icon-container ${selected === "video" ? "selected" : ""}`}
+              onClick={() => navigate("/meetings")}
+            >
               <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+            <div
+              className={`icon-container ${selected === "document" ? "selected" : ""}`}
+              onClick={() => navigate("/documents")}
+            >
               <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
           </nav>
         </div>
 
         <div className="navbar-right">
-        <div className="user-profile">
-        {user?.profile_image ? (
-            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
-            ): (
-          <div style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "default"}} />
-        )}</div></div>
+          <div className="user-profile">
+            {user?.profile_image ? (
+              <img
+                src={getProfileImageUrl(user?.profile_image)}
+                style={{
+                  width: "2.1vw",
+                  height: "2.1vw",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/settings")}
+                alt="사용자 프로필"
+              />
+            ) : (
+              <div
+                style={{
+                  width: "2.1vw",
+                  height: "2.1vw",
+                  borderRadius: "10px",
+                  cursor: "default",
+                }}
+              />
+            )}
+          </div>
+        </div>
       </header>
 
-    {/* 두 번째 줄: 화살표(뒤로, 앞으로) + 폴더 아이콘 + 경로 + 검색창 */}
-<div className={styles.navbarSecondRow}>
-  <div className={styles.leftSection}>
-    <ChevronLeft
-      size={24}
-      className={styles.arrowIcon}
-      onClick={() => navigate(-1)}
-    />
-    <ChevronRight
-      size={24}
-      className={styles.arrowIcon}
-      onClick={() => navigate(1)}
-    />
-    <img
-      src="/images/bluefolder.png"
-      alt="Docs folder"
-      className={styles.docsFolderIcon}
-    />
-    <span className={styles.pathText}>Docs &gt; 문서화면</span>
-  </div>
+      {/* 두 번째 줄: 뒤로/앞으로 화살표, 폴더 아이콘, 경로, 정렬 메뉴 및 검색 입력창 */}
+      <div className={styles.navbarSecondRow}>
+        <div className={styles.leftSection}>
+          <ChevronLeft
+            size={24}
+            className={styles.arrowIcon}
+            onClick={() => navigate(-1)}
+          />
+          <ChevronRight
+            size={24}
+            className={styles.arrowIcon}
+            onClick={() => navigate(1)}
+          />
+          <img
+            src="/images/bluefolder.png"
+            alt="Docs folder"
+            className={styles.docsFolderIcon}
+          />
+          <span className={styles.pathText}>Docs &gt; 문서화면</span>
+        </div>
 
-  {/* 오른쪽: "문서 검색" 텍스트 + 돋보기 아이콘 */}
-  <div className={styles.rightSection}>
-    <div className={styles.searchWrapper}>
-      <span className={styles.searchText}>문서 검색</span>
-      <img 
-        src="/images/search.png" 
-        alt="돋보기 아이콘" 
-        className={styles.searchIcon} 
-      />
-    </div>
-  </div>
-</div>
+        <div className={styles.rightSection}>
+          {/* SortMenu 컴포넌트 (정렬 상태 변경) */}
+          <SortMenu
+            sortKey={sortKey}
+            sortOrder={sortOrder}
+            onSortChange={handleSortChange}
+          />
+          <input
+            type="text"
+            placeholder="문서 검색"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchWrapper}
+          />
+          {/* 기존에 있던 돋보기 아이콘은 입력창 우측에 함께 배치 가능 */}
+          <img
+            src="/images/search.png"
+            alt="돋보기 아이콘"
+            className={styles.searchIcon}
+          />
+        </div>
+      </div>
 
       {/* 메인 영역 */}
       <main className="main">
@@ -115,7 +183,9 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
           {selectedFile ? (
             <div className={styles.selectedFileDisplay}>
               <img
-                src={fileIcons[selectedFile.type] || "/images/default.png"}
+                src={
+                  fileIcons[selectedFile.type] || "/images/default.png"
+                }
                 alt={`${selectedFile.type} file`}
                 className={styles.selectedFileIcon}
               />
@@ -125,58 +195,61 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
             <h2 className={styles.fileTitle}>파일 선택</h2>
           )}
 
-          {/* 나머지 사이드바 정보(예: 파일 정보, 색상 변경, 옵션 등) */}
+          {/* 나머지 사이드바 정보 */}
           <div className={styles.info}>
             <h4>정보</h4>
           </div>
           <div className={styles.fileInfo}>
-  <div className={styles.infoRow}>
-    <span className={styles.label}>유형</span>
-    <span className={styles.value}>txt</span>
-  </div>
-  <div className={styles.infoRow}>
-    <span className={styles.label}>크기</span>
-    <span className={styles.value}>202KB</span>
-  </div>
-  <div className={styles.infoRow}>
-    <span className={styles.label}>생성</span>
-    <span className={styles.value}>2024년 2월 8일 15:00</span>
-  </div>
-  <div className={styles.infoRow}>
-    <span className={styles.label}>수정일</span>
-    <span className={styles.value}>2024년 2월 8일 16:10</span>
-  </div>
-</div>
-
-
-          <div className={styles.info}>
-            <h5>색상</h5>
-            <div className={styles.colorOptions}>
-              <div className={styles.redCircle} />
-              <div className={styles.yellowCircle} />
-              <div className={styles.greenCircle} />
-              <div className={styles.blueCircle} />
-              <div className={styles.purpleCircle} />
-              <div className={styles.pinkCircle} />
+            <div className={styles.infoRow}>
+              <span className={styles.label}>유형</span>
+              <span className={styles.value}>txt</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>크기</span>
+              <span className={styles.value}>202KB</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>생성</span>
+              <span className={styles.value}>
+                2024년 2월 8일 15:00
+              </span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.label}>수정일</span>
+              <span className={styles.value}>
+                2024년 2월 8일 16:10
+              </span>
             </div>
           </div>
 
           <div className={styles.documentOptions}>
             <button className={styles.optionBtn}>
-              <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
+              <img
+                src="/images/doc_pdf.png"
+                alt="PDF 변환"
+                className={styles.optionIcon}
+              />
             </button>
-            <button className={styles.optionBtn} >
-              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} />
+            <button className={styles.optionBtn}>
+              <img
+                src="/images/doc_del.png"
+                alt="삭제"
+                className={styles.optionIcon}
+              />
             </button>
-            <button className={styles.optionBtn} >
-              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} />
+            <button className={styles.optionBtn}>
+              <img
+                src="/images/doc_down.png"
+                alt="다운받기"
+                className={styles.optionIcon}
+              />
             </button>
           </div>
         </aside>
 
         {/* 파일 목록: 파일들을 그리드로 표시 (파일 클릭 시 사이드바 업데이트) */}
         <section className={styles.fileGrid}>
-          {fileList.map((file) => (
+          {sortedFiles.map((file) => (
             <div
               key={file.id}
               className={styles.fileItem}
