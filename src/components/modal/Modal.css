@@ -1,0 +1,74 @@
+.set-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+/* 모달 창 */
+.set-modal {
+  background: white;
+  border-radius: 10px;
+  width: 28.6vw;
+  height: 17.2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* 제목 */
+.set-modal p {
+  margin: 0;
+  margin-top: 2.1vw;
+  align-items: center;
+  font-family: "Jamsil_B";
+  font-size: 1.6vw;
+  color: black;
+}
+/* 입력창 스타일 */
+.set-modal input[type="text"] {
+  box-sizing: border-box;
+  width: 24.5vw;
+  height: 3.1vw;
+  border: 2px solid #BDBDBD;
+  margin-top: 2.1vw;
+  padding-left: 1.6vw;
+  border-radius: 10px;
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  color: black;
+}
+
+.set-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.6vw;
+  gap: 2.2vw;
+}
+.set-add-btn {
+  width: 8.3vw;
+  height: 2.5vw;
+  background: #2E7AF2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1vw;
+  font-family: "Jamsil_M";
+}
+.set-close-btn {
+  width: 8.3vw;
+  height: 2.5vw;
+  border: 2px solid #90CAFF;
+  background: transparent;
+  color: black;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1vw;
+  font-family: "Jamsil_M";
+}
+  

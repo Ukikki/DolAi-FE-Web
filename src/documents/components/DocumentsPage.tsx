@@ -8,6 +8,8 @@ import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
 import { useUser } from "../../hooks/useUser";
 import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
+import { useCreateMeeting } from "../../hooks/useCreateMeeting"; 
+import CreateMeetingModal from "../../components/modal/CreateMeeting";
 
 interface DocumentsProps {
   selected: string;
@@ -53,6 +55,18 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
   const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
   const { user } = useUser(); // 로그인 상태 함수
+  const { createMeeting } = useCreateMeeting(); // 회의 생성
+  const [showModal, setShowModal] = useState(false); // 회의 생성 시 모달
+  
+  const handleCreateMeeting = async (title: string, startTime: string) => {
+    try {
+      await createMeeting({ title, startTime });
+      setShowModal(false);
+      navigate("/meetings", { state: { showInvite: true } });
+    } catch (e) {
+      alert("회의 생성에 실패했어요!");
+    }
+  };
 
   // 폴더 리스트를 localStorage에 저장
   useEffect(() => {
@@ -284,7 +298,9 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
               <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => navigate("/meetings")}>
+            {showModal && ( <CreateMeetingModal onCreate={handleCreateMeeting} onClose={() => setShowModal(false)}/>
+           )}
+            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => setShowModal(true)}>
               <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
             <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>

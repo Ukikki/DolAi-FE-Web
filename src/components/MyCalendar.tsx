@@ -29,9 +29,9 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('tab1');
   const [newEventTitle, setNewEventTitle] = useState("");
-  const [newEventDate, setNewEventDate] = useState("");
+  const [newEventDate, setNewEventDate] = useState(getCurrentDateTimeLocal());
   const [newTodo, setNewTodo] = useState("");
-  const [newTodoTime, setNewTodoTime] = useState("");
+  const [newTodoTime, setNewTodoTime] = useState(getCurrentDateTimeLocal());
   const openDialog = () => setIsDialogOpen(true);
   const closeDialog = () => setIsDialogOpen(false);
 
@@ -65,6 +65,13 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
     }
   };
 
+  function getCurrentDateTimeLocal() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+  }
+  
   return (
     <div className="calendar-container">
       <div className="calendar-header">
@@ -120,31 +127,31 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
 
       {/* 다이얼로그 */}
       {isDialogOpen && (
-      <div className="dialog-overlay">
-        <div className="dialog">
-          <div className="dialog-tabs">
+      <div className="cal-dialog-overlay">
+        <div className="cal-dialog">
+          <div className="cal-dialog-tabs">
             <button className={activeTab === 'tab1' ? 'active' : ''} onClick={() => setActiveTab('tab1')}>캘린더</button>
             <button className={activeTab === 'tab2' ? 'active' : ''} onClick={() => setActiveTab('tab2')}>To Do</button>
           </div>
 
-          <div className="dialog-content">
+          <div className="cal-dialog-content">
             {activeTab === 'tab1' && (
-              <div className="tab-content">
+              <div className="cal-tab-content">
                 <input type="text" placeholder="새로운 일정" value={newEventTitle} onChange={(e) => setNewEventTitle(e.target.value)} />
                 <input type="datetime-local" value={newEventDate} onChange={(e) => setNewEventDate(e.target.value)} className="non-border"/>
-                <input className="non-border" type="text" placeholder="초대할 사람" />
-                <div className="btn-container">
-                <button className="close-btn" onClick={closeDialog}>닫기</button>
-                <button className="add-btn" onClick={addEvent}>추가</button>
+                <input className="non-border" type="text" placeholder="초대할 사람(이름 또는 이메일)" />
+                <div className="cal-btn-container">
+                <button className="cal-close-btn" onClick={closeDialog}>닫기</button>
+                <button className="cal-add-btn" onClick={addEvent}>추가</button>
               </div></div>
             )}
             {activeTab === 'tab2' && (
-              <div className="tab-content">
+              <div className="cal-tab-content">
                 <input type="text" placeholder="새로운 할 일" value={newTodo} onChange={(e) => setNewTodo(e.target.value)} />
-                <input type="time" value={newTodoTime} onChange={(e) => setNewTodoTime(e.target.value)} className="non-border"/>
-                <div className="btn-container">
-                <button className="close-btn" onClick={closeDialog}>닫기</button>
-                <button className="add-btn" onClick={handleAddTodo}>추가</button>
+                <input type="datetime-local" value={newTodoTime} onChange={(e) => setNewTodoTime(e.target.value)} className="non-border"/>
+                <div className="cal-btn-container">
+                <button className="cal-close-btn" onClick={closeDialog}>닫기</button>
+                <button className="cal-add-btn" onClick={handleAddTodo}>추가</button>
               </div></div>
             )}
           </div>

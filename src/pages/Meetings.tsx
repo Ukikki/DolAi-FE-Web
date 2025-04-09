@@ -1,7 +1,8 @@
 import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "../styles/Meeting.css";
-import FriendInvite from "../components/FriendInvite";
+import FriendInvite from "../components/modal/FriendInvite";
 
 interface MeetingsProps {
     navigate: (path: string) => void;
@@ -10,12 +11,17 @@ interface MeetingsProps {
 export default function Meetings({ navigate } : MeetingsProps) {
   const [isCameraOn, setIsCameraOn] = useState(false); // 카메라 아이콘 상태 on/off
   const [isMicOn, setIsMicOn] = useState(false);       // 마이크 아이콘 상태 on/off
-  const [isUserPlus, setIsUserPlus] = useState(false); // 친구추가 아이콘 상태 on/off
-  const [isBoard, setIsBoard] = useState(false);       // 화이트보드 아이콘 상태 on/off
-  const [isMonitor, setIsMonitor] = useState(false);   // 화면 공유 아이콘 상태 on/off
-  const [isMessage, setIsMessage] = useState(false);   // 채팅 아이콘 상태 on/off
   const videoRef = useRef<HTMLVideoElement>(null);     // 비디오 상태
   const micRef = useRef<MediaStream | null>(null);     // 마이크 상태
+
+  const location = useLocation();
+
+  // 친구, 화이트보드, 공유, 메시지는 한 개만 동작
+  const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
+  const toggleTool = (tool: typeof activeTool) => {
+    setActiveTool(prev => prev === tool ? null : tool); // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
+  };
+  const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
   useEffect(() => {
     if (isCameraOn) { // 카메라 켜기
@@ -55,40 +61,60 @@ export default function Meetings({ navigate } : MeetingsProps) {
     }
   }, [isMicOn]);
 
+  useEffect(() => {
+    if (location.state?.showInvite) {
+      setActiveTool("invite");
+    }
+  }, [location.state]);
+
   return (
     <div className="container">
     {/* 상단 네비게이션 */}
     <header className= "meet-navbar">
       <img src="../images/main_logo.png" alt="DolAi Logo" />
       <nav className="meet-navbar-icons">
+        {/* 카메라 */}
         <div className="meet-icon-container" onClick={() => setIsCameraOn(!isCameraOn)}>
-        {isCameraOn ? (
-          <Camera style={{ width: "2vw", height: "2vw", cursor: "pointer" }} />
-        ) : (
-          <CameraOff style={{ width: "2vw", height: "2vw", cursor: "pointer", color: "#757575" }} />
-        )}
-        </div>
-        <div className="meet-icon-container" onClick={() => setIsMicOn(!isMicOn)}>
-        {isMicOn ? (
-          <Mic style={{ width: "2vw", height: "2vw", cursor: "pointer" }} />
-        ) : (
-          <MicOff style={{ width: "2vw", height: "2vw", cursor: "pointer", color: "#757575" }} />
-        )}
-        </div>
-        <div className="meet-icon-container" onClick={() => setIsUserPlus(!isUserPlus)}>
-          <UserPlus style={{ width: "2vw", height: "2vw", cursor: "pointer", color: isUserPlus? "black" : "#757575" }} />
-        </div>
-        <div className="meet-icon-container meet-board" onClick={() => setIsBoard(!isBoard)} style={{
-            backgroundImage: isBoard
-              ? 'url("../images/meet_board.png")'  // 클릭된 이미지
-              : 'url("../images/meet_unBoard.png")', // 기본 이미지
-          }}/>
-        <div className="meet-icon-container" onClick={() => setIsMonitor(!isMonitor)}>
-          <MonitorUp style={{ width: "2vw", height: "2vw", cursor: "pointer", color: isMonitor ? "black" : "#757575" }} />
-        </div>
-        <div className="meet-icon-container" onClick={() => setIsMessage(!isMessage)}>
-          <MessageSquareText style={{ width: "2vw", height: "2vw", cursor: "pointer", color: isMessage ? "black" : "#757575"}} />
-        </div>
+            {isCameraOn ? (
+              <Camera style={iconStyle} />
+            ) : (
+              <CameraOff style={{ ...iconStyle, color: "#757575" }} />
+            )}
+          </div>
+
+          {/* 마이크 */}
+          <div className="meet-icon-container" onClick={() => setIsMicOn(!isMicOn)}>
+            {isMicOn ? (
+              <Mic style={iconStyle} />
+            ) : (
+              <MicOff style={{ ...iconStyle, color: "#757575" }} />
+            )}
+          </div>
+
+          {/* 친구 초대 */}
+          <div className="meet-icon-container" onClick={() => toggleTool("invite")}>
+            <UserPlus style={{ ...iconStyle, color: activeTool === "invite" ? "black" : "#757575" }} />
+          </div>
+
+          {/* 화이트보드 */}
+          <div className="meet-icon-container meet-board" onClick={() => toggleTool("board")}
+            style={{
+              backgroundImage: activeTool === "board"
+                ? 'url("../images/meet_board.png")'
+                : 'url("../images/meet_unBoard.png")',
+            }}
+          />
+
+          {/* 화면 공유 */}
+          <div className="meet-icon-container" onClick={() => toggleTool("monitor")}>
+            <MonitorUp style={{ ...iconStyle, color: activeTool === "monitor" ? "black" : "#757575" }} />
+          </div>
+
+          {/* 채팅 */}
+          <div className="meet-icon-container" onClick={() => toggleTool("message")}>
+            <MessageSquareText style={{ ...iconStyle, color: activeTool === "message" ? "black" : "#757575" }} />
+          </div>
+
         <div className="meet-icon-container meet-leave" onClick={() => navigate("/documents")}>
         </div>
       </nav>
@@ -98,7 +124,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
     <main className="video-container">
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
-    {isUserPlus && <FriendInvite isVisible={isUserPlus} />}
+    {activeTool === "invite" && <FriendInvite isVisible={true} onClose={() => setActiveTool(null)} />}
 
   </div>
   );

@@ -5,7 +5,7 @@ import { Home, Video, FileText, Pencil, Search } from "lucide-react";
 import { useUser } from "../hooks/useUser";
 import { handleSocialLogout } from "../utils/logout";
 import { getProfileImageUrl } from "../utils/getProfileImageUrl";
-import NewNameModal from "../components/NewNameModal";
+import NewNameModal from "../components/modal/NewName";
 import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
 

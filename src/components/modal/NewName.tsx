@@ -7,7 +7,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function NewNameModal({ currentName, onSave, onClose }: Props) {
+export default function NewName({ currentName, onSave, onClose }: Props) {
   const [name, setName] = useState(currentName);
 
   const handleSubmit = () => {
@@ -19,9 +19,9 @@ export default function NewNameModal({ currentName, onSave, onClose }: Props) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <h2>이름 변경</h2>
+    <div className="set-modal-overlay">
+      <div className="set-modal">
+        <p>이름 변경</p>
         <input
           type="text"
           value={name}
