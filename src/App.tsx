@@ -7,6 +7,7 @@ import DocumentsPage from "./documents/components/DocumentsPage";
 import FolderDetailPage from "./documents/components/FolderDetailPage"; // 폴더 상세 페이지
 import Setting from "./pages/Setting";
 import AuthCallback from "./pages/AuthCallback";
+import RequestsPage from "./pages/RequestsPage";
 
 // import BackOffice from "./pages/BackOffice";
 
@@ -27,14 +28,17 @@ function AppContent() {
   return (
 
     <Routes>
-      <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
-      <Route path="/meetings" element={<Meetings navigate={navigate} />} />
-      <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
-      <Route path="/settings" element={<Setting navigate={navigate} />} />
-      {/* 폴더 상세 페이지 */}
-      <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-    </Routes>
+    <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
+    <Route path="/meetings" element={<Meetings navigate={navigate} />} />
+    <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
+    <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
+    <Route path="/auth/callback" element={<AuthCallback />} />
+  
+    {/* ✅ 독립된 페이지처럼 동작하면서 URL은 settings 하위로 보임 */}
+    <Route path="/settings" element={<Setting navigate={navigate} />} />
+    <Route path="/settings/requestpage" element={<RequestsPage navigate={navigate} />} />
+  </Routes>
+  
   );
 }
 

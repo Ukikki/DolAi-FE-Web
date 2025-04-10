@@ -1,0 +1,72 @@
+.confirm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .confirm-modal {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .confirm-modal-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+  
+  .confirm-modal-message {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 24px;
+  }
+  
+  .confirm-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .confirm-modal-actions button {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* 취소 버튼 */
+  .confirm-modal-actions .cancel-button {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+  }
+  
+  /* 삭제 버튼 */
+  .confirm-modal-actions .confirm-button {
+    background-color: #1976f9;
+    color: white;
+    border: none;
+  }
+  
+  .confirm-modal-actions .cancel-button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .confirm-modal-actions .confirm-button:hover {
+    background-color: #0f5edf;
+  }
+  

@@ -1,0 +1,102 @@
+/* RequestsPage.css */
+
+/* 가운데 영역 (요청 목록 영역) */
+.requests-middle-section {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 20px;
+    border: solid 1px #B2B2B2;
+    padding: 2vw 2.6vw;  /* 상하 2vw, 좌측은 2.6vw (일관성 유지) */
+    overflow-y: auto;
+  }
+  
+  /* 요청 목록 헤더 (예: "요청 목록" 타이틀) */
+  .requests-subheader {
+    font-family: "Jamsil_B";
+    color: black;
+    font-size: 1.6vw;
+    margin-top: 3vh;
+    margin-bottom: 1vh;
+  }
+  
+  /* 요청 목록 컨테이너 */
+  .request-list {
+    border: 1px solid #B2B2B2;
+    border-radius: 10px;
+    padding: 1vw;
+    background-color: #fff;
+    margin-bottom: 2vh;
+  }
+  
+  /* 개별 요청 아이템 */
+  .request-item {
+    display: flex;
+    align-items: center;
+    padding: 1vh 1vw;
+    border-bottom: 1px solid #ddd;
+    gap: 1vw;
+    background-color: #fff;
+  }
+  
+  .request-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* 프로필 이미지 */
+  .request-profile {
+    width: 3vw;
+    height: 3vw;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* 요청 정보 영역 (이름/이메일) */
+  .request-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 요청 이름 스타일 */
+  .request-name {
+    font-family: "Jamsil_B";
+    font-size: 1vw;
+    color: #333;
+  }
+  
+  /* 요청 이메일 스타일 */
+  .request-email {
+    font-family: "Jamsil_R";
+    font-size: 0.9vw;
+    color: #757575;
+    margin-top: 0.5vh;
+  }
+  
+  /* 액션 버튼 영역 (예: 수락/거절 버튼) */
+  .request-actions {
+    margin-left: auto;  /* 남은 공간을 채워 오른쪽 정렬 */
+    display: flex;
+    gap: 0.5vw;
+  }
+  
+  .request-actions button {
+    font-size: 0.9vw;
+    padding: 0.5vh 1vw;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* 수락 버튼 스타일 */
+  .accept-btn {
+    background-color: #4caf50;
+    color: #fff;
+  }
+  
+  /* 거절 버튼 스타일 */
+  .reject-btn {
+    background-color: #f44336;
+    color: #fff;
+  }
+  

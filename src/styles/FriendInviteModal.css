@@ -1,0 +1,57 @@
+/* FriendInviteModal.css 예시 */
+.invite-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .invite-modal-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 350px;
+  }
+  
+  .invite-input {
+    width: 100%;
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #BDBDBD; /* 태두리 추가 */
+  }
+  
+  .invite-modal-actions {
+    text-align: right;
+  }
+  
+  .invite-modal-actions button {
+    margin-left: 0.5rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  .invite-modal-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem; /* 아래 간격도 약간 주면 더 예쁩니다 */
+  }
+
+  .user-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  .error-text {
+    color: red;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
