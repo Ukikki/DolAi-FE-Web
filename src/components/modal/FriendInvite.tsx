@@ -1,5 +1,5 @@
 import "./FriendInvite.css";
-import { Copy, Search } from "lucide-react";
+import { Link, Search, Check } from "lucide-react";
 import { useState } from "react";
 
 interface FriendInviteProps {
@@ -40,30 +40,31 @@ export default function FriendInvite({ isVisible }: FriendInviteProps) {
   );
 
   return (
-    <div className="friend-popup">
-      <div className="copy-container" onClick={handleCopy}>
-        {!copied && <Copy className="copy-icon" />}
+    <div className="meet-friend-popup">
+      <div className="link-container" onClick={handleCopy}>
+        {!copied && <Link className="link-icon" />}
         <span className="copy-text">{copied ? "Copied link!" : "Copy link"}</span>
       </div>
 
-      <div className="friend-search-container">
-        <input type="text" placeholder="Search by email" className="friend-search"
+      <div className="meet-friend-search-container">
+        <Search className="meet-friend-search-icon" />
+        <input type="text" placeholder="Search by email" className="meet-friend-search"
         value={search} onChange={ (e) => setSearch(e.target.value) }/>
-      <Search className="friend-search-icon" />
       </div>
-      <ul className="friend-list">
+      <ul className="meet-friend-list">
         {filteredFriends.length > 0 && filteredFriends.map((user, index) => (
-          <li key={index} className="friend-item">
-            <div className="friend-info">
-              <span className="friend-name">{user.name}</span>
-              <span className="friend-email">{user.email}</span>
+          <li key={index} className="meet-friend-item">
+          <div className="meet-friend-profile"/>
+            <div className="meet-friend-info">
+              <span className="meet-friend-name">{user.name}</span>
+              <span className="meet-friend-email">{user.email}</span>
             </div>
             <button
-              className={`invite-btn ${invited[user.email] ? "invited" : ""}`}
+              className={`meet-invite-btn ${invited[user.email] ? "invited" : ""}`}
               onClick={() => handleInvite(user.email)}
               disabled={invited[user.email]}
             >
-              {invited[user.email] ? "요청중" : "초대"}
+            {invited[user.email] ? <Check color="white" style={{ width: "1.6vw", height: "1.6vw", cursor: "pointer" }}/> : "초대"}
             </button>
           </li>
           ))

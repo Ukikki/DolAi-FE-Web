@@ -4,9 +4,6 @@ import axios from "axios";
 const instance = axios.create({
   baseURL: "http://localhost:8081", // 백엔드 주소
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 // 로그인 token 만료시 처리될 로직 인터셉터 등록
