@@ -61,15 +61,18 @@ export default function Setting({ navigate }: SettingProps) {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+  
     const formData = new FormData();
     formData.append("image", file);
+    console.log(file);
     try {
-      await axios.patch("/user/profile", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.patch("/user/profile", formData, { });
+  
+      const newImageUrl = res.data.data.profileImage;
+      console.log("✅ 프로필 이미지 업로드 성공:", newImageUrl);
       refetch();
-    } catch (err) {
-      console.error("프로필 이미지 업로드 실패", err);
+      } catch (err) {
+      console.error("❌ 프로필 이미지 업로드 실패", err);
     }
   };
 
