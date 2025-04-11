@@ -1,5 +1,6 @@
 import { useState } from "react";
-import styles from "../styles/documents.module.scss";
+import "../styles/SortMenu.css";
+import { ArrowUpDownIcon, Check } from "lucide-react";
 
 interface SortMenuProps {
   sortKey: string;
@@ -34,25 +35,20 @@ export default function SortMenu({ sortKey, sortOrder, onSortChange }: SortMenuP
   };
 
   const orderLabels: Record<string, string> = {
-    asc: "오름차순",
     desc: "내림차순",
+    asc: "오름차순",
   };
 
   return (
-    <div className={styles.sortMenuContainer}>
-      <div className={styles.sortButton} onClick={handleToggle}>
-        <img
-          src="/images/sort.png"
-          alt="정렬 아이콘"
-          className={styles.sortIcon}
-        />
-        <span className={styles.sortText}>정렬</span>
+    <div className="sort-container">
+      <div className="sort-button" onClick={handleToggle}>
+        <ArrowUpDownIcon className="sort-icon" />
+        <span className="sort-text">정렬</span>
       </div>
 
       {isOpen && (
-        <div className={styles.sortDropdown}>
-          <div className={styles.radioGroup}>
-            <p>정렬 기준</p>
+        <div className="sort-dropdown">
+          <div className="sort-radioGroup">
             {Object.keys(keyLabels).map((key) => (
               <label key={key}>
                 <input
@@ -61,6 +57,7 @@ export default function SortMenu({ sortKey, sortOrder, onSortChange }: SortMenuP
                   checked={sortKey === key}
                   onChange={handleSortKeyChange}
                 />
+                {sortKey === key && <Check className="sort-check-icon" />}
                 {keyLabels[key]}
               </label>
             ))}
@@ -68,8 +65,7 @@ export default function SortMenu({ sortKey, sortOrder, onSortChange }: SortMenuP
 
           <hr />
 
-          <div className={styles.radioGroup}>
-            <p>정렬 순서</p>
+          <div className="sort-radioGroup">
             {Object.keys(orderLabels).map((order) => (
               <label key={order}>
                 <input
@@ -78,6 +74,7 @@ export default function SortMenu({ sortKey, sortOrder, onSortChange }: SortMenuP
                   checked={sortOrder === order}
                   onChange={handleSortOrderChange}
                 />
+                {sortOrder === order && <Check className="sort-check-icon" />}
                 {orderLabels[order]}
               </label>
             ))}

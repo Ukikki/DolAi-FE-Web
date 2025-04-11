@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { NavigateFunction, useParams } from "react-router-dom";
+import { NavigateFunction } from "react-router-dom";
 import {
   Home,
   Video,
   FileText,
   Search,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
 } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import { useUser } from "../../hooks/useUser";
@@ -135,44 +132,25 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
       {/* 두 번째 줄: 뒤로/앞으로 화살표, 폴더 아이콘, 경로, 정렬 메뉴 및 검색 입력창 */}
       <div className={styles.navbarSecondRow}>
         <div className={styles.leftSection}>
-          <ChevronLeft
-            size={24}
-            className={styles.arrowIcon}
-            onClick={() => navigate(-1)}
-          />
-          <ChevronRight
-            size={24}
-            className={styles.arrowIcon}
-            onClick={() => navigate(1)}
-          />
-          <img
-            src="/images/bluefolder.png"
-            alt="Docs folder"
-            className={styles.docsFolderIcon}
-          />
-          <span className={styles.pathText}>Docs &gt; 문서화면</span>
+        <img src="/images/doc_move_left.png" className={styles.arrowIcon} onClick={() => navigate(-1)} />
+        <img src="/images/doc_move_right.png" className={styles.arrowIcon} onClick={() => navigate(1)} />
+          <div className={styles.path}>
+            <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
+            <span className={styles.pathText}>Docs &gt; 문서화면</span>
+          </div>
         </div>
-
         <div className={styles.rightSection}>
-          {/* SortMenu 컴포넌트 (정렬 상태 변경) */}
-          <SortMenu
-            sortKey={sortKey}
-            sortOrder={sortOrder}
-            onSortChange={handleSortChange}
-          />
+          <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
+          <div className={styles.searchWrapper}>
           <input
             type="text"
             placeholder="문서 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchWrapper}
+            className={styles.searchInput}
           />
-          {/* 기존에 있던 돋보기 아이콘은 입력창 우측에 함께 배치 가능 */}
-          <img
-            src="/images/search.png"
-            alt="돋보기 아이콘"
-            className={styles.searchIcon}
-          />
+          <Search className={styles.searchIcon} />
+          </div>
         </div>
       </div>
 
@@ -181,7 +159,7 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
         {/* 사이드바: 선택된 파일 정보 표시 */}
         <aside className={styles.sidebar}>
           {selectedFile ? (
-            <div className={styles.selectedFileDisplay}>
+            <div className={styles.selectedFolderDisplay}>
               <img
                 src={
                   fileIcons[selectedFile.type] || "/images/default.png"
@@ -196,9 +174,7 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
           )}
 
           {/* 나머지 사이드바 정보 */}
-          <div className={styles.info}>
-            <h4>정보</h4>
-          </div>
+          <div className={styles.info}>정보</div>
           <div className={styles.fileInfo}>
             <div className={styles.infoRow}>
               <span className={styles.label}>유형</span>
@@ -223,27 +199,9 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
           </div>
 
           <div className={styles.documentOptions}>
-            <button className={styles.optionBtn}>
-              <img
-                src="/images/doc_pdf.png"
-                alt="PDF 변환"
-                className={styles.optionIcon}
-              />
-            </button>
-            <button className={styles.optionBtn}>
-              <img
-                src="/images/doc_del.png"
-                alt="삭제"
-                className={styles.optionIcon}
-              />
-            </button>
-            <button className={styles.optionBtn}>
-              <img
-                src="/images/doc_down.png"
-                alt="다운받기"
-                className={styles.optionIcon}
-              />
-            </button>
+              <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
+              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} />
+              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} />
           </div>
         </aside>
 
@@ -260,7 +218,7 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
                 alt={file.type}
                 className={styles.fileIcon}
               />
-              <p className={styles.fileName}>{file.name}</p>
+              <p className={styles.folderName}>{file.name}</p>
             </div>
           ))}
         </section>

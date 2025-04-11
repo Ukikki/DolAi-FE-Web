@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavigateFunction } from "react-router-dom";
-import {
-  Home, Video, FileText,
-  ChevronLeft, ChevronRight
-} from "lucide-react";
+import { Home, Video, FileText, Search } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
 import { useUser } from "../../hooks/useUser";
@@ -27,12 +24,12 @@ interface Folder {
 const initialFolders: Folder[] = [];
 
 const folderIcons: Record<string, string> = {
+  pink: "/images/pinkfolder.png",
   red: "/images/redfolder.png",
   yellow: "/images/yellowfolder.png",
   green: "/images/greenfolder.png",
   blue: "/images/bluefolder.png",
   purple: "/images/purplefolder.png",
-  pink: "/images/pinkfolder.png",
 };
 
 export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
@@ -319,20 +316,25 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
       <div className={styles.navbarSecondRow}>
         <div className={styles.leftSection}>
-          <ChevronLeft size={24} className={styles.arrowIcon} onClick={() => navigate(-1)} />
-          <ChevronRight size={24} className={styles.arrowIcon} onClick={() => navigate(1)} />
-          <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
-          <span className={styles.pathText}>Docs &gt;</span>
+          <img src="/images/doc_move_left.png" className={styles.arrowIcon} onClick={() => navigate(-1)} />
+          <img src="/images/doc_move_right.png" className={styles.arrowIcon} onClick={() => navigate(1)} />
+          <div className={styles.path}>
+            <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
+            <span className={styles.pathText}>Docs &gt;</span>
+          </div>
         </div>
         <div className={styles.rightSection}>
           <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
+          <div className={styles.searchWrapper}>
           <input
             type="text"
             placeholder="문서 검색"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchWrapper}
+            className={styles.searchInput}
           />
+          <Search className={styles.searchIcon} />
+          </div>
         </div>
       </div>
 
@@ -351,9 +353,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             <h2 className={styles.folderTitle}>문서 선택</h2>
           )}
 
-          <div className={styles.info}>
-            <h4>정보</h4>
-          </div>
+          <div className={styles.info}>정보</div>
           <div className={styles.fileInfo}>
             <div className={styles.infoRow}>
               <span className={styles.label}>유형</span>
@@ -373,8 +373,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             </div>
           </div>
 
-          <div className={styles.info}>
-            <h5>색상</h5>
+          <div className={styles.info}>색상</div>
             <div className={styles.colorOptions}>
               {Object.keys(folderIcons).map((color) => (
                 <div
@@ -383,19 +382,12 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                   onClick={() => handleColorChange(color)}
                 />
               ))}
-            </div>
           </div>
 
           <div className={styles.documentOptions}>
-            <button className={styles.optionBtn}>
               <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
-            </button>
-            <button className={styles.optionBtn} onClick={handleDeleteFolder}>
-              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} />
-            </button>
-            <button className={styles.optionBtn} onClick={handleDownloadFolder}>
-              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} />
-            </button>
+              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} onClick={handleDeleteFolder} />
+              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} onClick={handleDownloadFolder} />
           </div>
         </aside>
 
@@ -420,7 +412,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
                 alt={`${folder.color || "blue"} folder`}
                 className={styles.folderIcon}
               />
-              <p className={styles.folderName}>{folder.name}</p>
+              <span className={styles.folderName}>{folder.name}</span>
             </div>
           ))}
         </section>

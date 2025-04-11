@@ -2,18 +2,17 @@
 .documentsContainer {
   width: 100%;
   min-height: 100vh; // 전체 페이지 높이
-  background: #f5f5f5;
 }
 
 /* 두 번째 줄 */
 .navbarSecondRow {
-  height: 2.5vw; /* 48px -> vw */
+  height: 4.3vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: #F2F5F7;
-  border-bottom: 0.05vw solid #ddd; /* 1px -> vw */
-  padding: 0 1.04vw; /* 20px -> vw */
+  border-bottom: 2px solid #ECEDEE;
+  padding: 0 0.6vw;
 }
 
 /* 왼쪽 섹션 */
@@ -21,22 +20,33 @@
   display: flex;
   align-items: center;
   gap: 0.52vw; /* 10px -> vw */
+  margin-left: 1.5vw;
 }
 .arrowIcon {
+  width: 1.7vw;
+  height: 1.1vw;
   cursor: pointer;
+  margin-right: 1vw;
+}
+.path {
+  background-color: white;
+  padding: 0.7vw 0.8vw;
+  width: 49.5vw;
+  height: 2.6vw;
+  display: flex;
+  box-sizing: border-box;
+  border-radius: 10px;
+  align-items: center;
 }
 .docsFolderIcon {
-  width: 1.25vw; /* 24px -> vw */
-  height: 1.25vw;
+  width: 1.8vw;
+  height: 1.8vw;
 }
 .pathText {
-  font-size: 0.73vw; /* 14px -> vw */
-  color: #333;
-  background-color: #fff; /* 흰색 배경 */
-  padding: 0.3vw 1vw; /* 상하: 0.3vw, 좌우: 1vw */
-  width: 50vw;
-  display: inline-block; /* 배경이 텍스트 영역에 적용되도록 */
-  border-radius: 0.2vw; /* 필요 시 둥근 모서리 추가 */
+  font-family: "Jamsil_M";
+  font-size: 1vw;
+  color: black;
+  margin-left: 0.7vw;
 }
 
 /* 오른쪽 섹션 */
@@ -51,197 +61,40 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 20vw; /* 200px -> vw */
-  padding: 0.31vw 0.63vw; /* 6px 12px -> vw */
-  border: 0.05vw solid #ccc;
-  border-radius: 0.42vw;
+  width: 21.9vw;
+  height: 2.6vw;
+  border: none;
+  border-radius: 10px;
   background-color: #fff;
-}
-
-/* "문서 검색" 텍스트 */
-.searchText {
-  font-size: 0.73vw;
-  color: #555;
-}
-
-/* 돋보기 아이콘 */
-.searchIcon {
-  width: 1.04vw; /* 20px -> vw */
-  height: 1.04vw;
-  cursor: pointer;
+  box-sizing: border-box;
+  padding-left: 1vw;
+  padding-right: 0.8vw;
 }
 .searchInput {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 160px;
-  margin-right: 8px;
+  flex: 1;
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  color: black;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+/* 돋보기 아이콘 */
+.searchIcon {
+  width: 2vw;
+  height: 2vw;
+  color: black;
+  cursor: pointer;
 }
 
 /* 사이드바 */
 .sidebar {
   position: fixed;
+  top: 7.8vw;
   left: 0;
-  top: 5.75vw; /* 115px -> vw */
-  width: 12.5vw;
-  height: calc(100vh - 5.99vw); /* 108px -> vw */
-  // 화면전체높이에서 상단 영역을 뺀 값 // 이거 해야 사이드바랑 위 닿음
-  background: #E5E7E8;
-  padding: 1.04vw;
-  overflow-y: auto;
-}
-
-.folderTitle {
-  font-size: 1.25vw;
-  margin-bottom: 1vw;   //0.52vw
-  font-family: "Jamsil_R";
-}
-.fileInfo {
-  font-size: 0.73vw;
-  color: #555;
-  margin-bottom: 8vw; // 수정일-색상 사이 간격(아래 여백)
-  display: flex;
-  flex-direction: column;
-  .infoRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0.21vw 0;
-    padding: 0.21vw 0;
-    border-bottom: 0.16vw solid #ddd;
-  }
-  // 유형, 크기, 생성일
-  .label {
-    font-weight: bold;
-    color: #333;
-  }
-  // 오른쪽 값(txt)
-  .value {
-    text-align: right;
-  }
-}
-
-.documentOptions {
-  margin-top: 1.56vw;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.25vw;  //1.25vw
-  .optionBtn {
-    padding: 0.42vw;
-    border: none;
-    border-radius: 0.21vw;
-    cursor: pointer;
-    background: #e5e7e8;
-    color: #555;
-    font-weight: 600;
-    text-align: left;
-  }
-}
-.optionIcon {
-  font-size: 1vw;
-  width: 89px;
-  height: 36px;
-  margin-right: 0.16vw;
-  text-align: left;
-}
-
-/* 정렬 메뉴 관련 스타일 */
-.sortMenuContainer {
-  position: relative; /* 드롭다운 위치를 위해 */
-  display: inline-block;
-}
-
-.sortButton {
-  display: flex;
-  align-items: center;
-  gap: 4px; /* 아이콘과 텍스트 사이 간격 */
-  padding: 6px 8px;
-  cursor: pointer;
-  &:hover {
-    background: #eee;
-  }
-}
-
-.sortIcon {
-  width: 1.4vw; /* 원하는 아이콘 크기 */
-  height: 1.8vw;
-}
-
-.sortText {
-  font-size: 1vw;
-  font-family: "Jamsil";
-  color: #333;
-}
-
-/* 드롭다운 */
-.sortDropdown {
-  position: absolute;
-  top: 100%;  /* 버튼 바로 아래 */
-  left: 0;
-  margin-top: 4px;
-  width: 120px;
-  background: #F2F5F7;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-  }
-  hr {
-    border: none;
-    border-top: 1px solid #ccc;
-    margin: 4px 0;
-  }
-
-  /* 여기에서 라디오 버튼 모양을 사각형으로 커스터마이징 */
-  input[type="radio"] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 19px;              /* 원하는 크기로 조정 */
-    height: 19px;
-    border: 2px solid #3572EF;   /* 외곽선 스타일 */
-    border-radius: 0;         /* 사각형 */
-    outline: none;
-    cursor: pointer;
-    position: relative;
-    margin-right: 8px;
-
-    &:hover {
-      border-color: #3572EF;
-    }
-    
-    &:focus {
-      // 필요시 포커스 스타일 추가
-    }
-    
-    &:checked {
-      &::before {
-        content: "✓";                /* 브이 체크 표시 */
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;                 /* 부모 요소 전체 영역 */
-        height: 100%;
-        display: flex;
-        align-items: center;         /* 수직 중앙 정렬 */
-        justify-content: center;     /* 수평 중앙 정렬 */
-        font-size: 30px;             /* 체크 표시의 크기 */
-        color: #ffffff;              /* 체크 표시 색상 */
-        background-color: #3572EF;   /* 체크되었을 때 배경 색상 */
-      }
-    }
-  }
+  width: 18.2vw;
+  height: calc(100vh - 7.8vw);
+  background: #ECEDEE;
 }
 
 /* 선택된 폴더 */
@@ -249,127 +102,147 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 2.6vw; // 텍스트와의 간격
-  gap: 0.31vw;
+  margin-top: 3.6vw;
+  margin-left: 1.5vw;
 }
 .selectedFolderIcon {
   width: 2.6vw;
   height: 2.6vw;
-  margin-right: 0.42vw;
+  margin-right: 1vw;
 }
-
-/* 색상 변경 UI */
-.colorOptions {
-  display: flex;
-  gap: 0.42vw;
-  margin-bottom: 3vw; // 색상변경-pdf 2.6vw
+.folderTitle {
+  font-size: 1.3vw;
+  font-family: "Jamsil_M";
+  color: black;
 }
-.redCircle, .yellowCircle, .greenCircle,
-.blueCircle, .purpleCircle, .pinkCircle {
-  width: 1.04vw;
-  height: 1.04vw;
-  border-radius: 50%;
-  cursor: pointer;
+.info {
+  font-size: 1.3vw;
+  font-family: "Jamsil_M";
+  color: black;
+  margin-top: 3.4vw;
+  margin-left: 1.6vw;
+  margin-bottom: 1.9vw;
 }
-.redCircle { background: #e74c3c; }
-.yellowCircle { background: #f1c40f; }
-.greenCircle { background: #2ecc71; }
-.blueCircle { background: #3498db; }
-.purpleCircle { background: #9b59b6; }
-.pinkCircle { background: pink; }
-
-/* 폴더 목록 */
-.folderGrid {
-  margin-left: 20vw; // 사이드바와 맞춰야 함
-  margin-top: 0.42vw;
-  display: grid;
-  grid-template-columns: repeat(7, 6.25vw);
-  gap: 1.04vw;
-  padding: 1.04vw;
-  background: #f2f5f7;
-}
-
-.folderItem {
-  width: 6.25vw;
-  height: 6.25vw;
-  background: #f2f5f7;
-  border-radius: 0.52vw;
+.fileInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  .infoRow {
+    width: 15.6vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5vw 0.3vw;
+    border-bottom: 1.5px solid #B0B0B0;
+  }
+  // 유형, 크기, 생성일
+  .label {
+    font-family: "Jamsil_R";
+    font-size: 0.9vw;
+    color: #757575;
+  }
+  // 오른쪽 값(txt)
+  .value {
+    font-family: "Jamsil_R";
+    font-size: 0.8vw;
+    color: black;
+    text-align: right;
+  }
+}
+/* 색상 변경 UI */
+.colorOptions {
+  display: flex;
+  gap: 0.7vw;
+  margin-left: 2.1vw;
+}
+.redCircle, .yellowCircle, .greenCircle,
+.blueCircle, .purpleCircle, .pinkCircle {
+  width: 0.8vw;
+  height: 0.8vw;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.pinkCircle { background: #F68EBD; }
+.redCircle { background: #EF6868; }
+.yellowCircle { background: #EDBA43; }
+.greenCircle { background: #68C35E; }
+.blueCircle { background: #466EDA; }
+.purpleCircle { background: #A45DEF; }
+
+.documentOptions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 3.9vw;
+  margin-left: 2.1vw;
+  gap: 0.5vw;
+
+  .optionIcon {
+    width: 4.9vw;
+    height: 1.9vw;
+    margin-right: 0.16vw;
+    text-align: left;
+    background: transparent;
+  }
+}
+/* 폴더 목록 */
+.folderGrid {
+  margin-left: 26.8vw;
+  margin-top: 6.3vw;
+  display: grid;
+  grid-template-columns: repeat(7, 5.2vw);
+  gap : 4.7vw;
+}
+.folderItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   cursor: pointer;
 }
 .folderIcon {
-  width: 5.21vw;
-  height: 5.21vw;
-  margin-bottom: 0.26vw;
+  width: 5.2vw;
+  height: 5.2vw;
 }
 .folderName {
-  font-size: 0.73vw;
+  font-size: 1vw;
   font-family: "Jamsil_R";
   text-align: center;
-  color: #333;
+  color: black;
 }
 
 /* 파일 목록 */
 .fileGrid {
-  margin-left: 131px;
-  margin-top: 0.42vw;
+  margin-left: 25.5vw;
+  margin-top: 6.3vw;
   display: grid;
-  grid-template-columns: repeat(4, 6.25vw); // 한 줄에 4개의 파일
-  gap: 5.4vw;
-  padding: 1.04vw;
-  background: #f2f5f7;
+  grid-template-columns: repeat(6, 8.6vw);
+  gap : 3.1vw;
 }
 
 /* 파일 아이템 */
 .fileItem {
-  margin-top: 80px;
-  margin-left: 200px;
-  margin-right: 150px;
-  margin-bottom: 200px;
-  width: 6.25vw;
-  height: 6.25vw;
-  background: #f2f5f7;
-  border-radius: 0.52vw;
+  width: 8.6vw;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 .fileIcon {
-  width: 4.1vw;
-  height: 4.7vw;
-  margin-bottom: 0.26vw;
-}
-
-.fileName {
-  font-size: 0.7vw;
-  text-align: center;
-  color: #000000;
+  width: 4.2vw;
+  height: 4.8vw;
 }
 
 /* 선택된 파일 */
-.selectedFileDisplay {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.31vw;
-  margin-bottom: 0.52vw;
-  text-align: left;
-}
 .selectedFileIcon {
-  width: 2.5vw;
-  height: 2.5vw;
-  margin-right: 0.42vw;
+  width: 2.6vw;
+  height: 3vw;
+  margin-right: 1vw;
 }
 .fileTitle {
-  font-size: 1.04vw;
-  margin-bottom: 0.52vw;
-  font-family: "Jamsil_R";
-  text-align: left;
+  font-size: 1.3vw;
+  font-family: "Jamsil_M";
+  color: black;
+  padding-top:1vw;
 }
 
 // 예시: documents.module.scss
@@ -379,7 +252,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: "white";
+  background-color: white;
   display: flex;
   align-items: center;
   justify-content: center;
