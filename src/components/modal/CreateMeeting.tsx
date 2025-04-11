@@ -13,7 +13,7 @@ export default function CreateMeeting({ onCreate, onClose }: Props) {
       alert("제목을 입력하세요.");
       return;
     }
-    const startTime = new Date().toISOString();
+    const startTime = new Date(new Date().getTime() + 9 * 60 * 60 * 1000).toISOString()
     onCreate(title, startTime);
   };
 

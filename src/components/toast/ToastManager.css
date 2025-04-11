@@ -1,0 +1,6 @@
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999; /* 모달 창보다 아래로 */
+}

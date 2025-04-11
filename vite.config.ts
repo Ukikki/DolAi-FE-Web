@@ -11,6 +11,9 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    global: 'window',
+  },
   
   plugins: [react()],
 })

@@ -8,7 +8,8 @@ import FolderDetailPage from "./documents/components/FolderDetailPage"; // Ìè¥Îç
 import Setting from "./pages/Setting";
 import AuthCallback from "./pages/AuthCallback";
 import RequestsPage from "./pages/RequestsPage";
-
+import ToastManager from "./components/toast/ToastManager";
+import NotificationListener from "./components/NotificationListener";
 // import BackOffice from "./pages/BackOffice";
 
 import "./App.css";
@@ -45,8 +46,11 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
+    <ToastManager>
+      <NotificationListener />
       <AppContent />
       {/* <BackOffice /> */}
+    </ToastManager>
     </BrowserRouter>
   );
 }
