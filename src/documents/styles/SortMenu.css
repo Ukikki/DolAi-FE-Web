@@ -1,0 +1,93 @@
+.sort-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.sort-icon {
+  width: 1.8vw;
+  height: 1.8vw;
+  stroke-width: 2;
+  color: black;
+}
+
+.sort-text {
+  font-size: 1vw;
+  font-family: "Jamsil_M";
+  color: black;
+}
+
+/* 드롭다운 스타일 */
+.sort-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 9.4vw;
+  background: #F2F5F7;
+  border: 2px solid #ECEDEE;
+  border-radius: 12px;
+  padding: 12px 10px;
+  box-shadow: 0px 4px 4px rgba(49, 49, 49, 0.25);
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  z-index: 100;
+  padding: 1vw 1.2vw 0 1.2vw;
+}
+.sort-radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Jamsil_M";
+  font-size: 1vw;
+  color: black;
+  cursor: pointer;  
+  justify-content: space-between;
+  margin-bottom: 1vw;
+  position: relative;
+}
+
+/* 구분선 */
+.sort-dropdown hr {
+  border-bottom: 1px solid #D0D0D0;
+  margin: 0 0 1vw 0;
+}
+
+/* radio 버튼 커스터마이징 */
+.sort-radioGroup input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #3572EF;
+  background-color: white;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.sort-radioGroup input[type="radio"]:checked {
+  border-color: transparent;
+}
+
+/* 체크 아이콘 */
+.sort-check-icon {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  width: 20px;
+  height: 20px;
+  background-color: #3572EF;
+  color: white;
+  border-radius: 2px;
+  box-sizing: content-box;
+  z-index: 2;
+  padding: 0;
+}

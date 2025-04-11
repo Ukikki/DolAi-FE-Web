@@ -7,6 +7,7 @@ import { getProfileImageUrl } from "../utils/getProfileImageUrl";
 import NewNameModal from "../components/modal/NewName";
 import FriendInviteModal from "../pages/FriendInviteModal";
 import ConfirmModal from "../pages/ConfirmModal";
+import NotiList from "../components/notification/NotiList";
 import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
 
@@ -270,8 +271,11 @@ export default function Setting({ navigate }: SettingProps) {
           </div>
         </section>
 
+        {/* 알림 부분 */}
         <aside className="set-sides-section">
           <div className="set-pHeader">알림</div>
+          <div className="set-noti-list-wrapper">
+            <NotiList /></div>
         </aside>
       </main>
 

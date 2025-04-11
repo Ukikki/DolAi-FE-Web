@@ -1,0 +1,32 @@
+.set-noti-item {
+  width: 24vw;
+}
+.set-noti-header {
+  display: flex;
+  box-sizing: border-box; 
+  padding-left: 0.8vw;
+  align-items: center; 
+  font-size: 0.7vw;
+  font-family: "Jamsil_R";
+  color: #A0A0A0;
+}
+.set-noti-dot {
+  width: 2px;
+  height: 2px;
+  background-color: #A0A0A0;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+.set-noti-title {
+  box-sizing: border-box; 
+  padding-left: 0.8vw;
+  font-size: 1vw;
+  font-family: "Jamsil_R";
+  color: black;
+  margin-top:0.5vw;
+}
+.set-noti-divider {
+  margin-top: 1vw;
+  margin-bottom: 1vw;
+  border-bottom: 1px solid #B2B2B2;
+}

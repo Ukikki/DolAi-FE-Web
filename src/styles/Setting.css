@@ -1,12 +1,14 @@
 /* 양쪽 영역 */
 .set-sides-section {
   width: 30%;
+  height: calc(100vh - 5vh - 60px);
   display: flex;
   flex-direction: column;
   background: white;
   border-radius: 20px;
   border: solid 1px #B2B2B2;
   padding-left: 2.6vw;
+  box-sizing: border-box; 
 }
 /* 중간 영역 */
 .set-middle-section {
@@ -17,6 +19,7 @@
   border-radius: 20px;
   border: solid 1px #B2B2B2;
   padding-left: 2.6vw;
+  box-sizing: border-box;
 }
 /* 헤더글 */
 .set-pHeader {
@@ -83,12 +86,13 @@
   color:black;
   font-size: 1.6vw;
   margin-top: 7.8vh;
+  margin-bottom: 2.3vw;
 }
 .toggle-setting {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 2vh 1vw;
+  margin: 0 1vw 1.7vw 1vw;
   font-size: 1vw;
 }
 .toggle-label {
@@ -332,3 +336,17 @@ input:checked + .slider:before {
 }
 
 /* 알림 */
+.set-noti-list-wrapper {
+  margin-top: 2.6vw;
+  margin-right: 2.6vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;       
+  justify-content: flex-start;
+  overflow-y: auto;   /* 스크롤 */
+  margin-bottom: 1.4vw;
+}
+/* 스크롤 제거 */
+.set-noti-list-wrapper::-webkit-scrollbar {
+  display: none; 
+}
