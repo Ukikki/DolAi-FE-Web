@@ -1,8 +1,8 @@
 import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import "../styles/Meeting.css";
-import FriendInvite from "../components/modal/FriendInvite";
+import "@/styles/Meeting.css";
+import FriendInvite from "@/components/modal/FriendInvite";
 
 interface MeetingsProps {
     navigate: (path: string) => void;
@@ -15,6 +15,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
   const micRef = useRef<MediaStream | null>(null);     // 마이크 상태
 
   const location = useLocation();
+  const inviteUrl = location.state?.inviteUrl; // 초대 링크 받음
 
   // 친구, 화이트보드, 공유, 메시지는 한 개만 동작
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
@@ -124,7 +125,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
     <main className="video-container">
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
-    {activeTool === "invite" && <FriendInvite isVisible={true} onClose={() => setActiveTool(null)} />}
+    {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} onClose={() => setActiveTool(null)} />}
 
   </div>
   );
