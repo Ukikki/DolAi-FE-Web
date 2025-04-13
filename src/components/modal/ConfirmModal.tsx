@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/ConfirmModal.css";
+import "../modal/ConfirmModal.css";
 
 interface ConfirmModalProps {
   message: string; // ex: 정말 <strong style="color:blue">박성현</strong>을 삭제하시겠습니까?

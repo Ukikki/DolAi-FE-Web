@@ -161,12 +161,25 @@ input:checked + .slider:before {
   align-items: center;
   background: #F2F5F7;
   width: 32.7vw;
-  height: 2.6vw;
+  height: 2.8vw;
   border-radius: 20px;
   font-family: "Jamsil_R";
   color: #757575;
-  margin-top: 1.6vw;
+  padding-left: 0.9vw;
+  box-sizing: border-box;
 }
+.set-friend-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  padding-left: 0.6vw;
+  color: #333;
+}
+
+
 .set-friend-search-icon {
   width: 1.1vw;
   height: 1.1vw;
@@ -219,6 +232,7 @@ input:checked + .slider:before {
 .friend-request-actions {
   display: flex;
   gap: 0.5vw;
+  
 }
 
 .accept-btn,
@@ -267,11 +281,13 @@ input:checked + .slider:before {
   justify-content: space-between;
   align-items: center;
   margin-top: 2vh;
+  width: 32.7vw;
 }
 
 .friends-actions {
   display: flex;
   gap: 0.5vw;
+  
 }
 
 .friend-action-btn {
@@ -287,20 +303,29 @@ input:checked + .slider:before {
 .friend-action-btn.gray {
   background-color: #e0e0e0;
   color: #333;
+  
 }
 
 .friend-list-box {
   display: flex;
   flex-direction: column;
   margin-top: 1.5vh;
+  
   gap: 1vh;
 }
 
-.friend-list-item {
+.friend-request-item {
   display: flex;
   align-items: center;
-  padding: 0.8vh 1vw;
+
+  /* 기존에 있던 border, border-radius, background-color 등을 제거 */
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+
+  /* 리스트 형태이므로 아래쪽에 구분선만 남기고 싶다면? */
   border-bottom: 1px solid #ddd;
+  padding: 1vh 1vw;
 }
 
 .friend-avatar {
@@ -334,6 +359,24 @@ input:checked + .slider:before {
   cursor: pointer;
   padding: 0 0.5vw;
 }
+.friends-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* 기존: margin-top: 2vh; (있다면 유지) */
+  margin-top: 2vh; 
+  margin-bottom: 2vh; /* 아래쪽 공간을 추가하여 버튼과 검색창 사이 여유 확보 */
+  
+  font-family: "Jamsil_B";
+  font-size: 1.6vw;
+  color: black;
+}
+.friend-requests-list {
+  margin-top: 1.5vh; /* 검색창과 리스트 간격이 부족하면 늘려 주세요 */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5vh;        /* 카드들 사이 간격 */
+}
 
 /* 알림 */
 .set-noti-list-wrapper {
@@ -350,3 +393,33 @@ input:checked + .slider:before {
 .set-noti-list-wrapper::-webkit-scrollbar {
   display: none; 
 }
+.friends-actions {
+  display: flex;
+  gap: 0.8vw;
+}
+
+.friend-action-btn {
+  font-size: 0.9vw;
+  padding: 0.6vh 1.2vw;
+  border-radius: 8px;
+  border: none;
+  background-color: #f1f3f5;
+  color: #333;
+  cursor: pointer;
+  transition: 0.2s ease;
+  margin-left: 10px; 
+}
+
+.friend-action-btn:hover {
+  background-color: #3b5bdb;
+}
+
+.friend-action-btn.gray {
+  background-color: #f1f3f5;
+  color: #333;
+}
+
+.friend-action-btn.gray:hover {
+  background-color: #e9ecef;
+}
+/* 알림 */

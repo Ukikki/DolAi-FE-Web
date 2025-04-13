@@ -1,102 +1,177 @@
-/* RequestsPage.css */
-
-/* 가운데 영역 (요청 목록 영역) */
-.requests-middle-section {
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Navbar */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .navbar-left img {
+    height: 50px;
+  }
+  .navbar-icons {
+    display: flex;
+  }
+  .icon-container {
+    margin: 0 10px;
+  }
+  
+  /* Profile Images */
+  .profile-img {
+    width: 2.1vw;
+    height: 2.1vw;
+    border-radius: 10px;
+  }
+  .profile-large {
+    width: 13vw;
+    height: 13vw;
+    border-radius: 40px;
+  }
+  
+  /* Requests Card */
+  .requests-middle-section {
     width: 40%;
     display: flex;
     flex-direction: column;
     background: white;
     border-radius: 20px;
-    border: solid 1px #B2B2B2;
-    padding: 2vw 2.6vw;  /* 상하 2vw, 좌측은 2.6vw (일관성 유지) */
+    border: 1px solid #b1b1b1;
+    padding: 2vw 2.6vw;
     overflow-y: auto;
   }
-  
-  /* 요청 목록 헤더 (예: "요청 목록" 타이틀) */
-  .requests-subheader {
-    font-family: "Jamsil_B";
-    color: black;
-    font-size: 1.6vw;
-    margin-top: 3vh;
-    margin-bottom: 1vh;
+  .requests-card {
+    background: white;
+    border-radius: 20px;
+    
+    padding: 24px;
+    min-height: 60vh;
+  }
+  .requests-card-header {
+    display: flex;
+    align-items: center;
+  }
+  .requests-header {
+    font-size: 30px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .divider {
+    height: 1px;
+    background-color: #dcdcdc;
+    margin: 16px 0;
+  }
+  .divider-small {
+    height: 1px;
+    background-color: #dcdcdc;
+    margin: 8px 0;
   }
   
-  /* 요청 목록 컨테이너 */
-  .request-list {
-    border: 1px solid #B2B2B2;
-    border-radius: 10px;
-    padding: 1vw;
-    background-color: #fff;
-    margin-bottom: 2vh;
+  /* Section Headers */
+  .section-header {
+    font-size: 1.25rem;
+    font-family: "The_Jamsil-Regular";
+    margin-bottom: 12px;
   }
   
-  /* 개별 요청 아이템 */
+  /* Request Items */
   .request-item {
     display: flex;
     align-items: center;
-    padding: 1vh 1vw;
-    border-bottom: 1px solid #ddd;
-    gap: 1vw;
-    background-color: #fff;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #dcdcdc;
   }
-  
   .request-item:last-child {
     border-bottom: none;
   }
-  
-  /* 프로필 이미지 */
-  .request-profile {
-    width: 3vw;
-    height: 3vw;
+  .item-info {
+    display: flex;
+    align-items: center;
+  }
+  .avatar {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    overflow: hidden;
+  }
+  .avatar img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
+  .item-text {
+    margin-left: 16px;
+  }
+  .item-name {
+    font-size: 20px;
+    font-family: "The_Jamsil-Regular";
+  }
+  .item-email {
+    font-size: 0.875rem;
+    color: #505050;
+    font-family: "The_Jamsil-Regular";
+  }
   
-  /* 요청 정보 영역 (이름/이메일) */
-  .request-info {
+  /* Actions */
+  .item-actions {
     display: flex;
-    flex-direction: column;
+    gap: 8px;
   }
   
-  /* 요청 이름 스타일 */
-  .request-name {
-    font-family: "Jamsil_B";
-    font-size: 1vw;
-    color: #333;
-  }
-  
-  /* 요청 이메일 스타일 */
-  .request-email {
-    font-family: "Jamsil_R";
-    font-size: 0.9vw;
-    color: #757575;
-    margin-top: 0.5vh;
-  }
-  
-  /* 액션 버튼 영역 (예: 수락/거절 버튼) */
-  .request-actions {
-    margin-left: auto;  /* 남은 공간을 채워 오른쪽 정렬 */
-    display: flex;
-    gap: 0.5vw;
-  }
-  
-  .request-actions button {
-    font-size: 0.9vw;
-    padding: 0.5vh 1vw;
+  /* Accept and Reject Buttons */
+  .accept-btn {
+    height: 36px;
+    width: 70px;
+    background-color: #217aff;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 4px;
     border: none;
-    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .reject-btn {
+    height: 36px;
+    width: 70px;
+    background-color: white;
+    color: #505050;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #dcdcdc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Delete Icon */
+  .delete-icon {
+    width: 14px;
+    height: 14px;
     cursor: pointer;
   }
   
-  /* 수락 버튼 스타일 */
-  .accept-btn {
-    background-color: #4caf50;
-    color: #fff;
+  /* Misc */
+  .toggle-setting {
+    margin: 16px 0;
   }
-  
-  /* 거절 버튼 스타일 */
-  .reject-btn {
-    background-color: #f44336;
-    color: #fff;
+  .set-pHeader,
+  .set-nHeader {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+  .empty-message {
+    font-size: 1rem;
+    color: #505050;
+    font-family: "The_Jamsil-Regular";
   }
   

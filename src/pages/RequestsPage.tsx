@@ -1,6 +1,5 @@
-// RequestPage.tsx
-import { useState, useEffect } from "react";
-import { Home, Video, FileText, Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Home, Video, FileText } from "lucide-react";
 import { useUser } from "../hooks/useUser";
 import { handleSocialLogout } from "../utils/logout";
 import { getProfileImageUrl } from "../utils/getProfileImageUrl";
@@ -9,8 +8,8 @@ import "../styles/RequestsPage.css";
 
 interface FriendRequest {
   requestId: number;
-  fromUserId: string; // 요청을 보낸 사용자 ID
-  toUserId: string;   // 요청을 받은 사용자 ID
+  fromUserId: string;
+  toUserId: string;
   email: string;
   name: string;
   profileImage?: string;
@@ -25,26 +24,29 @@ export default function RequestsPage({ navigate }: RequestsPageProps) {
 
   const [friendRequestsReceived, setFriendRequestsReceived] = useState<FriendRequest[]>([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState<FriendRequest[]>([]);
-  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    fetchRequests();
+    fetchReceivedRequests();
+    fetchSentRequests();
   }, []);
 
-  const fetchRequests = async () => {
+  const fetchReceivedRequests = async () => {
     try {
       const res = await axios.get("/friends/requests");
-      console.log("전체 요청 응답:", res.data);
-      const data = res.data.data;
-      // 백엔드가 data.requests 배열로 모든 요청을 반환한다고 가정
-      const requests: FriendRequest[] = data.requests || [];
-      const myId = user?.id;
-      const received = requests.filter(req => req.toUserId === myId);
-      const sent = requests.filter(req => req.fromUserId === myId);
+      const received: FriendRequest[] = res.data.data.requests || [];
       setFriendRequestsReceived(received);
+    } catch (err) {
+      console.error("받은 요청 불러오기 실패:", err);
+    }
+  };
+
+  const fetchSentRequests = async () => {
+    try {
+      const res = await axios.get("/friends/requests/sent");
+      const sent: FriendRequest[] = res.data.data.sentRequests || [];
       setFriendRequestsSent(sent);
     } catch (err) {
-      console.error("친구 요청 목록 불러오기 실패", err);
+      console.error("보낸 요청 불러오기 실패:", err);
     }
   };
 
@@ -52,27 +54,25 @@ export default function RequestsPage({ navigate }: RequestsPageProps) {
     try {
       await axios.patch(`/friends/respond/${requestId}`, { action });
       setFriendRequestsReceived((prev) => prev.filter((req) => req.requestId !== requestId));
-      alert(`친구 요청 ${action} 처리되었습니다.`);
-      // 수락 후 Settings 페이지에서 친구 목록에 반영되도록 백엔드에서 생성되어야 함.
+      alert(`친구 요청을 ${action === "accept" ? "수락" : "거절"}했습니다.`);
     } catch (err) {
-      alert(`친구 요청 ${action}에 실패했습니다.`);
+      alert("요청 처리에 실패했습니다.");
     }
   };
 
-  const filteredReceived = friendRequestsReceived.filter(
-    (req) =>
-      req.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      req.email.toLowerCase().includes(searchText.toLowerCase())
-  );
-
-  const filteredSent = friendRequestsSent.filter(
-    (req) =>
-      req.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      req.email.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const handleCancelRequest = async (requestId: number) => {
+    try {
+      await axios.delete(`/friends/requests/${requestId}`);
+      setFriendRequestsSent((prev) => prev.filter((req) => req.requestId !== requestId));
+      alert("보낸 친구 요청을 취소했습니다.");
+    } catch (err) {
+      alert("요청 취소에 실패했습니다.");
+    }
+  };
 
   return (
     <div className="container">
+      {/* 좌측 상단 네비게이션 바 */}
       <header className="navbar">
         <div className="navbar-left">
           <img src="../images/main_logo.png" alt="DolAi Logo" />
@@ -92,30 +92,24 @@ export default function RequestsPage({ navigate }: RequestsPageProps) {
         </div>
         <div className="navbar-right">
           <div className="user-profile">
-            <img
-              src={getProfileImageUrl(user?.profile_image)}
-              style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px" }}
-              alt="프로필 이미지"
-            />
+            <img src={getProfileImageUrl(user?.profile_image)} alt="프로필 이미지" className="profile-img" />
           </div>
         </div>
       </header>
-  
+
       <main className="main">
+        {/* 좌측 사이드바: 프로필 영역 */}
         <aside className="set-sides-section">
           <div className="set-pHeader">프로필</div>
           <div className="set-user-profile">
-            <img
-              src={getProfileImageUrl(user?.profile_image)}
-              style={{ width: "13vw", height: "13vw", borderRadius: "40px" }}
-              alt="프로필 큰 이미지"
-            />
+            <img src={getProfileImageUrl(user?.profile_image)} alt="프로필 큰 이미지" className="profile-large" />
           </div>
           <div className="set-user-name-wrapper">
             <div className="set-user-name">{user?.name}</div>
           </div>
           <div className="set-user-email">{user?.email}</div>
           <div className="set-nHeader">알림 설정</div>
+          {/* 토글 등 기타 설정 내용 */}
           <div className="toggle-setting">
             <div className="toggle-label">친구 요청</div>
             <label className="switch">
@@ -141,40 +135,33 @@ export default function RequestsPage({ navigate }: RequestsPageProps) {
             로그아웃
           </div>
         </aside>
-  
+
+        {/* 중앙 영역: 요청목록 페이지 (리스트 스타일) */}
         <section className="requests-middle-section">
-          <div className="set-pHeader" style={{ display: "flex", alignItems: "center" }}>
-            <span
-              style={{
-                fontFamily: "Jamsil_B",
-                fontSize: "1.6vw",
-                color: "black",
-                cursor: "pointer",
-                marginRight: "1vw"
-              }}
-              onClick={() => navigate("/settings")}
-            >
-              &lt;요청목록
+          <div className="requests-header-container">
+            <span className="requests-header" onClick={() => navigate("/settings")}>
+              &lt; 요청목록
             </span>
           </div>
-  
-          <div className="requests-subheader">받은 요청</div>
-          <div className="request-list">
-            {filteredReceived.length === 0 ? (
-              <p>받은 친구 요청이 없습니다.</p>
+          <hr className="divider" />
+
+          <div className="requests-content">
+            <div className="section-header">받은 요청 ({friendRequestsReceived.length})</div>
+            {friendRequestsReceived.length === 0 ? (
+              <p className="empty-message">받은 친구 요청이 없습니다.</p>
             ) : (
-              filteredReceived.map((req) => (
-                <div className="request-item" key={req.requestId}>
-                  <img
-                    src={req.profileImage || "../images/default_profile.png"}
-                    alt="프로필"
-                    className="request-profile"
-                  />
-                  <div className="request-info">
-                    <span className="request-name">{req.name}</span>
-                    <span className="request-email">{req.email}</span>
+              friendRequestsReceived.map((req) => (
+                <div key={req.requestId} className="request-item">
+                  <div className="item-info">
+                    <div className="avatar">
+                      <img src={req.profileImage || "/images/default_profile.png"} alt={req.name} />
+                    </div>
+                    <div className="item-text">
+                      <div className="item-name">{req.name}</div>
+                      <div className="item-email">{req.email}</div>
+                    </div>
                   </div>
-                  <div className="request-actions">
+                  <div className="item-actions">
                     <button className="accept-btn" onClick={() => handleAcceptReject(req.requestId, "accept")}>
                       수락
                     </button>
@@ -185,35 +172,32 @@ export default function RequestsPage({ navigate }: RequestsPageProps) {
                 </div>
               ))
             )}
-          </div>
-  
-          <div className="requests-subheader">보낸 요청</div>
-          <div className="request-list">
-            {filteredSent.length === 0 ? (
-              <p>보낸 친구 요청이 없습니다.</p>
+
+            <div className="section-header">보낸 요청 ({friendRequestsSent.length})</div>
+            {friendRequestsSent.length === 0 ? (
+              <p className="empty-message">보낸 친구 요청이 없습니다.</p>
             ) : (
-              filteredSent.map((req) => (
-                <div className="request-item" key={req.requestId}>
-                  <img
-                    src={req.profileImage || "../images/default_profile.png"}
-                    alt="프로필"
-                    className="request-profile"
-                  />
-                  <div className="request-info">
-                    <span className="request-name">{req.name}</span>
-                    <span className="request-email">{req.email}</span>
+              friendRequestsSent.map((req) => (
+                <div key={req.requestId} className="request-item">
+                  <div className="item-info">
+                    <div className="avatar">
+                      <img src={req.profileImage || "/images/default_profile.png"} alt={req.name} />
+                    </div>
+                    <div className="item-text">
+                      <div className="item-name">{req.name}</div>
+                      <div className="item-email">{req.email}</div>
+                    </div>
                   </div>
-                  <div className="request-actions">
-                    <button className="reject-btn">요청 취소</button>
+                  <div className="item-actions">
+                    <img className="delete-icon" alt="Delete" src="/streamline-delete-1.svg" onClick={() => handleCancelRequest(req.requestId)} />
                   </div>
                 </div>
               ))
             )}
           </div>
-  
-          
         </section>
-  
+
+        {/* 우측 사이드바: 알림 영역 */}
         <aside className="set-sides-section">
           <div className="set-pHeader">알림</div>
         </aside>

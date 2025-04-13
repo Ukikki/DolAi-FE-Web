@@ -5,8 +5,8 @@ import { useUser } from "../hooks/useUser";
 import { handleSocialLogout } from "../utils/logout";
 import { getProfileImageUrl } from "../utils/getProfileImageUrl";
 import NewNameModal from "../components/modal/NewName";
-import FriendInviteModal from "../pages/FriendInviteModal";
-import ConfirmModal from "../pages/ConfirmModal";
+import FriendInviteModal from "../components/modal/FriendInviteModal";
+import ConfirmModal from "../components/modal/ConfirmModal";
 import NotiList from "../components/notification/NotiList";
 import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
@@ -90,18 +90,27 @@ export default function Setting({ navigate }: SettingProps) {
   const handleInviteSubmit = async (email: string) => {
     try {
       const res = await axios.get(`/user/search?email=${encodeURIComponent(email)}`);
-      const userFound = res.data.data;
+      const data = res.data?.data ?? [];
+  
+      // 배열이면 이메일로 일치하는 유저 찾기
+      const userFound = Array.isArray(data)
+        ? data.find((user: any) => user.email === email)
+        : data;
+  
       if (!userFound || !userFound.id) {
         alert("해당 이메일의 사용자를 찾을 수 없습니다.");
         return;
       }
+  
       await axios.post("/friends/request", { targetUserId: userFound.id });
       alert("친구 요청을 보냈습니다.");
       setShowInviteModal(false);
     } catch (err) {
+      console.error("❌ 친구 요청 오류:", err);
       alert("친구 요청 보내기에 실패했습니다.");
     }
   };
+  
 
   // 친구 삭제 클릭 시
   const handleDeleteFriendClick = (friendId: string) => {
@@ -226,25 +235,24 @@ export default function Setting({ navigate }: SettingProps) {
         </aside>
 
         <section className="set-middle-section">
-          <div className="set-pHeader" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span>친구 ({filteredFriends.length})</span>
-            <div>
-              <button onClick={() => setShowInviteModal(true)} style={{ marginRight: "10px" }}>
-                친구요청
-              </button>
-              <button onClick={() => navigate("/settings/requestpage")}>요청목록</button>
-            </div>
-          </div>
-          <div className="search-friends-wrapper" style={{ marginTop: "2vh" }}>
-            <Search className="set-friend-search-icon" />
-            <input
-              type="text"
-              placeholder="검색"
-              className="friend-search"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-          </div>
+        <div className="friends-header">
+  <span>친구 ({filteredFriends.length})</span>
+  <div className="friends-actions">
+    <button className="friend-action-btn" onClick={() => setShowInviteModal(true)}>친구 추가</button>
+    <button className="friend-action-btn gray" onClick={() => navigate("/settings/requestpage")}>요청 목록</button>
+  </div>
+</div>
+          <div className="search-friends-wrapper">
+  <Search className="set-friend-search-icon" />
+  <input
+    type="text"
+    placeholder="검색"
+    className="set-friend-search-input"
+    value={searchText}
+    onChange={(e) => setSearchText(e.target.value)}
+  />
+</div>
+
           <div className="friend-requests-list">
             {filteredFriends.length === 0 ? (
               <p>친구가 없습니다.</p>

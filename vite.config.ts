@@ -1,20 +1,23 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
 export default defineConfig({
   server: {
     proxy: {
-      '/directories': {
-        target: 'http://localhost:8081', // 백엔드 주소
+      '/api': {
+        target: 'http://localhost:8081', // Spring Boot 백엔드 포트
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // /api 없애고 /user/search 처럼 맞추기
       },
-    },
+      '/directories': {
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+      }
+    }
   },
   define: {
     global: 'window',
   },
   
   plugins: [react()],
-})
-
+});
