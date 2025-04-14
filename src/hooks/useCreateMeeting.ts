@@ -5,12 +5,13 @@ export function useCreateMeeting() {
     title: string;
     startTime: string;
   }) => {
-    try {
-      const response = await axios.post("/meetings", { title, startTime });
-      return response.data.data; 
-    } catch (error) {
-      console.error("회의 생성 실패:", error);
-      throw error;
+    const response = await axios.post("/meetings", { title, startTime });
+    const data = response.data;
+
+    if (data && (data.status === "success" || data.id)) {
+      return data;
+    } else {
+      throw new Error("회의 생성 실패");
     }
   };
   return { createMeeting };

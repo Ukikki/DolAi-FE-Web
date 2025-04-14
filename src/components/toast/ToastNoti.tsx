@@ -1,4 +1,4 @@
-import './ToastNoti.css';
+import "@/styles/common/toast/ToastNoti.css";
 import { X } from "lucide-react";
 
 interface ToastNotiProps {

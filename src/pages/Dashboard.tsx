@@ -10,6 +10,7 @@ import { useUser } from "@/hooks/useUser";
 import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
 import CreateMeeting from "@/components/modal/CreateMeeting";
 import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
+import Minutes from "@/components/meeting/Minutes";
 
 interface DashboardProps {
   selected: String;
@@ -70,7 +71,6 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
           </div>
         </div>
       </header>
-
       <main className="main">
         {/* 좌측 패널 (최근 회의) */}
         <aside className="left-section">
@@ -101,7 +101,7 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
             <GraphView />
           ) : (
             <div className="login-container">
-              <img src="@/images/login_bg.png" alt="login bg" className="login-bg" />
+              <img src="./images/login_bg.png" alt="login bg" className="login-bg" />
               <div className="login-form">
                 <button className="login-btn" onClick={() => redirectToSocialAuth('kakao')} />
                 <button className="login-btn2" onClick={() => redirectToSocialAuth('google')} />
@@ -115,6 +115,8 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
           <Calendar addTodo={addTodo} />
         </aside>
       </main>
+
+      {/* <Minutes /> */}
     </div>
   );
 };

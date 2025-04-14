@@ -27,11 +27,12 @@ export default function FriendInvite({ isVisible, inviteUrl }: FriendInviteProps
 
 const handleInvite = async (email: string) => {
   try {
-    await axios.post("/join", {
+    const res = await axios.post("/join", {
       email,
       inviteUrl,
     });
     setInvited((prev) => ({ ...prev, [email]: true }));
+    console.log("✅ 초대 성공:", res.data);
   } catch (error) {
     console.error("초대 실패:", error);
   }

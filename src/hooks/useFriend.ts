@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
-
-export interface Friend {
-  id: string;
-  name: string;
-  email: string;
-  profileImage?: string;
-}
+import { Friend } from "@/types/friend";
 
 // 친구 목록 가져오기
 export function useFriend(isVisible: boolean) {
