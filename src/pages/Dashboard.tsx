@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { NavigateFunction } from "react-router-dom";
-import { Card } from "../components/Card";
-import { ToDoList, useTodoList } from "../components/ToDo";
-import Calendar from "../components/MyCalendar";
-import GraphView from "../components/GraphView";
+import { Card } from "@/components/Card";
+import { ToDoList, useTodoList } from "@/components/ToDo";
+import Calendar from "@/components/MyCalendar";
+import GraphView from "@/components/GraphView";
 import { Home, Video, FileText } from "lucide-react";
-import { redirectToSocialAuth } from '../services/authService';
-import { useUser } from "../hooks/useUser";
-import { useCreateMeeting } from "../hooks/useCreateMeeting"; 
-import CreateMeetingModal from "../components/modal/CreateMeeting";
-import { getProfileImageUrl } from "../utils/getProfileImageUrl";
+import { redirectToSocialAuth } from '@/services/authService';
+import { useUser } from "@/hooks/useUser";
+import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
+import CreateMeeting from "@/components/modal/CreateMeeting";
+import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
+import Minutes from "@/components/meeting/Minutes";
 
 interface DashboardProps {
   selected: String;
@@ -29,29 +30,18 @@ const handleCardClick = (id: number) => {
   alert(`${id}`);
 };
 
-
 export default function Dashboard({ selected, navigate } : DashboardProps) {
   const { todos, addTodo } = useTodoList(); // todos와 addTodo 함수
   const { user, isLoggedIn } = useUser(); // 로그인 상태
-  const { createMeeting } = useCreateMeeting(); // 회의 생성
   const [showModal, setShowModal] = useState(false); // 회의 생성 시 모달
-  
-  const handleCreateMeeting = async (title: string, startTime: string) => {
-    try {
-      await createMeeting({ title, startTime });
-      setShowModal(false);
-      navigate("/meetings", { state: { showInvite: true } });
-    } catch (e) {
-      alert("회의 생성에 실패했어요!");
-    }
-  };
+  const { handleCreateMeeting } = useNavigateMeeting();
 
   return (
     <div className="container">
       {/* 상단 네비게이션 */}
       <header className="navbar">
         <div className="navbar-left">
-          <img src="../images/main_logo.png" alt="DolAi Logo" />
+          <img src="./images/main_logo.png" alt="DolAi Logo" />
         </div>
 
         <div className="navbar-center">
@@ -59,8 +49,9 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
             <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
               <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            {showModal && ( <CreateMeetingModal onCreate={handleCreateMeeting} onClose={() => setShowModal(false)}/>
-           )}
+            {showModal && ( <CreateMeeting onCreate={(title, startTime) => handleCreateMeeting(title, startTime, setShowModal)} 
+              onClose={() => setShowModal(false)}/>
+            )}
             <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => setShowModal(true)}>
               <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
@@ -80,7 +71,6 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
           </div>
         </div>
       </header>
-
       <main className="main">
         {/* 좌측 패널 (최근 회의) */}
         <aside className="left-section">
@@ -111,7 +101,7 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
             <GraphView />
           ) : (
             <div className="login-container">
-              <img src="../images/login_bg.png" alt="login bg" className="login-bg" />
+              <img src="./images/login_bg.png" alt="login bg" className="login-bg" />
               <div className="login-form">
                 <button className="login-btn" onClick={() => redirectToSocialAuth('kakao')} />
                 <button className="login-btn2" onClick={() => redirectToSocialAuth('google')} />
@@ -125,6 +115,8 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
           <Calendar addTodo={addTodo} />
         </aside>
       </main>
+
+      {/* <Minutes /> */}
     </div>
   );
 };

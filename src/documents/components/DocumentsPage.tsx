@@ -3,10 +3,10 @@ import { NavigateFunction } from "react-router-dom";
 import { Home, Video, FileText, Search } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
-import { useUser } from "../../hooks/useUser";
-import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
-import { useCreateMeeting } from "../../hooks/useCreateMeeting"; 
-import CreateMeetingModal from "../../components/modal/CreateMeeting";
+import { useUser } from "@/hooks/useUser";
+import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
+import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
+import CreateMeeting from "@/components/modal/CreateMeeting";
 
 interface DocumentsProps {
   selected: string;
@@ -52,18 +52,8 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
   const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
   const { user } = useUser(); // 로그인 상태 함수
-  const { createMeeting } = useCreateMeeting(); // 회의 생성
+  const { handleCreateMeeting } = useNavigateMeeting(); // 회의 생성
   const [showModal, setShowModal] = useState(false); // 회의 생성 시 모달
-  
-  const handleCreateMeeting = async (title: string, startTime: string) => {
-    try {
-      await createMeeting({ title, startTime });
-      setShowModal(false);
-      navigate("/meetings", { state: { showInvite: true } });
-    } catch (e) {
-      alert("회의 생성에 실패했어요!");
-    }
-  };
 
   // 폴더 리스트를 localStorage에 저장
   useEffect(() => {
@@ -288,15 +278,16 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     <div className="container" onClick={() => setContextMenuPos(null)}>
       <header className="navbar">
         <div className="navbar-left">
-          <img src="../images/main_logo.png" alt="DolAi Logo" />
+          <img src="./images/main_logo.png" alt="DolAi Logo" />
         </div>
         <div className="navbar-center">
           <nav className="navbar-icons">
             <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
               <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            {showModal && ( <CreateMeetingModal onCreate={handleCreateMeeting} onClose={() => setShowModal(false)}/>
-           )}
+            {showModal && ( <CreateMeeting onCreate={(title, startTime) => handleCreateMeeting(title, startTime, setShowModal)} 
+              onClose={() => setShowModal(false)}/>
+            )}
             <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => setShowModal(true)}>
               <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>

@@ -12,6 +12,7 @@
   box-sizing: border-box;
   padding: 1.2vw 1.8vw;
   margin-bottom: 0.4vw;
+  cursor: pointer;
 }
 .toast-noti-close {
   position: absolute;
@@ -26,6 +27,9 @@
   font-family: "Jamsil_R";
   font-size: 0.7vw;
   color: #A0A0A0;
+}
+.toast-noti-highlight {
+  color: #3572EF !important;
 }
 .toast-noti-title {
   margin-top: 0.8vw;

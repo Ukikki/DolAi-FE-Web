@@ -1,20 +1,24 @@
 import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import "../styles/Meeting.css";
-import FriendInvite from "../components/modal/FriendInvite";
+import "@/styles/meeting/Meeting.css";
+import FriendInvite from "@/components/modal/FriendInvite";
+import { useLeaveMeeting } from "@/hooks/useLeaveMeeting";
 
 interface MeetingsProps {
     navigate: (path: string) => void;
 }
 
-export default function Meetings({ navigate } : MeetingsProps) {
+export default function Meetings() {
   const [isCameraOn, setIsCameraOn] = useState(false); // 카메라 아이콘 상태 on/off
   const [isMicOn, setIsMicOn] = useState(false);       // 마이크 아이콘 상태 on/off
   const videoRef = useRef<HTMLVideoElement>(null);     // 비디오 상태
   const micRef = useRef<MediaStream | null>(null);     // 마이크 상태
 
   const location = useLocation();
+  const inviteUrl = location.state?.inviteUrl; // 초대 링크 받음
+  const meetingId = location.state?.meetingId; // 미팅 id 받음
+  const handleLeave = useLeaveMeeting(meetingId);
 
   // 친구, 화이트보드, 공유, 메시지는 한 개만 동작
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
@@ -23,6 +27,12 @@ export default function Meetings({ navigate } : MeetingsProps) {
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
+  useEffect(() => {
+    console.log("📦 받은 meetingId:", meetingId);
+    console.log("📦 받은 inviteUrl:", inviteUrl);
+
+  }, [meetingId, inviteUrl]);
+  
   useEffect(() => {
     if (isCameraOn) { // 카메라 켜기
       navigator.mediaDevices
@@ -115,7 +125,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
             <MessageSquareText style={{ ...iconStyle, color: activeTool === "message" ? "black" : "#757575" }} />
           </div>
 
-        <div className="meet-icon-container meet-leave" onClick={() => navigate("/documents")}>
+        <div className="meet-icon-container meet-leave" onClick={ handleLeave }>
         </div>
       </nav>
     </header>
@@ -124,7 +134,7 @@ export default function Meetings({ navigate } : MeetingsProps) {
     <main className="video-container">
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
-    {activeTool === "invite" && <FriendInvite isVisible={true} onClose={() => setActiveTool(null)} />}
+    {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} onClose={() => setActiveTool(null)} />}
 
   </div>
   );

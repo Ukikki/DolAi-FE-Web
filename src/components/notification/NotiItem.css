@@ -1,5 +1,6 @@
 .set-noti-item {
   width: 24vw;
+  cursor: pointer;
 }
 .set-noti-header {
   display: flex;

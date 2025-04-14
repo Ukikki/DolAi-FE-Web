@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Modal.css";
+import "@/styles/common/modal/Modal.css";
 
 interface Props {
   currentName: string;

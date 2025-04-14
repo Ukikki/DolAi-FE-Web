@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ToastNotification from "./ToastNoti";
-import "./ToastManager.css";
+import "@/styles/common/toast/ToastManager.css";
 import { ToastContext, Toast } from "../../hooks/useToast";
 
 let idCounter = 0;

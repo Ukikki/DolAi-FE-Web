@@ -1,42 +1,47 @@
 import "./FriendInvite.css";
 import { Link, Search, Check } from "lucide-react";
 import { useState } from "react";
+import { useFriend } from "@/hooks/useFriend";
+import axios from "@/utils/axiosInstance";
 
 interface FriendInviteProps {
   isVisible: boolean;
+  inviteUrl: string;
   onClose?: () => void;
 }
 
-export default function FriendInvite({ isVisible }: FriendInviteProps) {
+export default function FriendInvite({ isVisible, inviteUrl }: FriendInviteProps) {
   if (!isVisible) return null;
 
   const [copied, setCopied] = useState(false);
   const [search, setSearch] = useState("");
   const [invited, setInvited] = useState<Record<string, boolean>>({});
+  const { friends } = useFriend(isVisible);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(""); // 추후 미팅룸 링크 추가
+    navigator.clipboard.writeText(inviteUrl); // 추후 미팅룸 링크 추가
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // 2초 후 원래 텍스트로 복귀
+    setTimeout(() => setCopied(false), 3000); // 3초 후 원래 텍스트로 복귀
+    console.error("inviteUrl", inviteUrl);
   };
-  const handleInvite = (email: string) => {
+
+const handleInvite = async (email: string) => {
+  try {
+    const res = await axios.post("/join", {
+      email,
+      inviteUrl,
+    });
     setInvited((prev) => ({ ...prev, [email]: true }));
-  };
+    console.log("✅ 초대 성공:", res.data);
+  } catch (error) {
+    console.error("초대 실패:", error);
+  }
+};
 
-  // 예시
-  const friends = [
-    { name: "송희", email: "sh2271121@hansung.ac.kr" },
-    { name: "지혜", email: "zuzihe@hansung.ac.kr" },
-    { name: "성현", email: "toby1117@hansung.ac.kr" },
-    { name: "지운", email: "2291001@hansung.ac.kr" },
-    { name: "인환", email: "ihjung@hansung.ac.kr" },
-  ]
-
-  // 친구예시 기준으로 필터링
   const filteredFriends = friends.filter(
-    (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
+    (friend) =>
+      friend.name.toLowerCase().includes(search.toLowerCase()) ||
+      friend.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -51,9 +56,9 @@ export default function FriendInvite({ isVisible }: FriendInviteProps) {
         <input type="text" placeholder="Search by email" className="meet-friend-search"
         value={search} onChange={ (e) => setSearch(e.target.value) }/>
       </div>
-      <ul className="meet-friend-list">
+      <div className="meet-friend-list">
         {filteredFriends.length > 0 && filteredFriends.map((user, index) => (
-          <li key={index} className="meet-friend-item">
+          <div key={index} className="meet-friend-item">
           <div className="meet-friend-profile"/>
             <div className="meet-friend-info">
               <span className="meet-friend-name">{user.name}</span>
@@ -66,10 +71,10 @@ export default function FriendInvite({ isVisible }: FriendInviteProps) {
             >
             {invited[user.email] ? <Check color="white" style={{ width: "1.6vw", height: "1.6vw", cursor: "pointer" }}/> : "초대"}
             </button>
-          </li>
+          </div>
           ))
         }
-      </ul>
+      </div>
     </div>
   );
 }
