@@ -1,57 +1,99 @@
-/* FriendInviteModal.css 예시 */
-.invite-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .invite-modal-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 20px;
-    width: 350px;
-  }
-  
-  .invite-input {
-    width: 100%;
-    padding: 0.6rem;
-    margin-bottom: 1rem;
-    box-sizing: border-box;
-    border-radius: 8px;
-    border: 1px solid #BDBDBD; /* 태두리 추가 */
-  }
-  
-  .invite-modal-actions {
-    text-align: right;
-  }
-  
-  .invite-modal-actions button {
-    margin-left: 0.5rem;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-  }
-  .invite-modal-container h2 {
-    text-align: center;
-    margin-bottom: 1.5rem; /* 아래 간격도 약간 주면 더 예쁩니다 */
-  }
+/* FriendInviteModal.css */
 
-  .user-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    text-align: left;
-  }
-  
-  .error-text {
-    color: red;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-  }
+.invite-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.invite-modal-container {
+  position: relative; /* X 버튼의 절대 위치를 위해 */
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  width: 500px;
+  height: 400px;
+}
+
+/* 우측 상단 X 버튼 (취소 버튼) */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: #000000;
+}
+
+/* 초대 입력 필드 */
+.invite-input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #BDBDBD;
+}
+
+/* 액션 버튼 영역 (우측 정렬) */
+.invite-modal-actions {
+  text-align: right;
+}
+
+/* 액션 버튼 스타일 (기존 보내기 버튼 등) */
+.invite-modal-actions button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background-color: #217aff;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  font-family: "Jamsil_R";
+}
+
+/* 제목 스타일 */
+.invite-modal-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* 사용자 미리보기 스타일 */
+.user-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+/* 에러 텍스트 */
+.error-text {
+  color: red;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* "추가" 버튼 스타일 */
+.add-btn {
+  width: 110px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-family: "Jamsil_R";
+  border-radius: 12px;
+  background-color: #217aff;
+  color: white;
+  border: none;
+}

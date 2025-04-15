@@ -161,7 +161,7 @@ input:checked + .slider:before {
   align-items: center;
   background: #F2F5F7;
   width: 32.7vw;
-  height: 2.8vw;
+  height: 2.6vw;
   border-radius: 20px;
   font-family: "Jamsil_R";
   color: #757575;
@@ -181,6 +181,7 @@ input:checked + .slider:before {
 
 
 .set-friend-search-icon {
+  margin-left: -0.7vw; 
   width: 1.1vw;
   height: 1.1vw;
   color: #757575;
@@ -195,6 +196,7 @@ input:checked + .slider:before {
 }
 
 .friend-request-item {
+  margin-left: -2vw; 
   display: flex;
   align-items: center;
   padding: 1vh 1vw;
@@ -215,6 +217,10 @@ input:checked + .slider:before {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+.friend-delete-btn{
+  background-color:transparent;
+  border: none;
 }
 
 .friend-request-name {
@@ -422,4 +428,5 @@ input:checked + .slider:before {
 .friend-action-btn.gray:hover {
   background-color: #e9ecef;
 }
+
 /* 알림 */

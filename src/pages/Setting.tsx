@@ -1,5 +1,5 @@
 // Setting.tsx
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Home, Video, FileText, Pencil, Search, X } from "lucide-react";
 import { useUser } from "../hooks/useUser";
 import { handleSocialLogout } from "../utils/logout";
@@ -8,6 +8,7 @@ import NewNameModal from "../components/modal/NewName";
 import FriendInviteModal from "../components/modal/FriendInviteModal";
 import ConfirmModal from "../components/modal/ConfirmModal";
 import NotiList from "../components/notification/NotiList";
+import RequestsPage from "./RequestsPage"; // 중앙 요청 목록 화면 (수정된 RequestsPage)
 import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
 
@@ -27,17 +28,21 @@ export default function Setting({ navigate }: SettingProps) {
   const { user, refetch } = useUser();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // 좌측 프로필 편집 관련 상태
   const [isNewNameModal, setIsNewNameModal] = useState(false);
   const openModal = () => setIsNewNameModal(true);
   const closeModal = () => setIsNewNameModal(false);
 
+  // 친구 목록 등 상태
   const [friends, setFriends] = useState<Friend[]>([]);
   const [searchText, setSearchText] = useState("");
   const [showInviteModal, setShowInviteModal] = useState(false);
-
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [friendToDelete, setFriendToDelete] = useState<string | null>(null); // 추가
-  const [friendToDeleteName, setFriendToDeleteName] = useState<string | null>(null); // 수정된 부분
+  const [friendToDelete, setFriendToDelete] = useState<string | null>(null);
+  const [friendToDeleteName, setFriendToDeleteName] = useState<string | null>(null);
+
+  // 중앙 영역 전환: "main" → 친구 목록,  "requests" → 요청 목록
+  const [currentView, setCurrentView] = useState<"main" | "requests">("main");
 
   useEffect(() => {
     fetchFriends();
@@ -46,15 +51,14 @@ export default function Setting({ navigate }: SettingProps) {
   const fetchFriends = async () => {
     try {
       const res = await axios.get("/friends");
-      console.log("전체 응답 데이터:", res.data);
       const list: Friend[] = res.data.data.friends || [];
-      console.log("서버에서 받은 친구 목록:", JSON.stringify(list, null, 2));
       setFriends(list);
     } catch (err) {
-      console.error("친구 목록 불러오기 실패", err);
+      console.error("친구 목록 불러오기 실패:", err);
     }
   };
 
+  // 파일 입력 클릭 트리거
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -62,18 +66,14 @@ export default function Setting({ navigate }: SettingProps) {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
     const formData = new FormData();
     formData.append("image", file);
-    console.log(file);
     try {
-      const res = await axios.patch("/user/profile", formData, { });
-  
-      const newImageUrl = res.data.data.profileImage;
-      console.log("✅ 프로필 이미지 업로드 성공:", newImageUrl);
+      const res = await axios.patch("/user/profile", formData);
+      console.log("프로필 이미지 업로드 성공:", res.data.data.profileImage);
       refetch();
-      } catch (err) {
-      console.error("❌ 프로필 이미지 업로드 실패", err);
+    } catch (err) {
+      console.error("프로필 이미지 업로드 실패:", err);
     }
   };
 
@@ -91,28 +91,22 @@ export default function Setting({ navigate }: SettingProps) {
     try {
       const res = await axios.get(`/user/search?email=${encodeURIComponent(email)}`);
       const data = res.data?.data ?? [];
-  
-      // 배열이면 이메일로 일치하는 유저 찾기
       const userFound = Array.isArray(data)
-        ? data.find((user: any) => user.email === email)
+        ? data.find((u: any) => u.email === email)
         : data;
-  
       if (!userFound || !userFound.id) {
         alert("해당 이메일의 사용자를 찾을 수 없습니다.");
         return;
       }
-  
       await axios.post("/friends/request", { targetUserId: userFound.id });
       alert("친구 요청을 보냈습니다.");
       setShowInviteModal(false);
     } catch (err) {
-      console.error("❌ 친구 요청 오류:", err);
+      console.error("친구 요청 오류:", err);
       alert("친구 요청 보내기에 실패했습니다.");
     }
   };
-  
 
-  // 친구 삭제 클릭 시
   const handleDeleteFriendClick = (friendId: string) => {
     const friend = friends.find((f) => f.id === friendId);
     if (friend) {
@@ -122,38 +116,38 @@ export default function Setting({ navigate }: SettingProps) {
     }
   };
 
-  // 삭제 확정 시
   const handleConfirmDelete = async () => {
-    if (friendToDelete) {
-      try {
-        await axios.delete(`/friends/${friendToDelete}`);
-        setFriends((prev) => prev.filter((friend) => friend.id !== friendToDelete));
-        alert("친구가 삭제되었습니다.");
-      } catch (err) {
-        alert("친구 삭제에 실패하였습니다.");
-      } finally {
-        setShowDeleteConfirm(false);
-        setFriendToDelete(null);
-        setFriendToDeleteName(null);
-      }
+    if (!friendToDelete) return;
+    try {
+      await axios.delete(`/friends/${friendToDelete}`);
+      setFriends((prev) => prev.filter((friend) => friend.id !== friendToDelete));
+      alert("친구가 삭제되었습니다.");
+    } catch (err) {
+      alert("친구 삭제에 실패하였습니다.");
+    } finally {
+      setShowDeleteConfirm(false);
+      setFriendToDelete(null);
+      setFriendToDeleteName(null);
     }
   };
 
-  // 삭제 취소 시
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
     setFriendToDelete(null);
     setFriendToDeleteName(null);
   };
 
-  const filteredFriends = friends.filter(
-    (friend) =>
-      friend.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      friend.email.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredFriends = friends.filter((friend) => {
+    const lowerSearch = searchText.toLowerCase();
+    return (
+      friend.name.toLowerCase().includes(lowerSearch) ||
+      friend.email.toLowerCase().includes(lowerSearch)
+    );
+  });
 
   return (
     <div className="container">
+      {/* 상단 네비게이션 바 */}
       <header className="navbar">
         <div className="navbar-left">
           <img src="../images/main_logo.png" alt="DolAi Logo" />
@@ -177,14 +171,22 @@ export default function Setting({ navigate }: SettingProps) {
               src={getProfileImageUrl(user?.profile_image)}
               style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px" }}
               alt="프로필 이미지"
+              className="profile-img"
             />
           </div>
         </div>
       </header>
 
       <main className="main">
+        {/* 좌측 프로필 영역 */}
         <aside className="set-sides-section">
-          <input type="file" accept="image/*" ref={fileInputRef} style={{ display: "none" }} onChange={handleImageChange} />
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleImageChange}
+          />
           <div className="set-pHeader">프로필</div>
           <div className="set-user-profile" onClick={handleClick}>
             <img
@@ -234,56 +236,77 @@ export default function Setting({ navigate }: SettingProps) {
           )}
         </aside>
 
+        {/* 중앙 영역: 친구 목록 또는 요청 목록 */}
         <section className="set-middle-section">
-        <div className="friends-header">
-  <span>친구 ({filteredFriends.length})</span>
-  <div className="friends-actions">
-    <button className="friend-action-btn" onClick={() => setShowInviteModal(true)}>친구 추가</button>
-    <button className="friend-action-btn gray" onClick={() => navigate("/settings/requestpage")}>요청 목록</button>
-  </div>
-</div>
-          <div className="search-friends-wrapper">
-  <Search className="set-friend-search-icon" />
-  <input
-    type="text"
-    placeholder="검색"
-    className="set-friend-search-input"
-    value={searchText}
-    onChange={(e) => setSearchText(e.target.value)}
-  />
-</div>
-
-          <div className="friend-requests-list">
-            {filteredFriends.length === 0 ? (
-              <p>친구가 없습니다.</p>
-            ) : (
-              filteredFriends.map((friend) => (
-                <div className="friend-request-item" key={friend.id}>
-                  <img
-                    src={friend.profileImage}
-                    alt="프로필"
-                    className="friend-request-profile"
-                  />
-                  <div className="friend-request-info">
-                    <span className="friend-request-name">{friend.name}</span>
-                    <span className="friend-request-email">{friend.email}</span>
-                  </div>
-                  <div className="friend-delete-action">
-                    <button className="friend-delete-btn" onClick={() => handleDeleteFriendClick(friend.id)}>
-                      <X style={{ width: "1.4vw", height: "1.4vw", cursor: "pointer" }} />
-                    </button>
-                  </div>
+          {currentView === "main" ? (
+            <>
+              <div className="friends-header"  style={{ marginTop: "54px" }}>
+                <span>친구 ({filteredFriends.length})</span>
+                <div className="friends-actions">
+                  <button
+                    className="friend-action-btn"
+                    onClick={() => setShowInviteModal(true)}
+                  >
+                    친구 추가
+                  </button>
+                  <button
+                    className="friend-action-btn gray"
+                    onClick={() => setCurrentView("requests")}
+                  >
+                    요청 목록
+                  </button>
                 </div>
-              ))
-            )}
-          </div>
+              </div>
+              <div className="search-friends-wrapper"  style={{ marginTop: "30px",marginBottom:"34px" }}>
+                <Search className="set-friend-search-icon" />
+                <input
+                  type="text"
+                  placeholder="검색"
+                  className="set-friend-search-input"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+              <div className="friend-requests-list">
+                {filteredFriends.length === 0 ? (
+                  <p>친구가 없습니다.</p>
+                ) : (
+                  filteredFriends.map((friend) => (
+                    <div className="friend-request-item" key={friend.id}>
+                      <img
+                        src={friend.profileImage}
+                        alt="프로필"
+                        className="friend-request-profile"
+                      />
+                      <div className="friend-request-info">
+                        <span className="friend-request-name">{friend.name}</span>
+                        <span className="friend-request-email">{friend.email}</span>
+                      </div>
+                      <div>
+                        <button
+                          className="friend-delete-btn"
+                          onClick={() => handleDeleteFriendClick(friend.id)}
+                        >
+                          <X style={{ width: "1.4vw", height: "1.4vw", cursor: "pointer" }} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            // 요청 목록 영역: RequestsPage 컴포넌트를 중앙 영역에 렌더링
+            <RequestsPage onBack={() => setCurrentView("main")} navigate={navigate} />
+          )}
         </section>
 
-        {/* 알림 부분 */}
+        {/* 우측 사이드바: 알림 영역 */}
         <aside className="set-sides-section">
           <div className="set-pHeader">알림</div>
           <div className="set-noti-list-wrapper">
-            <NotiList /></div>
+            <NotiList />
+          </div>
         </aside>
       </main>
 

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, NavigateFunction } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Dashboard from "./pages/Dashboard";
@@ -10,8 +10,6 @@ import AuthCallback from "./pages/AuthCallback";
 import RequestsPage from "./pages/RequestsPage";
 import ToastManager from "./components/toast/ToastManager";
 import NotificationListener from "./components/NotificationListener";
-// import BackOffice from "./pages/BackOffice";
-
 import "./App.css";
 
 function AppContent() {
@@ -27,30 +25,38 @@ function AppContent() {
   }, [location.pathname]);
   
   return (
-
     <Routes>
-    <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
-    <Route path="/meetings" element={<Meetings navigate={navigate} />} />
-    <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
-    <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
-    <Route path="/auth/callback" element={<AuthCallback />} />
-  
-    {/* ✅ 독립된 페이지처럼 동작하면서 URL은 settings 하위로 보임 */}
-    <Route path="/settings" element={<Setting navigate={navigate} />} />
-    <Route path="/settings/requestpage" element={<RequestsPage navigate={navigate} />} />
-  </Routes>
-  
+      <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
+      <Route path="/meetings" element={<Meetings navigate={navigate} />} />
+      <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
+      <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      
+      {/* 아래 두 Route 중에서 하나를 사용하는 방식에 따라 수정할 수 있습니다.  
+          만약 Setting 컴포넌트 내부에서 상태 전환으로 RequestsPage를 다루고 있다면 
+          Route는 하나만 사용하고, RequestsPage는 Setting 내부에서 렌더링합니다.  
+          여기서는 onBack 속성을 전달하여 오류를 해결하는 예시입니다. */}
+      <Route path="/settings" element={<Setting navigate={navigate} />} />
+      <Route
+        path="/settings/requestpage"
+        element={
+          <RequestsPage
+            navigate={navigate}
+            onBack={() => navigate("/settings")}
+          />
+        }
+      />
+    </Routes>
   );
 }
 
 export default function App() {
   return (
     <BrowserRouter>
-    <ToastManager>
-      <NotificationListener />
-      <AppContent />
-      {/* <BackOffice /> */}
-    </ToastManager>
+      <ToastManager>
+        <NotificationListener />
+        <AppContent />
+      </ToastManager>
     </BrowserRouter>
   );
 }
