@@ -10,7 +10,6 @@ import { useUser } from "@/hooks/useUser";
 import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
 import CreateMeeting from "@/components/modal/CreateMeeting";
 import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
-import Minutes from "@/components/meeting/Minutes";
 
 interface DashboardProps {
   selected: String;
@@ -115,8 +114,6 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
           <Calendar addTodo={addTodo} />
         </aside>
       </main>
-
-      {/* <Minutes /> */}
     </div>
   );
 };

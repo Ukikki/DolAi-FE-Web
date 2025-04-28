@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
-import { useUser } from "../hooks/useUser";
-import { useToast } from "../hooks/useToast";
+import { useUser } from "@/hooks/useUser";
+import { useToast } from "@/hooks/useToast";
 
 const NotificationListener = () => {
   const { user } = useUser();

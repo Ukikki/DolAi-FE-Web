@@ -1,0 +1,68 @@
+/* 실시간 회의록 컨테이너 */
+.minutes-container {
+  position: absolute;
+  left: 1.8vw;
+  top: 5.1vw;
+  width: 31.3vw;
+  height: 45.8vw;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
+  box-sizing: border-box;
+  padding: 2.1vw;
+  z-index: 2;
+}
+/* 스크롤바 안보이게 */
+.minutes-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 회의록 리스트 */
+.minutes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+  color: black;
+}
+.minutes-bubble-item {
+  width: fit-content;
+  max-width: 26.8vw;
+  min-height: 3.2vw;
+  height: auto;
+  background:  rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  padding: 1vw;
+  animation: floatUpFadeIn 0.6s ease-out;
+  transition: opacity 0.2s ease-out;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 1vw;
+  font-family: "Jamsil_L";
+}
+.minutes-speaker {
+  font-family: "Jamsil_M";
+  transition: opacity 0.2s ease-out;
+}
+
+/* 애니메이션 */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes floatUpFadeIn {
+  0% {
+    transform: translateY(30%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}

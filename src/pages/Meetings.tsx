@@ -1,19 +1,19 @@
-import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText } from "lucide-react";
+import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "@/styles/meeting/Meeting.css";
 import FriendInvite from "@/components/modal/FriendInvite";
 import { useLeaveMeeting } from "@/hooks/useLeaveMeeting";
-
-interface MeetingsProps {
-    navigate: (path: string) => void;
-}
+import Minutes from "@/components/meeting/Minutes";
+import SttListener from "@/components/listeners/STTListener";
 
 export default function Meetings() {
   const [isCameraOn, setIsCameraOn] = useState(false); // 카메라 아이콘 상태 on/off
   const [isMicOn, setIsMicOn] = useState(false);       // 마이크 아이콘 상태 on/off
   const videoRef = useRef<HTMLVideoElement>(null);     // 비디오 상태
   const micRef = useRef<MediaStream | null>(null);     // 마이크 상태
+  const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
+  const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
 
   const location = useLocation();
   const inviteUrl = location.state?.inviteUrl; // 초대 링크 받음
@@ -26,12 +26,6 @@ export default function Meetings() {
     setActiveTool(prev => prev === tool ? null : tool); // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
-
-  useEffect(() => {
-    console.log("📦 받은 meetingId:", meetingId);
-    console.log("📦 받은 inviteUrl:", inviteUrl);
-
-  }, [meetingId, inviteUrl]);
   
   useEffect(() => {
     if (isCameraOn) { // 카메라 켜기
@@ -132,6 +126,29 @@ export default function Meetings() {
     
     {/* 카메라 화면 표시 */}
     <main className="video-container">
+    {/* STT 리스너 */}
+    {meetingId && (
+      <SttListener
+        meetingId={meetingId}
+        onReceive={(log) => {
+          setMinutesLog((prev) => [...prev, { speaker: log.speaker, text: log.text }]);
+        }}
+      />
+    )}
+
+    {/* 회의록 뷰 */}
+    <div className={`minutes-container-wrapper ${showMinutes ? "slide-in" : "slide-out"}`}>
+      <Minutes minutes={minutesLog} /> 
+    </div>
+
+    {/* 화살표 버튼 */}
+    <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
+      style={{
+        left: showMinutes ? "calc(0.1vw + 31.3vw)" : "0vw"
+    }}>
+      {showMinutes ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+    </button>
+
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
     {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} onClose={() => setActiveTool(null)} />}

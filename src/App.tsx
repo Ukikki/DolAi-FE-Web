@@ -9,7 +9,7 @@ import Setting from "./pages/Setting";
 import AuthCallback from "./pages/AuthCallback";
 import RequestsPage from "./pages/RequestsPage";
 import ToastManager from "./components/toast/ToastManager";
-import NotificationListener from "./components/NotificationListener";
+import NotificationListener from "./components/listeners/NotificationListener";
 import "./App.css";
 
 function AppContent() {
