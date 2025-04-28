@@ -11,14 +11,8 @@ import NotiList from "../components/notification/NotiList";
 import RequestsPage from "./RequestsPage"; // 중앙 요청 목록 화면 (수정된 RequestsPage)
 import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
-
-interface Friend {
-  id: string;
-  email: string;
-  name: string;
-  profileImage?: string;
-  status?: string;
-}
+import { Friend } from "@/types/friend";
+import { useLocation } from "react-router-dom";
 
 interface SettingProps {
   navigate: (path: string) => void;
@@ -42,7 +36,10 @@ export default function Setting({ navigate }: SettingProps) {
   const [friendToDeleteName, setFriendToDeleteName] = useState<string | null>(null);
 
   // 중앙 영역 전환: "main" → 친구 목록,  "requests" → 요청 목록
-  const [currentView, setCurrentView] = useState<"main" | "requests">("main");
+//  const [currentView, setCurrentView] = useState<"main" | "requests">("main");
+const location = useLocation();
+const isRequestPage = location.pathname.includes("/settings/requestpage");
+
 
   useEffect(() => {
     fetchFriends();
@@ -169,9 +166,8 @@ export default function Setting({ navigate }: SettingProps) {
           <div className="user-profile">
             <img
               src={getProfileImageUrl(user?.profile_image)}
-              style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px" }}
+              style={{ width: "2.1vw", borderRadius: "10px" }}
               alt="프로필 이미지"
-              className="profile-img"
             />
           </div>
         </div>
@@ -238,66 +234,70 @@ export default function Setting({ navigate }: SettingProps) {
 
         {/* 중앙 영역: 친구 목록 또는 요청 목록 */}
         <section className="set-middle-section">
-          {currentView === "main" ? (
-            <>
-              <div className="friends-header"  style={{ marginTop: "54px" }}>
-                <span>친구 ({filteredFriends.length})</span>
-                <div className="friends-actions">
-                  <button
-                    className="friend-action-btn"
-                    onClick={() => setShowInviteModal(true)}
-                  >
-                    친구 추가
-                  </button>
-                  <button
-                    className="friend-action-btn gray"
-                    onClick={() => setCurrentView("requests")}
-                  >
-                    요청 목록
-                  </button>
-                </div>
+        {isRequestPage ? (
+          <RequestsPage onBack={() => navigate("/settings")} navigate={navigate} />
+        ) : (
+          <>
+            <div className="friends-header" style={{ marginTop: "2.6vw" }}>
+              <span>친구 ({filteredFriends.length})</span>
+              <div className="friends-actions">
+                <button
+                  className="friend-action-btn"
+                  onClick={() => setShowInviteModal(true)}
+                >
+                  친구 추가
+                </button>
+                <button
+                  className="friend-action-btn gray"
+                  onClick={() => navigate("/settings/requestpage")}
+                >
+                  요청 목록
+                </button>
               </div>
-              <div className="search-friends-wrapper"  style={{ marginTop: "30px",marginBottom:"34px" }}>
-                <Search className="set-friend-search-icon" />
-                <input
-                  type="text"
-                  placeholder="검색"
-                  className="set-friend-search-input"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                />
-              </div>
-              <div className="friend-requests-list">
-                {filteredFriends.length === 0 ? (
-                  <p>친구가 없습니다.</p>
-                ) : (
-                  filteredFriends.map((friend) => (
-                    <div className="friend-request-item" key={friend.id}>
-                      <img
-                        src={friend.profileImage}
-                        alt="프로필"
-                        className="friend-request-profile"
-                      />
-                      <div className="friend-request-info">
-                        <span className="friend-request-name">{friend.name}</span>
-                        <span className="friend-request-email">{friend.email}</span>
-                      </div>
-                      <div>
-                        <button
-                          className="friend-delete-btn"
-                          onClick={() => handleDeleteFriendClick(friend.id)}
-                        >
-                          <X style={{ width: "1.4vw", height: "1.4vw", cursor: "pointer" }} />
-                        </button>
-                      </div>
+            </div>
+
+            <div
+              className="search-friends-wrapper"
+              style={{ marginTop: "1.6vw", marginBottom: "0.7vw" }}
+            >
+              <Search className="set-friend-search-icon" />
+              <input
+                type="text"
+                placeholder="검색"
+                className="set-friend-search-input"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
+
+            <div className="friend-requests-list">
+              {filteredFriends.length === 0 ? (
+                <p>친구가 없습니다.</p>
+              ) : (
+                filteredFriends.map((friend) => (
+                  <div className="friend-request-item" key={friend.id}>
+                    <img
+                      src={friend.profile_image}
+                      alt="프로필"
+                      className="friend-request-profile"
+                    />
+                    <div className="friend-request-info">
+                      <span className="friend-request-name">{friend.name}</span>
+                      <span className="friend-request-email">{friend.email}</span>
                     </div>
+                    <div>
+                      <button
+                        className="friend-delete-btn"
+                        onClick={() => handleDeleteFriendClick(friend.id)}
+                      >
+                        <X style={{ width: "1.4vw", height: "1.4vw", marginTop: "0.5vw", cursor: "pointer" }} />
+                      </button>
+                    </div>
+                  </div>
                   ))
                 )}
               </div>
             </>
-          ) : (
-            // 요청 목록 영역: RequestsPage 컴포넌트를 중앙 영역에 렌더링
-            <RequestsPage onBack={() => setCurrentView("main")} navigate={navigate} />
           )}
         </section>
 

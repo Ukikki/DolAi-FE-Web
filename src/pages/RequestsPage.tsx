@@ -1,10 +1,7 @@
-// RequestsPage.tsx
 import React, { useEffect, useState } from "react";
-import { Home, Video, FileText } from "lucide-react";
-import { useUser } from "../hooks/useUser";
 import axios from "../utils/axiosInstance";
-import { getProfileImageUrl } from "../utils/getProfileImageUrl";
 import "../styles/RequestsPage.css";
+import { ChevronLeft, X } from "lucide-react";
 
 type NavigateFunction = (path: string) => void;
 
@@ -14,7 +11,7 @@ interface FriendRequest {
   toUserId: string;
   email: string;
   name: string;
-  profileImage?: string;
+  profile_image: string;
 }
 
 interface RequestsPageProps {
@@ -23,8 +20,6 @@ interface RequestsPageProps {
 }
 
 export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
-  const { user } = useUser();
-
   const [friendRequestsReceived, setFriendRequestsReceived] = useState<FriendRequest[]>([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState<FriendRequest[]>([]);
 
@@ -80,30 +75,25 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
   return (
     // 중앙 영역에 표시할 요청 콘텐츠 영역 (상단에 53px 간격 적용)
     <div className="requests-content" >
-      <div className="requests-header-container">
-        <span className="requests-header" onClick={onBack}>
-          <span style={{ marginRight: "15px" }}>&lt;</span>요청목록
-        </span>
-      </div>
-      
+      <span className="requests-header" onClick={onBack}>
+        <ChevronLeft style={{ width: "1.6vw", height: "1.6vw" }} strokeWidth={3} /> 
+        요청목록
+      </span>
 
       {/* 받은 요청 섹션 */}
-      <div className="section-block" style={{ marginTop: "46px", marginBottom: "248px" }}>
+      <div className="section-block" style={{ marginTop: "2.3vw" }}>
         <div className="section-header">
           받은 요청 ({friendRequestsReceived.length})
         </div>
         {friendRequestsReceived.length === 0 ? (
-          <p className="empty-message">받은 친구 요청이 없습니다.</p>
+          <div className="empty-message">받은 친구 요청이 없습니다.</div>
         ) : (
           friendRequestsReceived.map((req, index) => (
             <React.Fragment key={req.requestId}>
               <div className="request-item">
                 <div className="item-info">
                   <div className="avatar">
-                    <img
-                      src={req.profileImage || "/images/default_profile.png"}
-                      alt={req.name}
-                    />
+                    <img src={req.profile_image} alt={req.name} />
                   </div>
                   <div className="item-text">
                     <div className="item-name">{req.name}</div>
@@ -125,10 +115,6 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
                   </button>
                 </div>
               </div>
-              {/* 마지막 항목이 아니라면 작은 구분선 추가 */}
-              {index !== friendRequestsReceived.length - 1 && (
-                <hr className="divider-small" />
-              )}
             </React.Fragment>
           ))
         )}
@@ -140,7 +126,7 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
           보낸 요청 ({friendRequestsSent.length})
         </div>
         {friendRequestsSent.length === 0 ? (
-          <p className="empty-message">보낸 친구 요청이 없습니다.</p>
+          <div className="empty-message">보낸 친구 요청이 없습니다.</div>
         ) : (
           friendRequestsSent.map((req, index) => (
             <React.Fragment key={req.requestId}>
@@ -148,7 +134,7 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
                 <div className="item-info">
                   <div className="avatar">
                     <img
-                      src={req.profileImage || "/images/default_profile.png"}
+                      src={req.profile_image}
                       alt={req.name}
                     />
                   </div>
@@ -157,18 +143,11 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
                     <div className="item-email">{req.email}</div>
                   </div>
                 </div>
-                <div className="item-actions">
-                  <img
-                    className="delete-icon"
-                    alt="Delete"
-                    src="/streamline-delete-1.svg"
-                    onClick={() => handleCancelRequest(req.requestId)}
-                  />
-                </div>
+                <X
+                  className="delete-icon"
+                  onClick={() => handleCancelRequest(req.requestId)}
+                />
               </div>
-              {index !== friendRequestsSent.length - 1 && (
-                <hr className="divider-small" />
-              )}
             </React.Fragment>
           ))
         )}

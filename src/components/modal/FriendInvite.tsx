@@ -59,7 +59,7 @@ const handleInvite = async (email: string) => {
       <div className="meet-friend-list">
         {filteredFriends.length > 0 && filteredFriends.map((user, index) => (
           <div key={index} className="meet-friend-item">
-          <div className="meet-friend-profile"/>
+          <img className="meet-friend-profile" src={user.profile_image}/>
             <div className="meet-friend-info">
               <span className="meet-friend-name">{user.name}</span>
               <span className="meet-friend-email">{user.email}</span>

@@ -13,7 +13,7 @@ interface UserDto {
   id: string;
   email: string;
   name: string;
-  profileImage: string;
+  profile_image: string;
 }
 
 export default function FriendInviteModal({ onClose, onSubmit }: FriendInviteModalProps) {
@@ -88,7 +88,7 @@ export default function FriendInviteModal({ onClose, onSubmit }: FriendInviteMod
             {foundUsers.map((user) => (
               <div key={user.id} className="user-preview">
                 <img
-                  src={user.profileImage}
+                  src={user.profile_image}
                   alt="프로필"
                   width={50}
                   height={50}

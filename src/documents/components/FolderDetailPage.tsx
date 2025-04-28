@@ -103,30 +103,11 @@ export default function FolderDetailPage({ selected, navigate }: FolderDetailPro
 
         <div className="navbar-right">
           <div className="user-profile">
-            {user?.profile_image ? (
-              <img
-                src={getProfileImageUrl(user?.profile_image)}
-                style={{
-                  width: "2.1vw",
-                  height: "2.1vw",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                }}
-                onClick={() => navigate("/settings")}
-                alt="사용자 프로필"
-              />
-            ) : (
-              <div
-                style={{
-                  width: "2.1vw",
-                  height: "2.1vw",
-                  borderRadius: "10px",
-                  cursor: "default",
-                }}
-              />
-            )}
-          </div>
-        </div>
+          {user?.profile_image ? (
+            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
+            ): (
+            <div style={{ width: "2.1vw", borderRadius: "10px", cursor: "default"}} />
+          )}</div></div>
       </header>
 
       {/* 두 번째 줄: 뒤로/앞으로 화살표, 폴더 아이콘, 경로, 정렬 메뉴 및 검색 입력창 */}

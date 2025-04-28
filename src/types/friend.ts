@@ -2,5 +2,6 @@ export interface Friend {
   id: string;
   name: string;
   email: string;
-  profileImage?: string;
+  profile_image: string;
+  status?: string;
 }

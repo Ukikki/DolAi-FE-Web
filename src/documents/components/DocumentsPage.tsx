@@ -299,9 +299,9 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         <div className="navbar-right">
         <div className="user-profile">
         {user?.profile_image ? (
-            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
+            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
             ): (
-          <div style={{ width: "2.1vw", height: "2.1vw", borderRadius: "10px", cursor: "default"}} />
+          <div style={{ width: "2.1vw", borderRadius: "10px", cursor: "default"}} />
         )}</div></div>
       </header>
 

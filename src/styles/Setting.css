@@ -26,7 +26,7 @@
   font-family: "Jamsil_B";
   color:black;
   font-size: 1.6vw;
-  margin-top: 5.3vh;
+  margin-top: 2.6vw;
 }
 
 /* 프로필 */
@@ -58,34 +58,12 @@
   margin-left: 1vw;
   margin-top: 1.6vh;
 }
-/* 연필 클릭 모달 */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4); /* 반투명 배경 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
-
 /* 알림 */
 .set-nHeader {
   font-family: "Jamsil_B";
   color:black;
   font-size: 1.6vw;
-  margin-top: 7.8vh;
+  margin-top: 4.2vw;
   margin-bottom: 2.3vw;
 }
 .toggle-setting {
@@ -160,12 +138,13 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   background: #F2F5F7;
-  width: 32.7vw;
+  width: 32vw;
   height: 2.6vw;
   border-radius: 20px;
   font-family: "Jamsil_R";
   color: #757575;
-  padding-left: 0.9vw;
+  padding-left: 0.8vw;
+  gap: 0.6vw;
   box-sizing: border-box;
 }
 .set-friend-search-input {
@@ -175,40 +154,33 @@ input:checked + .slider:before {
   background-color: transparent;
   font-family: "Jamsil_R";
   font-size: 1vw;
-  padding-left: 0.6vw;
-  color: #333;
+  color: black;
 }
-
-
 .set-friend-search-icon {
-  margin-left: -0.7vw; 
   width: 1.1vw;
   height: 1.1vw;
+  stroke-width: 2;
   color: #757575;
   cursor: pointer;
-  padding-left: 0.9vw;
 }
+
 .friend-requests-list {
-  margin-top: 2vh;
   display: flex;
   flex-direction: column;
-  gap: 1.5vh;
 }
 
 .friend-request-item {
-  margin-left: -2vw; 
   display: flex;
   align-items: center;
-  padding: 1vh 1vw;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background-color: #fff;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding: 1vw 0;
+  margin-right: 2.4vw;
 }
-
 .friend-request-profile {
-  width: 3vw;
-  height: 3vw;
-  border-radius: 50%;
+  width: 2.8vw;
+  height: 2.8vw;
+  border-radius: 10px;
   object-fit: cover;
   margin-right: 1vw;
 }
@@ -217,28 +189,30 @@ input:checked + .slider:before {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-.friend-delete-btn{
-  background-color:transparent;
-  border: none;
+  justify-content: center;
 }
 
 .friend-request-name {
-  font-family: "Jamsil_B";
+  font-family: "Jamsil_M";
   font-size: 1vw;
   color: #333;
 }
 
 .friend-request-email {
   font-family: "Jamsil_R";
-  font-size: 0.9vw;
+  font-size: 0.8vw;
   color: #757575;
+  margin-top: 0.3vw;
+}
+
+.friend-delete-btn{
+  background-color:transparent;
+  border: none;
 }
 
 .friend-request-actions {
   display: flex;
   gap: 0.5vw;
-  
 }
 
 .accept-btn,
@@ -286,7 +260,6 @@ input:checked + .slider:before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2vh;
   width: 32.7vw;
 }
 
@@ -311,60 +284,6 @@ input:checked + .slider:before {
   color: #333;
   
 }
-
-.friend-list-box {
-  display: flex;
-  flex-direction: column;
-  margin-top: 1.5vh;
-  
-  gap: 1vh;
-}
-
-.friend-request-item {
-  display: flex;
-  align-items: center;
-
-  /* 기존에 있던 border, border-radius, background-color 등을 제거 */
-  border: none;
-  border-radius: 0;
-  background-color: transparent;
-
-  /* 리스트 형태이므로 아래쪽에 구분선만 남기고 싶다면? */
-  border-bottom: 1px solid #ddd;
-  padding: 1vh 1vw;
-}
-
-.friend-avatar {
-  width: 2.5vw;
-  height: 2.5vw;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 1vw;
-}
-
-.friend-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.friend-name {
-  font-family: "Jamsil_B";
-  font-size: 1vw;
-}
-
-.friend-email {
-  font-family: "Jamsil_R";
-  font-size: 0.9vw;
-  color: #757575;
-}
-
-.friend-remove {
-  color: #aaa;
-  font-size: 1.3vw;
-  cursor: pointer;
-  padding: 0 0.5vw;
-}
 .friends-header {
   display: flex;
   justify-content: space-between;
@@ -372,16 +291,10 @@ input:checked + .slider:before {
   /* 기존: margin-top: 2vh; (있다면 유지) */
   margin-top: 2vh; 
   margin-bottom: 2vh; /* 아래쪽 공간을 추가하여 버튼과 검색창 사이 여유 확보 */
-  
+  width: 32.7vw;
   font-family: "Jamsil_B";
   font-size: 1.6vw;
   color: black;
-}
-.friend-requests-list {
-  margin-top: 1.5vh; /* 검색창과 리스트 간격이 부족하면 늘려 주세요 */
-  display: flex;
-  flex-direction: column;
-  gap: 1.5vh;        /* 카드들 사이 간격 */
 }
 
 /* 알림 */
@@ -405,28 +318,28 @@ input:checked + .slider:before {
 }
 
 .friend-action-btn {
-  font-size: 0.9vw;
-  padding: 0.6vh 1.2vw;
-  border-radius: 8px;
+  font-size: 0.8vw;
+  width: 5.2vw;
+  height: 2.1vw;
+  border-radius: 10px;
   border: none;
-  background-color: #f1f3f5;
-  color: #333;
+  background-color: #F2F5F7;
+  color: #505050;
   cursor: pointer;
   transition: 0.2s ease;
-  margin-left: 10px; 
+  gap: 0.5vw;
 }
 
 .friend-action-btn:hover {
-  background-color: #3b5bdb;
+  background-color: #3572EF;
+  color: white;
 }
 
 .friend-action-btn.gray {
-  background-color: #f1f3f5;
+  background-color: #F2F5F7;
   color: #333;
 }
 
 .friend-action-btn.gray:hover {
   background-color: #e9ecef;
 }
-
-/* 알림 */
