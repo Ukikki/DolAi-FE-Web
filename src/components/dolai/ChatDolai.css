@@ -2,11 +2,14 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 60px;
-    
+    border-radius: 40px;
+    font-family: 'Jamsil Medium', sans-serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    box-shadow: none;           /* 그림자 완전 제거 */
+    background-clip: padding-box; /* border-radius 영역 바깥 배경 클립 */
   }
   
   .chat-dolai-header {
@@ -47,7 +50,7 @@
     padding: 8px 12px;
     max-width: 70%;
     word-break: break-word;
-    
+    font-family: 'Neo Regular', sans-serif;
   }
   
   .chat-dolai-message.dolai {
@@ -60,6 +63,7 @@
   padding: 8px 12px;
   max-width: 70%;
   word-break: break-word;
+  font-family: 'Neo Bold', sans-serif;
   }
   
   .chat-dolai-input {

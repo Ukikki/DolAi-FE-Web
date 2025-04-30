@@ -34,16 +34,10 @@ export default function Meetings() {
 
   // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
-  const [chatPosition, setChatPosition] = useState({ x:  2000, y: 80 });
+  const [chatPosition, setChatPosition] = useState({ x:  2000, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
   const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
 
-  const toggleTool = (tool: typeof activeTool | "dolai") => {
-    if (tool === "dolai") {
-      setIsDolAiOpen(prev => !prev);
-    } else {
-      setActiveTool(prev => (prev === tool ? null : tool));
-    }
-  };
+ 
 
   // --- 카메라 on/off 효과 ---
   useEffect(() => {
@@ -124,8 +118,8 @@ export default function Meetings() {
           </div>
 
           {/* 채팅 토글 */}
-          <div className="meet-icon-container" onClick={() => toggleTool("dolai")}>
-            <MessageSquareText style={{ width: "2vw", height: "2vw", cursor: "pointer", color: isDolAiOpen ? "black" : "#757575" }} />
+          <div className="meet-icon-container" onClick={() => toggleIconTool("message")}>
+            <MessageSquareText style={{ width: "2vw", height: "2vw", cursor: "pointer", color: activeTool === "message" ? "black" : "#757575" }} />
           </div>
           {/* 나가기 버튼 */}
           <div className="meet-icon-container meet-leave" onClick={handleLeave}></div>
@@ -160,10 +154,10 @@ export default function Meetings() {
             onClick={() => setIsDolAiOpen(prev => !prev)}
             style={{
               position: "absolute",
-              top: "40px",
-              right: "0px",
-              width: "65px",
-              height: "59px",
+              top: "2.1vw",
+              right: "0vw",
+              width: "3.4vw",
+              height: "3.1vw",
               cursor: "pointer",
               zIndex: 1001,
               transform: "translateY(-50%)",
@@ -180,19 +174,19 @@ export default function Meetings() {
           <div
             style={{
               position: "absolute",
-              top: "40px",  // 아이콘이 일부 걸치도록 위치 조정
+              top: "2.1vw",  // 아이콘이 일부 걸치도록 위치 조정
               left: 0,
               right:0,
               width: "100%",
-              height: isDolAiOpen ? `calc(100% - 40px)` : "0px",
+              height: isDolAiOpen ? `calc(100% - 2.1vw)` : "0vw",
               overflow: "hidden",
               backgroundColor: "rgba(0,0,0,0.6)",
-              borderRadius: "16px",
+              borderRadius: "0.83vw",
               transition: "height 0.3s ease",
               zIndex: 1000
             }}
           >
-            {isDolAiOpen && <ChatDolai onClose={() => setIsDolAiOpen(false)} />}
+            {isDolAiOpen && <ChatDolai />}
           </div>
         </div>
       </Rnd>

@@ -1,11 +1,9 @@
 import { useState } from "react";
 import "./ChatDolai.css";
 
-interface ChatDolaiProps {
-  onClose: () => void;
-}
 
-export default function ChatDolai({ onClose }: ChatDolaiProps) {
+
+export default function ChatDolai() {
   const [messages, setMessages] = useState<{ sender: "me" | "dolai"; text: string }[]>([]);
   const [inputText, setInputText] = useState("");
 
@@ -41,13 +39,16 @@ export default function ChatDolai({ onClose }: ChatDolaiProps) {
 
         {/* ★ 여기에 draft 말풍선 */}
         <div className="chat-dolai-message me draft">
-          <input
-            className="chat-dolai-input-draft"
-            placeholder="메시지를 입력하세요..."
-            value={inputText}
-            onChange={e => setInputText(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleSendMessage()}
-          />
+        <input
+   className="chat-dolai-input-draft"
+   placeholder="메시지를 입력하세요..."
+   value={inputText}   onChange={e => setInputText(e.target.value)}
+  onKeyUp={e => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  }}
+/>
           <button
             className="chat-dolai-send-button"
             onClick={handleSendMessage}
@@ -64,3 +65,4 @@ export default function ChatDolai({ onClose }: ChatDolaiProps) {
     </div>
   );
 }
+
