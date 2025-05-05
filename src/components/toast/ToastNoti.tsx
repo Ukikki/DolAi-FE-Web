@@ -1,10 +1,12 @@
 import "@/styles/common/toast/ToastNoti.css";
 import { X } from "lucide-react";
+import { useNotiHandler } from "@/hooks/useNotiHandler";
 
 interface ToastNotiProps {
   id: number;
   title: string;
   category: string;
+  url: string;
   onClose: (id: number) => void;
 }
 
@@ -25,7 +27,6 @@ const highlightIndex = (text: string): React.ReactNode[] => {
     );    
 
     lastIndex = regex.lastIndex;
-    console.log(match);
   }
 
   if (lastIndex < text.length) {
@@ -34,11 +35,11 @@ const highlightIndex = (text: string): React.ReactNode[] => {
   return parts;
 };
 
-const ToastNoti = ({ id, category, title, onClose }: ToastNotiProps) => {
-  console.log(highlightIndex(title));
+const ToastNoti = ({ id, category, title, url, onClose }: ToastNotiProps) => {
+  const { handleNotiClick } = useNotiHandler();
 
   return (
-    <div className="toast-noti">
+    <div className="toast-noti" onClick={() => handleNotiClick(category, url)}>
       <X className="toast-noti-close" onClick={() => onClose(id)} />
         <span className="toast-noti-category">{category}</span>
         <span className="toast-noti-title">{highlightIndex(title)}</span>

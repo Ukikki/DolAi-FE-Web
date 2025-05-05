@@ -5,6 +5,7 @@ export interface Notification {
   category: "친구" | "회의" | "일정";
   createdAt: string;
   title: string;
+  targetUrl: string;
 }
 
 export const useNotification = () => {

@@ -1,60 +1,103 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Device } from "mediasoup-client";
 import { Socket } from "socket.io-client";
 
 interface Props {
   socket: Socket;
   rtpCapabilities: any;
-  videoRef: React.RefObject<HTMLVideoElement>;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  isCameraOn: boolean;
+  isMicOn: boolean;
 }
 
-export function useMediasoupProducer({ socket, rtpCapabilities, videoRef }: Props) {
+export function useMediasoupProducer({
+  socket,
+  rtpCapabilities,
+  videoRef,
+  isCameraOn,
+  isMicOn,
+}: Props) {
+  const deviceRef = useRef<Device | null>(null);
+  const sendTransportRef = useRef<any>(null);
+  const videoProducerRef = useRef<any>(null);
+  const audioProducerRef = useRef<any>(null);
+
   useEffect(() => {
+    if (!socket || !rtpCapabilities || typeof rtpCapabilities !== "object") return;
+    if (!isCameraOn && !isMicOn) return;
+
     const run = async () => {
       const device = new Device();
       await device.load({ routerRtpCapabilities: rtpCapabilities });
+      deviceRef.current = device;
 
-      // 1. 캠/마이크 가져오기
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true,
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-
-      // 2. Transport 생성 요청
       const { params } = await new Promise<any>((resolve) => {
         socket.emit("createWebRtcTransport", { consumer: false }, resolve);
       });
 
-      // 3. Transport 생성
+      // transport 생성
       const sendTransport = device.createSendTransport(params);
+      sendTransportRef.current = sendTransport;
 
-      // 4. DTLS 연결
       sendTransport.on("connect", ({ dtlsParameters }, callback) => {
         socket.emit("transport-connect", { dtlsParameters });
         callback();
       });
 
-      // 5. produce 요청
       sendTransport.on("produce", ({ kind, rtpParameters }, callback) => {
-        socket.emit("transport-produce", { kind, rtpParameters }, (res: { id: string }) => {
-          callback({ id : res.id });
+        socket.emit("transport-produce", { kind, rtpParameters }, ( res: {id: string } ) => {
+          callback({ id: res.id });
         });
       });
 
-      // 6. 실제 produce (트랙 전송)
-      for (const track of stream.getTracks()) {
-        await sendTransport.produce({ track });
-      }
-
-      console.log("🎥 캠/마이크 produce 완료!");
+      if (isCameraOn) await produceVideo();
+      if (isMicOn) await produceAudio();
     };
 
-    if (socket && rtpCapabilities) {
-      run();
+    run();
+
+    // 언마운트
+    return () => {
+      videoProducerRef.current?.close();
+      audioProducerRef.current?.close();
+      sendTransportRef.current?.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!sendTransportRef.current || !deviceRef.current) return;
+    if (isCameraOn) {
+      produceVideo();
+    } else {
+      videoProducerRef.current?.close();
+      videoProducerRef.current = null;
     }
-  }, [socket, rtpCapabilities, videoRef]);
+  }, [isCameraOn]);
+
+  useEffect(() => {
+    if (!sendTransportRef.current || !deviceRef.current) return;
+    if (isMicOn) {
+      produceAudio();
+    } else {
+      audioProducerRef.current?.close();
+      audioProducerRef.current = null;
+    }
+  }, [isMicOn]);
+
+  const produceVideo = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const track = stream.getVideoTracks()[0];
+    if (videoRef.current) videoRef.current.srcObject = stream;
+
+    const producer = await sendTransportRef.current.produce({ track });
+    videoProducerRef.current = producer;
+  };
+
+  const produceAudio = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const track = stream.getAudioTracks()[0];
+
+    const producer = await sendTransportRef.current.produce({ track });
+    audioProducerRef.current = producer;
+  };
 }

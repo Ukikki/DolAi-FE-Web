@@ -5,11 +5,12 @@ export interface Toast {
   id: number;
   title: string;
   category: string;
+  url: string;
 }
 
 export interface ToastContextcategory {
   toasts: Toast[];
-  addToast: (title: string, category: string) => void;
+  addToast: (title: string, category: string, url: string) => void;
   removeToast: (id: number) => void;
 }
 

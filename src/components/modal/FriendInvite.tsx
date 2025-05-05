@@ -7,10 +7,11 @@ import axios from "@/utils/axiosInstance";
 interface FriendInviteProps {
   isVisible: boolean;
   inviteUrl: string;
+  meetingId: string;
   onClose?: () => void;
 }
 
-export default function FriendInvite({ isVisible, inviteUrl }: FriendInviteProps) {
+export default function FriendInvite({ isVisible, inviteUrl, meetingId }: FriendInviteProps) {
   if (!isVisible) return null;
 
   const [copied, setCopied] = useState(false);
@@ -22,21 +23,20 @@ export default function FriendInvite({ isVisible, inviteUrl }: FriendInviteProps
     navigator.clipboard.writeText(inviteUrl); // 추후 미팅룸 링크 추가
     setCopied(true);
     setTimeout(() => setCopied(false), 3000); // 3초 후 원래 텍스트로 복귀
-    console.error("inviteUrl", inviteUrl);
+    console.log("inviteUrl", inviteUrl);
   };
 
-const handleInvite = async (email: string) => {
-  try {
-    const res = await axios.post("/join", {
-      email,
-      inviteUrl,
-    });
-    setInvited((prev) => ({ ...prev, [email]: true }));
-    console.log("✅ 초대 성공:", res.data);
-  } catch (error) {
-    console.error("초대 실패:", error);
-  }
-};
+  const handleInvite = async (id: string) => {
+    try {
+      const res = await axios.post(`/meetings/${meetingId}/invite`, {
+        targetUserId: id,
+      });
+      setInvited((prev) => ({ ...prev, [id]: true }));
+      console.log("✅ 초대 성공:", res.data);
+    } catch (error) {
+      console.error("초대 실패:", error);
+    }
+  };
 
   const filteredFriends = friends.filter(
     (friend) =>
@@ -65,11 +65,11 @@ const handleInvite = async (email: string) => {
               <span className="meet-friend-email">{user.email}</span>
             </div>
             <button
-              className={`meet-invite-btn ${invited[user.email] ? "invited" : ""}`}
-              onClick={() => handleInvite(user.email)}
-              disabled={invited[user.email]}
+              className={`meet-invite-btn ${invited[user.id] ? "invited" : ""}`}
+              onClick={() => handleInvite(user.id)}
+              disabled={invited[user.id]}
             >
-            {invited[user.email] ? <Check color="white" style={{ width: "1.6vw", height: "1.6vw", cursor: "pointer" }}/> : "초대"}
+            {invited[user.id] ? <Check color="white" style={{ width: "1.6vw", height: "1.6vw", cursor: "pointer" }}/> : "초대"}
             </button>
           </div>
           ))

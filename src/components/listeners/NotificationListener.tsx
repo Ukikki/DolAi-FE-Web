@@ -20,7 +20,7 @@ const NotificationListener = () => {
       stompClient.subscribe(`/topic/notifications/${user.id}`, (message) => {
         const data = JSON.parse(message.body);
         console.log("🔔 알림:", data);
-        addToast(data.title, data.category);
+        addToast(data.title, data.category, data.url);
       });
     });
 

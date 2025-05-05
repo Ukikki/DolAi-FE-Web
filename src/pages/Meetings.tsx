@@ -11,21 +11,24 @@ import Minutes from "@/components/meeting/Minutes";
 import SttListener from "@/components/listeners/STTListener";
 import { LiveKitRoom, useRoomContext } from '@livekit/components-react';
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
+import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoStreamRef = useRef<MediaStream | null>(null); // 전역 스트림 참조
   const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
-  const { meetingId, inviteUrl, sfuIp } = location.state; // meetingID, 초대 링크, ip 주소 받음
-  const roomId = sfuIp.split("/sfu/")[1];
+  const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
+  const roomId = inviteUrl.split("/sfu/")[1];
+  const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
 
   const connectRoom = useMediasoupSocket(roomId, sfuIp);
   const handleLeave = useLeaveMeeting(meetingId);
@@ -43,6 +46,7 @@ export default function Meetings() {
     setRemoteStreams((prev) => [...prev, stream]);
   };
   useMediasoupConsumer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, onStream: addStream })
+  useMediasoupProducer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, videoRef, isCameraOn, isMicOn });
 
   // 화면 공유
   // const room = useRoomContext();
@@ -65,16 +69,32 @@ export default function Meetings() {
   // --- 카메라 on/off 효과 ---
   useEffect(() => {
     if (isCameraOn) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          if (videoRef.current) videoRef.current.srcObject = stream;
-        })
-        .catch(err => console.error("카메라 접근 실패:", err));
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        videoStreamRef.current = stream;
+      });
     } else {
-      if (videoRef.current?.srcObject) {
-        (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+      // 카메라 off 시 스트림 종료
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach((track) => track.stop());
+        videoStreamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
       }
     }
+    return () => {
+      // 컴포넌트 언마운트 시 스트림 종료
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach((track) => track.stop());
+        videoStreamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
   }, [isCameraOn]);
 
   // --- 마이크 on/off 효과 ---
@@ -90,8 +110,7 @@ export default function Meetings() {
       micRef.current?.getTracks().forEach(t => t.stop());
     }
   }, [isMicOn]);
-
-  // --- 라우트에서 showInvite true면 자동으로 초대창 열기 ---
+  
   useEffect(() => {
     if (location.state?.showInvite) {
       setActiveTool("invite");
@@ -101,14 +120,11 @@ export default function Meetings() {
 
   useEffect(() => {
     if (!connectRoom) return;
-  
     const { socket, rtpCapabilities } = connectRoom;
   
     console.log("🎉mediasoup 연결 성공:", socket.id);
     console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
-  
-    // 이제 여기서 produce() or consume() 시작하면 됨
-  }, [connectRoom]);
+    }, [connectRoom]);
 
   return (
     <div className="container">
@@ -229,7 +245,7 @@ export default function Meetings() {
     {/* 카메라 화면 표시 */}
     <main className="video-container">
       {/* 내 화면 */}
-    <div className="video-box">
+    <div className="video-view">
       <video ref={videoRef} autoPlay muted playsInline />
     </div>
 
@@ -267,7 +283,7 @@ export default function Meetings() {
 
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
-    {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} onClose={() => setActiveTool(null)} />}
+    {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} meetingId={meetingId} onClose={() => setActiveTool(null)} />}
 
   </div>
   );

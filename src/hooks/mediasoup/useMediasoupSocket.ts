@@ -10,7 +10,7 @@ export function useMediasoupSocket(roomId: string, sfuIp: string) {
   const [connection, setConnection] = useState<JoinRoomResult | null>(null);
 
   useEffect(() => {
-    const socket = io(`ws://${sfuIp}:3000/mediasoup`, {
+    const socket = io(`https://${sfuIp}:3000/mediasoup`, {
       transports: ["websocket"],
     });
 

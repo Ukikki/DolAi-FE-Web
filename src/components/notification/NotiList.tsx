@@ -13,6 +13,7 @@ const NotiList = () => {
           category={n.category}
           createdAt={getRelativeTime(n.createdAt)}
           title={n.title}
+          url={n.targetUrl}
         />
       ))}
     </div>
