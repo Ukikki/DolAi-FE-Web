@@ -15,7 +15,7 @@ const NotificationListener = () => {
     const stompClient = over(socket);
 
     stompClient.connect({}, () => {
-      console.log("✔️ 소켓 연결됨");
+      console.log("🔔 알림 소켓 연결됨");
 
       stompClient.subscribe(`/topic/notifications/${user.id}`, (message) => {
         const data = JSON.parse(message.body);
