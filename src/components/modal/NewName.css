@@ -1,0 +1,83 @@
+/* Modal.css */
+
+.set-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  
+  .set-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 320px;
+    max-width: 90%;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeInScale 0.2s ease-out forwards;
+  }
+  
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  
+  .set-modal p {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+    color: #333;
+  }
+  
+  .set-modal input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .set-modal input:focus {
+    border-color: #1976f9;
+  }
+  
+  .set-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  
+  .set-close-btn,
+  .set-add-btn {
+    min-width: 72px;
+    padding: 8px 0;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .set-close-btn {
+    background: transparent;
+    color: #555;
+  }
+  .set-close-btn:hover {
+    background: #f0f0f0;
+  }
+  
+  .set-add-btn {
+    background: #1976f9;
+    color: #fff;
+  }
+  .set-add-btn:hover {
+    background: #155dc8;
+  }
+  

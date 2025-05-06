@@ -13,6 +13,8 @@
 }
 /* todo */
 .todo-card {
+  position: relative;    /* 절대 위치 기준 요소로 만들어 주고 */
+  overflow: visible;     /* 자식 엘리먼트의 오버플로우 허용 */
   width: 90%;
   height: 8.79vh; /* 약 90px */
   background: #F2F5F7;
@@ -22,14 +24,34 @@
   display: flex;
   align-items: center;
   transition: transform 0.2s ease-in-out;
+
+    /* 내용이 넘칠 때 세로 스크롤바 표시 */
+    overflow-y: auto;
+    /* 가로 스크롤 숨기기 */
+    overflow-x: hidden;
+  
+
+}
+/* 기존 체크박스 스타일 제거 */
+.todo-card input[type="checkbox"] {
+  display: none;
+}
+
+/* 상태 표시 원(circle) */
+.todo-status {
+  width: 20px;            /* 가로 길이만 지정 */
+  aspect-ratio: 1 / 1;    /* 1:1 비율 강제 */
+  border-radius: 50%;
+  margin-left: 3vh;
+  margin-right: 2vh;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 /* 체크박스 스타일 */
 .todo-card input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  margin-left: 3vh;
-  accent-color: #3572EF; /* 체크 색상 */
-  margin-right: 2vh;
+  
 }
 
 .meeting-content {

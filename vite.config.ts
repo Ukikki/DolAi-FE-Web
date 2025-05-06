@@ -10,6 +10,10 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // /api 없애고 /user/search 처럼 맞추기
       },
+      '/todo': {
+               target: 'http://localhost:8081',
+              changeOrigin: true,
+             },
       '/directories': {
         target: 'http://localhost:8081',
         changeOrigin: true,

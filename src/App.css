@@ -86,12 +86,18 @@ body {
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+
+  /* 내용이 넘칠 때 세로 스크롤바 표시 */
+  overflow-y: auto;
+  /* 가로 스크롤 숨기기 */
+  overflow-x: hidden;
 }
 .left-panel p {
   font-family: "Jamsil_M";
   font-size: 1.25vw;
   color:black;
   text-align: center;
+  overflow: visible;
 }
 
 /* 그래프 영역 */

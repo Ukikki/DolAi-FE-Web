@@ -431,30 +431,37 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
         {/* 이름 바꾸기 모달 */}
         {showRenameModal && (
-          <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
-              <h2>폴더 이름 바꾸기</h2>
-              <input
-                type="text"
-                value={renameInput}
-                onChange={(e) => setRenameInput(e.target.value)}
-                placeholder="새 이름을 입력하세요"
-              />
-              <div className={styles.modalButtons}>
-                <button onClick={() => setShowRenameModal(false)}>취소</button>
-                <button
-                  onClick={() => {
-                    handleRenameFolder(renameInput);
-                    setShowRenameModal(false);
-                    setRenameInput("");
-                  }}
-                >
-                  변경
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className={styles.modalOverlay}>
+    <div className={styles.modal}>
+      <h2 className={styles.modalTitle}>폴더 이름 바꾸기</h2>
+      <input
+        type="text"
+        className={styles.modalInput}
+        value={renameInput}
+        onChange={e => setRenameInput(e.target.value)}
+        placeholder="새 이름을 입력하세요"
+      />
+      <div className={styles.modalButtons}>
+        <button
+          className={styles.cancelButton}
+          onClick={() => setShowRenameModal(false)}
+        >
+          취소
+        </button>
+        <button
+          className={styles.confirmButton}
+          onClick={() => {
+            handleRenameFolder(renameInput);
+            setShowRenameModal(false);
+            setRenameInput("");
+          }}
+        >
+          변경
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
         {/* 새 폴더 추가 모달 */}
         {showAddFolderModal && (

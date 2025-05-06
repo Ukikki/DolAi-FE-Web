@@ -30,10 +30,11 @@ const handleCardClick = (id: number) => {
 };
 
 export default function Dashboard({ selected, navigate } : DashboardProps) {
-  const { todos, addTodo } = useTodoList(); // todos와 addTodo 함수
+  const { todos, addTodo, deleteTodo, updateStatus } = useTodoList();
   const { user, isLoggedIn } = useUser(); // 로그인 상태
   const [showModal, setShowModal] = useState(false); // 회의 생성 시 모달
   const { handleCreateMeeting } = useNavigateMeeting();
+  
 
   return (
     <div className="container">
@@ -87,11 +88,16 @@ export default function Dashboard({ selected, navigate } : DashboardProps) {
 
         {/* 좌측 패널 (To Do 리스트) */}
         <div className="left-panel">
-          <p>To-Do</p>
-          {todos.slice(0, 3).map((todo, index) => (
-            <ToDoList key={index} {...todo} />
-          ))}
-        </div>
+      <p>To Do</p>
+      {todos.map((todo) => (
+        <ToDoList
+          key={todo.id}
+          {...todo}
+          onDelete={deleteTodo}
+          onStatusChange={updateStatus}
+        />
+      ))}
+    </div>
         </aside>
 
         {/* 그래프 영역 */}

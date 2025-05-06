@@ -202,43 +202,20 @@ export default function Meetings() {
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
           {/* 항상 보이는 DolAi 아이콘 - 우측 상단에 위치 */}
           <div
-            onClick={() => setIsDolAiOpen(prev => !prev)}
-            style={{
-              position: "absolute",
-              top: "2.1vw",
-              right: "0vw",
-              width: "3.4vw",
-              height: "3.1vw",
-              cursor: "pointer",
-              zIndex: 1001,
-              transform: "translateY(-50%)",
-            }}
-          >
-            <img
-              src="/images/dolai.png"
-              alt="DolAi"
-              style={{ width: "100%", height: "100%", objectFit: "contain" }}
-            />
-          </div>
+  className="dolai-toggle-icon"
+  onClick={() => setIsDolAiOpen(prev => !prev)}
+>
+  <img
+    src="/images/dolai.png"
+    alt="DolAi"
+    className="dolai-icon-image"
+  />
+</div>
 
           {/* 펼쳐지는 채팅 내용 */}
-          <div
-            style={{
-              position: "absolute",
-              top: "2.1vw",  // 아이콘이 일부 걸치도록 위치 조정
-              left: 0,
-              right:0,
-              width: "100%",
-              height: isDolAiOpen ? `calc(100% - 2.1vw)` : "0vw",
-              overflow: "hidden",
-              backgroundColor: "rgba(0,0,0,0.6)",
-              borderRadius: "0.83vw",
-              transition: "height 0.3s ease",
-              zIndex: 1000
-            }}
-          >
-            {isDolAiOpen && <ChatDolai />}
-          </div>
+          <div className={`dolai-chat-overlay ${isDolAiOpen ? 'open' : ''}`}>
+        {isDolAiOpen && <ChatDolai />}
+      </div>
         </div>
       </Rnd>
     
