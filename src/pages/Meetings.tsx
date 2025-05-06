@@ -9,10 +9,10 @@ import { useLeaveMeeting } from "@/hooks/useLeaveMeeting";
 import { Rnd } from "react-rnd";
 import Minutes from "@/components/meeting/Minutes";
 import SttListener from "@/components/listeners/STTListener";
-import { LiveKitRoom, useRoomContext } from '@livekit/components-react';
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
+import { useUser } from "@/hooks/useUser";
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -23,6 +23,7 @@ export default function Meetings() {
   const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
+  const { user } = useUser();
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
@@ -30,7 +31,7 @@ export default function Meetings() {
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
 
-  const connectRoom = useMediasoupSocket(roomId, sfuIp);
+  const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name!);
   const handleLeave = useLeaveMeeting(meetingId);
 
   // --- 기타 툴 상태 ---
@@ -47,18 +48,7 @@ export default function Meetings() {
   };
   useMediasoupConsumer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, onStream: addStream })
   useMediasoupProducer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, videoRef, isCameraOn, isMicOn });
-
-  // 화면 공유
-  // const room = useRoomContext();
-
-  // const handleScreenShare = async () => {
-  //   if (!room) return;
   
-  //   const isSharing = room.localParticipant.isScreenShareEnabled;
-  //   await room.localParticipant.setScreenShareEnabled(!isSharing);
-  // };
-  
-
   // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
   const [chatPosition, setChatPosition] = useState({ x:  2000, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000

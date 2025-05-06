@@ -11,12 +11,17 @@ export const useLeaveMeeting = (meetingId: string) => {
     }
 
     try {
-      // host인지 확인하는 API가 필요하거나 무조건 종료 API 요청
       await axios.patch(`/${meetingId}/end`);
-    } catch (err) {
-      console.error("회의 종료 실패", err);
-      alert("회의 종료에 실패했어요.");
-      return;
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "";
+
+      if (message === "회의 주최자만 회의를 종료할 수 있어요") {
+        console.warn("⚠️ 주최자가 아니므로 종료 대신 나가기 처리");
+      } else {
+        alert("회의 종료에 실패했어요.");
+        console.error("회의 종료 실패", err);
+        return;
+      }
     }
 
     navigate("/documents");
