@@ -10,6 +10,8 @@ import AuthCallback from "./pages/AuthCallback";
 import RequestsPage from "./pages/RequestsPage";
 import ToastManager from "./components/toast/ToastManager";
 import NotificationListener from "./components/listeners/NotificationListener";
+
+
 import "./App.css";
 
 function AppContent() {
@@ -28,6 +30,7 @@ function AppContent() {
     <Routes>
       <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
       <Route path="/meetings" element={<Meetings />} />
+      
       <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
       <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
       <Route path="/auth/callback" element={<AuthCallback />} />

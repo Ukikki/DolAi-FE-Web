@@ -9,10 +9,13 @@ import { useLeaveMeeting } from "@/hooks/useLeaveMeeting";
 import { Rnd } from "react-rnd";
 import Minutes from "@/components/meeting/Minutes";
 import SttListener from "@/components/listeners/STTListener";
+//import { LiveKitRoom, useRoomContext } from '@livekit/components-react';
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
-import { useUser } from "@/hooks/useUser";
+//import { useNavigate } from "react-router-dom";
+import Whiteboard from "@/components/meeting/Whiteboard";
+
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -23,7 +26,11 @@ export default function Meetings() {
   const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
-  const { user } = useUser();
+
+   // ─── 화이트보드 스트림 & 화면 토글 ───
+   const [showBoard, setShowBoard] = useState(false);
+   const [boardStream, setBoardStream] = useState<MediaStream | null>(null);
+   const toggleBoard = () => setShowBoard(b => !b);
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
@@ -53,6 +60,7 @@ export default function Meetings() {
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
   const [chatPosition, setChatPosition] = useState({ x:  2000, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
   const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
+  
 
  
 
@@ -146,13 +154,15 @@ export default function Meetings() {
           </div>
 
           {/* 화이트보드 */}
-          <div className="meet-icon-container meet-board" onClick={() => toggleIconTool("board")}
-            style={{
-              backgroundImage: activeTool === "board"
-                ? 'url("../images/meet_board.png")'
-                : 'url("../images/meet_unBoard.png")',
-            }}
-          />
+          <div
+   className="meet-icon-container meet-board"
+   onClick={() => toggleIconTool("board")}
+   style={{
+     backgroundImage: activeTool === "board"
+       ? 'url("/images/meet_board.png")'
+       : 'url("/images/meet_unBoard.png")',
+   }}
+ />
           {/* 화면 공유 */}
           <div className="meet-icon-container" onClick={() => toggleIconTool("monitor")}>
             <MonitorUp style={{ ...iconStyle, color: activeTool === "monitor" ? "black" : "#757575" }} />
@@ -167,6 +177,21 @@ export default function Meetings() {
         </nav>
       </header>
 
+
+
+      {/* ─── 화이트보드 모드일 때만 네모칸 + 보드 렌더링 ─── */}
+      {activeTool === "board" && (
+  <>
+    {/* 네모칸 플레이스홀더 */}
+    <div className="wb-placeholder-list">
+      {/* … */}
+    </div>
+
+
+   {/* 그대로 Whiteboard 컴포넌트만 렌더링 */}
+   <Whiteboard meetingId={meetingId} onShareToggle={stream => setBoardStream(stream)}/>
+  </>
+)}
       {/* DolAi 채팅창 (드래그·리사이징 유지하되 위에서 아래로 열리도록 수정) */}
       <Rnd
         size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}

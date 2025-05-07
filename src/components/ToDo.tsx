@@ -146,8 +146,7 @@ export const ToDoList: React.FC<ToDoListProps> = ({
       {showDeleteConfirm && (
         <DeleteTodoModal
           onConfirm={handleConfirmDelete}
-          onCancel={handleCancelDelete}
-        />
+          onCancel={handleCancelDelete} message={``}        />
       )}
     </>
   );

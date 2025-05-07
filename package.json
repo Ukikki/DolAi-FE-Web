@@ -14,6 +14,7 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@livekit/components-react": "^2.9.3",
+    "@tldraw/tldraw": "^3.12.1",
     "axios": "^1.8.4",
     "chroma-js": "^3.1.2",
     "d3": "^7.9.0",
@@ -31,6 +32,7 @@
     "socket.io-client": "^4.8.1",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
+    "tldraw": "^3.12.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
