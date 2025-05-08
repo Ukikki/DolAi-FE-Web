@@ -5,17 +5,17 @@ import "@/styles/meeting/Meeting.css";
 import "@/components/dolai/ChatDolai.css";
 import FriendInvite from "@/components/modal/FriendInvite";
 import ChatDolai from "@/components/dolai/ChatDolai";
+import axios from "@/utils/axiosInstance";
 import { useLeaveMeeting } from "@/hooks/useLeaveMeeting";
 import { Rnd } from "react-rnd";
 import Minutes from "@/components/meeting/Minutes";
 import SttListener from "@/components/listeners/STTListener";
-//import { LiveKitRoom, useRoomContext } from '@livekit/components-react';
+import Whiteboard from "@/components/meeting/Whiteboard";
+import RemoteVideo from "@/components/meeting/RemoteVideo";
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
-//import { useNavigate } from "react-router-dom";
-import Whiteboard from "@/components/meeting/Whiteboard";
-
+import { useUser } from "@/hooks/useUser";
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -26,11 +26,7 @@ export default function Meetings() {
   const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
-
-   // ─── 화이트보드 스트림 & 화면 토글 ───
-   const [showBoard, setShowBoard] = useState(false);
-   const [boardStream, setBoardStream] = useState<MediaStream | null>(null);
-   const toggleBoard = () => setShowBoard(b => !b);
+  const { user } = useUser();
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
@@ -43,8 +39,19 @@ export default function Meetings() {
 
   // --- 기타 툴 상태 ---
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
-  const toggleIconTool = (tool: typeof activeTool) => {
-    setActiveTool(prev => prev === tool ? null : tool); // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
+  const toggleIconTool = async (tool: typeof activeTool) => {
+    // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
+    if (tool === "board") {
+      if (activeTool !== "board") {
+        await axios.post(`/whiteboard/start/${meetingId}`);
+        setActiveTool("board");
+      } else {
+        await axios.post(`/whiteboard/end/${meetingId}`);
+        setActiveTool(null);
+      }
+    } else {
+      setActiveTool(prev => prev === tool ? null : tool);
+    } 
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
@@ -154,15 +161,13 @@ export default function Meetings() {
           </div>
 
           {/* 화이트보드 */}
-          <div
-   className="meet-icon-container meet-board"
-   onClick={() => toggleIconTool("board")}
-   style={{
-     backgroundImage: activeTool === "board"
-       ? 'url("/images/meet_board.png")'
-       : 'url("/images/meet_unBoard.png")',
-   }}
- />
+          <div className="meet-icon-container meet-board" onClick={() => toggleIconTool("board")}
+            style={{
+              backgroundImage: activeTool === "board"
+                ? 'url("/images/meet_board.png")'
+                : 'url("/images/meet_unBoard.png")',
+            }}
+          />
           {/* 화면 공유 */}
           <div className="meet-icon-container" onClick={() => toggleIconTool("monitor")}>
             <MonitorUp style={{ ...iconStyle, color: activeTool === "monitor" ? "black" : "#757575" }} />
@@ -177,21 +182,6 @@ export default function Meetings() {
         </nav>
       </header>
 
-
-
-      {/* ─── 화이트보드 모드일 때만 네모칸 + 보드 렌더링 ─── */}
-      {activeTool === "board" && (
-  <>
-    {/* 네모칸 플레이스홀더 */}
-    <div className="wb-placeholder-list">
-      {/* … */}
-    </div>
-
-
-   {/* 그대로 Whiteboard 컴포넌트만 렌더링 */}
-   <Whiteboard meetingId={meetingId} onShareToggle={stream => setBoardStream(stream)}/>
-  </>
-)}
       {/* DolAi 채팅창 (드래그·리사이징 유지하되 위에서 아래로 열리도록 수정) */}
       <Rnd
         size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
@@ -235,20 +225,19 @@ export default function Meetings() {
       </Rnd>
     
     {/* 카메라 화면 표시 */}
+    {activeTool !== "board" && (
     <main className="video-container">
       {/* 내 화면 */}
-    <div className="video-view">
-      <video ref={videoRef} autoPlay muted playsInline />
-    </div>
+      <div className="video-box">
+        <video ref={videoRef} autoPlay muted playsInline />
+      </div>
 
       {/* 참가자들 */}
-    {remoteStreams.map((stream, idx) => (
-      <div className="video-box" key={idx}>
-        <video autoPlay playsInline ref={(el) => {
-            if (el) el.srcObject = stream;
-          }}/>
-      </div>
-    ))}
+      {remoteStreams.map((stream, idx) => (
+        <div className="video-box" key={idx}>
+          <RemoteVideo stream={stream} />
+        </div>
+      ))}
 
     {/* STT 리스너 */}
     {meetingId && (
@@ -275,8 +264,13 @@ export default function Meetings() {
 
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
+    )}
+    
+    {/* 초대 창 보여짐 */}
     {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} meetingId={meetingId} onClose={() => setActiveTool(null)} />}
-
+    
+    {/* ─── 화이트보드 모드일 때만 네모칸 + 보드 렌더링 ─── */}
+    {activeTool === "board" && <Whiteboard meetingId={meetingId} />}
   </div>
   );
 }
