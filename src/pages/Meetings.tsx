@@ -15,7 +15,7 @@ import RemoteVideo from "@/components/meeting/RemoteVideo";
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/user/useUser";
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---

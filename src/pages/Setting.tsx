@@ -1,7 +1,7 @@
 // Setting.tsx
 import React, { useRef, useState, useEffect } from "react";
-import { Home, Video, FileText, Pencil, Search, X } from "lucide-react";
-import { useUser } from "../hooks/useUser";
+import { Home, Video, FileText, Pencil, Search, X, Globe, ChevronDown } from "lucide-react";
+import { useUser } from "../hooks/user/useUser";
 import { handleSocialLogout } from "../utils/logout";
 import { getProfileImageUrl } from "../utils/getProfileImageUrl";
 import NewNameModal from "../components/modal/NewName";
@@ -13,6 +13,9 @@ import "../styles/Setting.css";
 import axios from "../utils/axiosInstance";
 import { Friend } from "@/types/friend";
 import { useLocation } from "react-router-dom";
+import { useLanguage } from "@/hooks/user/useLanguage";
+import LanguageDropdown from "@/components/LanguageDropdown";
+import { Language } from "@/types/user";
 
 interface SettingProps {
   navigate: (path: string) => void;
@@ -27,6 +30,12 @@ export default function Setting({ navigate }: SettingProps) {
   const openModal = () => setIsNewNameModal(true);
   const closeModal = () => setIsNewNameModal(false);
 
+  // 좌측 유저 언어 편집 상태 관리
+  const [isDropDownOpen, setIsDropDownOpen] = useState(false);
+  const { updateLanguage } = useLanguage(refetch);
+  const toggleDropdown = () => setIsDropDownOpen(prev => !prev);
+  const closeDropdown = () => setIsDropDownOpen(false);
+
   // 친구 목록 등 상태
   const [friends, setFriends] = useState<Friend[]>([]);
   const [searchText, setSearchText] = useState("");
@@ -35,11 +44,8 @@ export default function Setting({ navigate }: SettingProps) {
   const [friendToDelete, setFriendToDelete] = useState<string | null>(null);
   const [friendToDeleteName, setFriendToDeleteName] = useState<string | null>(null);
 
-  // 중앙 영역 전환: "main" → 친구 목록,  "requests" → 요청 목록
-//  const [currentView, setCurrentView] = useState<"main" | "requests">("main");
-const location = useLocation();
-const isRequestPage = location.pathname.includes("/settings/requestpage");
-
+  const location = useLocation();
+  const isRequestPage = location.pathname.includes("/settings/requestpage");
 
   useEffect(() => {
     fetchFriends();
@@ -142,6 +148,12 @@ const isRequestPage = location.pathname.includes("/settings/requestpage");
     );
   });
 
+  // 언어 변경
+  const handleLanguageSelect = async (langCode: Language) => {
+    await updateLanguage(langCode);
+    closeDropdown();
+  };
+
   return (
     <div className="container">
       {/* 상단 네비게이션 바 */}
@@ -198,6 +210,19 @@ const isRequestPage = location.pathname.includes("/settings/requestpage");
             </div>
           </div>
           <div className="set-user-email">{user?.email}</div>
+
+          <div className="set-user-language-wrapper" onClick={ toggleDropdown }>
+            <Globe style={{ width: "1.3vw", height: "1.3vw", cursor: "pointer" }} />
+            <div className="set-user-name">언어</div>
+            <ChevronDown style={{ width: "1.3vw", height: "1.3vw", cursor: "pointer" }} />
+            {isDropDownOpen && user && (
+              <LanguageDropdown 
+                currentLang={ user?.language } 
+                onSelect={handleLanguageSelect}
+              />)}
+          </div>
+
+          {/* 좌측 하단 알림 설정 */}
           <div className="set-nHeader">알림 설정</div>
           <div className="toggle-setting">
             <div className="toggle-label">친구 요청</div>
@@ -220,6 +245,8 @@ const isRequestPage = location.pathname.includes("/settings/requestpage");
               <span className="slider round" />
             </label>
           </div>
+
+          {/* 로그아웃 */}
           <div className="logout-button" onClick={handleSocialLogout}>
             로그아웃
           </div>

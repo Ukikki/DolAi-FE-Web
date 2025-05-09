@@ -7,7 +7,7 @@ import {
   Search,
 } from "lucide-react";
 import styles from "../styles/documents.module.scss";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/user/useUser";
 import { getProfileImageUrl } from "../../utils/getProfileImageUrl";
 import SortMenu from "./SortMenu"; // 정렬 메뉴 컴포넌트 추가
 

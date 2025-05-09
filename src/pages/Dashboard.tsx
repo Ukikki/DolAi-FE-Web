@@ -6,7 +6,7 @@ import Calendar from "@/components/MyCalendar";
 import GraphView from "@/components/GraphView";
 import { Home, Video, FileText } from "lucide-react";
 import { redirectToSocialAuth } from '@/services/authService';
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/user/useUser";
 import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
 import CreateMeeting from "@/components/modal/CreateMeeting";
 import { getProfileImageUrl } from "@/utils/getProfileImageUrl";

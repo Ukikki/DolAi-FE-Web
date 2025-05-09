@@ -3,7 +3,7 @@ import { NavigateFunction } from "react-router-dom";
 import { Home, Video, FileText, Search } from "lucide-react";
 import styles from "../styles/documents.module.scss";
 import SortMenu from "./SortMenu";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/user/useUser";
 import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
 import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
 import CreateMeeting from "@/components/modal/CreateMeeting";

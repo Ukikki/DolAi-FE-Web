@@ -1,0 +1,36 @@
+.language-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 10px;
+  width: 8.9vw;
+  height: 7.8vw;
+  background: white;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  border: 1px solid #DEDEDE;
+  z-index: 100;
+}
+.current-lang {
+  font-family: "Jamsil_R";
+  font-size: 0.8vw;
+  color: #757575;
+  margin-top: 1vw;
+  margin-left: 1vw;
+}
+hr {
+  border: none;
+  border-top: 1px solid #DEDEDE;
+  margin: 0.8vw 0;
+}
+.lang-option {
+  font-family: "Neo_B";
+  font-size: 0.8vw;
+  color: #6D6D6D;
+  cursor: pointer;
+  margin-top: 1vw;
+  margin-left: 1vw;
+}
+.lang-option:hover {
+  color: black;
+}

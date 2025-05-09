@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import axios from "@/utils/axiosInstance";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/user/useUser";
 
 export function useNotiHandler() {
   const navigate = useNavigate();

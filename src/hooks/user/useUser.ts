@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from  "../utils/axiosInstance";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  profile_image: string;
-}
+import axios from  "@/utils/axiosInstance";
+import { User } from "@/types/user";
 
 export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);

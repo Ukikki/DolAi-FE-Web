@@ -39,12 +39,20 @@
   align-items: center;
   gap: 4.2vw;
   margin-left: 1vw;
-  margin-top: 3.8vh;
+  margin-top: 2.1vw;
 }
 .set-user-name {
   font-family: "Jamsil_M";
   color:black;
   font-size: 1.4vw;
+}
+.set-user-language-wrapper {
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 0.2vw;
+  margin-left: 1vw;
+  margin-top: 1.5vw;
 }
 .set-userEdit-icon {
   cursor: pointer;
@@ -63,14 +71,14 @@
   font-family: "Jamsil_B";
   color:black;
   font-size: 1.6vw;
-  margin-top: 4.2vw;
-  margin-bottom: 2.3vw;
+  margin-top: 3vw;
+  margin-bottom: 2vw;
 }
 .toggle-setting {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 1vw 1.7vw 1vw;
+  margin: 0 1vw 1.3vw 1vw;
   font-size: 1vw;
 }
 .toggle-label {
