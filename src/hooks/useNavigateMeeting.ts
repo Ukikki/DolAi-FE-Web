@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useCreateMeeting } from "@/hooks/useCreateMeeting";
+import axios from "@/utils/axiosInstance";
 
 export function useNavigateMeeting() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export function useNavigateMeeting() {
 
       if (setShowModal) setShowModal(false);
 
+      await axios.post(`/graph/sync/${meetingId}`);
       navigate("/meetings", {
         state: { showInvite: true, meetingId, inviteUrl },
       });

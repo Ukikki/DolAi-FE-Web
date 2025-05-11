@@ -12,10 +12,12 @@ import Minutes from "@/components/meeting/Minutes";
 import SttListener from "@/components/listeners/STTListener";
 import Whiteboard from "@/components/meeting/Whiteboard";
 import RemoteVideo from "@/components/meeting/RemoteVideo";
+import GraphViewing from "@/components/meeting/GraphViewing";
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
 import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
 import { useUser } from "@/hooks/user/useUser";
+import { useGraph } from "@/hooks/useGraph";
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -27,6 +29,10 @@ export default function Meetings() {
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
   const { user } = useUser();
+
+  // 그래프
+  const { graph, fetchGraph } = useGraph();
+  const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
@@ -130,6 +136,13 @@ export default function Meetings() {
     console.log("🎉mediasoup 연결 성공:", socket.id);
     console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
     }, [connectRoom]);
+
+  // 그래프 연결
+  useEffect(() => {
+    if(meetingId) {
+      fetchGraph(meetingId);
+    }
+  }, meetingId);
 
   return (
     <div className="container">
@@ -254,7 +267,14 @@ export default function Meetings() {
       <Minutes minutes={minutesLog} /> 
     </div>
 
-    {/* 화살표 버튼 */}
+    {/* 그래프 뷰 */}
+    <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
+      {graph && (
+        <GraphViewing graphData={graph} /> 
+      )}
+    </div>
+
+    {/* 회의록 화살표 버튼 */}
     <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
       style={{
         left: showMinutes ? "calc(0.1vw + 31.3vw)" : "0vw"
@@ -262,10 +282,19 @@ export default function Meetings() {
       {showMinutes ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
     </button>
 
+    {/* 그래프 화살표 버튼 */}
+    <button className="graph-toggle-btn" onClick={() => setShowGraph(prev => !prev)}
+      style={{
+        left: showGraph ? "calc(100vw - 31.3vw)" : "97vw"
+      }}>
+      {showGraph ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+    </button>
+
+
       {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
     )}
-    
+
     {/* 초대 창 보여짐 */}
     {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} meetingId={meetingId} onClose={() => setActiveTool(null)} />}
     
