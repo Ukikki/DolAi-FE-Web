@@ -7,6 +7,7 @@ import { useUser } from "@/hooks/user/useUser";
 import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
 import { useNavigateMeeting } from "@/hooks/useNavigateMeeting";
 import CreateMeeting from "@/components/modal/CreateMeeting";
+import axios from "@/utils/axiosInstance";
 
 interface DocumentsProps {
   selected: string;
@@ -33,7 +34,7 @@ const folderIcons: Record<string, string> = {
 };
 
 export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
-  // 폴더 리스트 및 관련 상태
+  // 상태 선언
   const [folderList, setFolderList] = useState<Folder[]>(() => {
     const stored = localStorage.getItem("folderList");
     return stored ? JSON.parse(stored) : initialFolders;
@@ -41,270 +42,277 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
-  const [sortKey, setSortKey] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortKey, setSortKey] = useState<"name">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // 모달 관련 상태
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderName, setNewFolderName] = useState<string>("");
   const [showRenameModal, setShowRenameModal] = useState(false);
-  const [renameInput, setRenameInput] = useState("");
+  const [renameInput, setRenameInput] = useState<string>("");
 
   const selectedFolderObj = folderList.find((f) => f.id === selectedFolderId);
-  const { user } = useUser(); // 로그인 상태 함수
-  const { handleCreateMeeting } = useNavigateMeeting(); // 회의 생성
-  const [showModal, setShowModal] = useState(false); // 회의 생성 시 모달
+  const { user } = useUser();
+  const { handleCreateMeeting } = useNavigateMeeting();
+  const [showModal, setShowModal] = useState(false);
 
-  // 폴더 리스트를 localStorage에 저장
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [toDeleteId, setToDeleteId] = useState<number | null>(null);
+
+  // 로컬 스토리지 동기화
   useEffect(() => {
     localStorage.setItem("folderList", JSON.stringify(folderList));
   }, [folderList]);
 
-  // 서버에서 폴더 데이터 불러오기
-  useEffect(() => {
-    fetch("/directories")
+  // 1) 서버에서 폴더 목록 불러오기
+  // 서버에서 폴더 목록을 불러오는 함수
+  const fetchFolders = () => {
+    axios
+      .get<{ data: Array<{ directoryId: number; name: string; parentDirectoryId: number | null; color?: string }> }>(
+        "/directories"
+      )
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        console.log("불러온 디렉터리 데이터:", data);
-        const folders = data.data.map((item: any) => ({
-          id: item.directoryId, // id 매핑
+        const items = res.data.data;
+        const folders: Folder[] = items.map((item) => ({
+          id: item.directoryId,
           name: item.name,
-          parentDirectoryId: item.parentDirectoryId ?? null,
+          parentDirectoryId: item.parentDirectoryId?.toString() ?? null,
           type: "PERSONAL",
-          color: "blue", // 기본 색상
+          color: (item.color ?? "blue").toLowerCase(),
         }));
         setFolderList(folders);
+        localStorage.setItem("folderList", JSON.stringify(folders));
       })
-      .catch((error) => {
-        console.error("폴더 불러오기 실패:", error);
+      .catch((err) => {
+        console.error("폴더 불러오기 실패:", err);
       });
+  };
+
+  // 2) 마운트 시, 폴더 로드
+  useEffect(() => {
+    fetchFolders();
   }, []);
 
-  // 컨텍스트 메뉴 핸들러 (화면 어딘가 클릭 시 메뉴 숨김)
+  // 3) 컨텍스트 메뉴
   const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setContextMenuPos({ x: e.clientX, y: e.clientY });
   };
 
-  // 폴더 추가 모달 열기
+
+  // 새 폴더 추가
   const handleAddFolder = () => {
     setShowAddFolderModal(true);
     setContextMenuPos(null);
   };
-
-  // 폴더 추가 확인
   const handleConfirmAddFolder = () => {
-    if (newFolderName.trim() !== "") {
-      const newFolderData = {
+    if (!newFolderName.trim()) {
+      setShowAddFolderModal(false);
+      return;
+    }
+    axios
+      .post("/directories", {
         name: newFolderName.trim(),
         parentDirectoryId: null,
         type: "PERSONAL",
         meetingId: null,
-      };
-
-      fetch("/directories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        },
-        body: JSON.stringify(newFolderData),
+        
       })
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          const createdFolder: Folder = {
-            ...data.data,
-            color: "blue",
-          };
-          setFolderList([...folderList, createdFolder]);
-        })
-        .catch((error) => {
-          console.error("폴더 추가 실패:", error);
-        });
-    }
-    setShowAddFolderModal(false);
-    setNewFolderName("");
+      .then((res) => {
+        const item = res.data;
+        console.log("📦 /directories 응답 전체:", res);
+        console.log("▶️ res.data:", res.data);
+        setFolderList((prev) => [
+          ...prev,
+          {
+            id: item.directoryId,
+            name: item.name,
+            parentDirectoryId: item.parentDirectoryId?.toString() ?? null,
+            type: "PERSONAL",
+            color: item.color, 
+          },
+        ]);
+      })
+      .catch((err) => {
+        console.error("폴더 추가 실패:", err);
+      })
+      .finally(() => {
+        setShowAddFolderModal(false);
+        setNewFolderName("");
+      });
   };
 
-  // 정렬 상태 변경
-  function handleSortChange(newSortKey: string, newSortOrder: string) {
-    setSortKey(newSortKey);
-    setSortOrder(newSortOrder);
-  }
+  // 정렬 변경
+  const handleSortChange = (newKey: string, newOrder: string) => {
+    setSortKey(newKey as "name");
+    setSortOrder(newOrder as "asc" | "desc");
+  };
 
-  // 폴더 삭제
-  function handleDeleteFolder() {
+   // 삭제 요청 핸들러: 모달 열기
+   function handleDeleteFolder() {
     if (!selectedFolderObj) {
-      alert("삭제할 폴더가 선택되지 않았습니다.");
+     //alert("삭제할 폴더가 선택되지 않았습니다.");
       return;
     }
-    if (window.confirm(`정말 ${selectedFolderObj.name} 디렉터리를 삭제하시겠습니까? 해당 디렉터리 안의 모든 문서도 함께 삭제됩니다.`)) {
-      console.log("삭제 요청 ID:", selectedFolderObj.id);
-      fetch(`/directories/${selectedFolderObj.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-        },
+    setToDeleteId(selectedFolderObj.id);
+    setShowDeleteModal(true);
+  }
+
+   // 모달에서 실제 삭제 실행
+   function confirmDelete() {
+    if (toDeleteId == null) return;
+    axios
+      .delete(`/directories/${toDeleteId}`)
+      .then((res) => {
+        //alert(res.data.message);
+        setFolderList((prev) => prev.filter((f) => f.id !== toDeleteId));
+        setSelectedFolderId(null);
       })
-        .then((res) => {
-          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          return res.json();
-        })
-        .then((data) => {
-          alert(data.message);
-          const updatedFolders = folderList.filter((f) => f.id !== selectedFolderObj.id);
-          setFolderList(updatedFolders);
-          setSelectedFolderId(null);
-        })
-        .catch((error) => {
-          console.error("폴더 삭제 실패:", error);
-          alert("폴더 삭제에 실패했습니다. 다시 시도해주세요.");
-        });
-    }
+      .catch((err) => {
+        console.error("폴더 삭제 실패:", err);
+        //alert("폴더 삭제에 실패했습니다.");
+      })
+      .finally(() => {
+        setShowDeleteModal(false);
+        setToDeleteId(null);
+      });
+  }
+
+  // 모달 취소
+  function cancelDelete() {
+    setShowDeleteModal(false);
+    setToDeleteId(null);
   }
 
   // 폴더 색상 변경
   function handleColorChange(newColor: string) {
     if (!selectedFolderObj) {
-      alert("폴더가 선택되지 않았습니다.");
+      //alert("폴더가 선택되지 않았습니다.");
       return;
     }
-    const updatedFolders = folderList.map((folder) =>
-      folder.id === selectedFolderObj.id ? { ...folder, color: newColor } : folder
+    const prevColor = selectedFolderObj.color;
+    setFolderList((prev) =>
+      prev.map((f) =>
+        f.id === selectedFolderObj.id
+          ? { ...f, color: newColor }
+          : f
+      )
     );
-    setFolderList(updatedFolders);
-    fetch(`/directories/${selectedFolderObj.id}/color`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-      },
-      body: JSON.stringify({ color: newColor }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((err) => {
-            throw new Error(err.message || `색상 변경 실패: ${res.status}`);
-          });
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log("색상 변경 성공:", data.message);
-      })
+    axios
+      .patch(`/directories/${selectedFolderObj.id}/color`, { color: newColor })
       .catch((err) => {
-        console.error("색상 변경 중 오류:", err.message);
-        alert("색상 변경에 실패했습니다.\n" + err.message);
-        const rolledBack = folderList.map((folder) =>
-          folder.id === selectedFolderObj.id ? { ...folder, color: selectedFolderObj.color || "blue" } : folder
+        console.error("색상 변경 실패:", err);
+        //alert("색상 변경에 실패했습니다.");
+        // 롤백
+        setFolderList((prev) =>
+          prev.map((f) =>
+            f.id === selectedFolderObj.id
+              ? { ...f, color: prevColor || "blue" }
+              : f
+          )
         );
-        setFolderList(rolledBack);
       });
   }
 
   // 폴더 이름 변경
   function handleRenameFolder(newName: string) {
     if (!selectedFolderObj) return;
-    fetch(`/directories/${selectedFolderObj.id}/name`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
-      },
-      body: JSON.stringify({ name: newName }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("이름 변경 실패");
-        return res.json();
-      })
-      .then((data) => {
-        alert("이름이 변경되었습니다!");
-        const updatedFolders = folderList.map((folder) =>
-          folder.id === selectedFolderObj.id ? { ...folder, name: newName } : folder
+    axios
+      .patch(`/directories/${selectedFolderObj.id}/name`, { name: newName })
+      .then(() => {
+        setFolderList((prev) =>
+          prev.map((f) =>
+            f.id === selectedFolderObj.id
+              ? { ...f, name: newName }
+              : f
+          )
         );
-        setFolderList(updatedFolders);
+        //alert("이름이 변경되었습니다!");
       })
       .catch((err) => {
-        console.error("이름 변경 중 오류:", err);
-        alert("이름 변경에 실패했습니다.");
+        console.error("이름 변경 실패:", err);
+        //alert("이름 변경에 실패했습니다.");
       });
   }
 
-  // 폴더 더블클릭 시 해당 폴더로 이동
-  function handleFolderClick(folder: Folder) {
-    setSelectedFolderId(folder.id);
-    navigate(`/folder/${encodeURIComponent(folder.name)}`);
-  }
-
-  // 폴더 다운로드 (빈 zip 파일)
+  // 빈 zip 다운로드
   function handleDownloadFolder() {
     if (!selectedFolderObj) {
-      alert("다운받을 폴더가 선택되지 않았습니다.");
+      //alert("다운받을 폴더가 선택되지 않았습니다.");
       return;
     }
-    const fileName = selectedFolderObj.name;
-    const emptyZipHeader = new Uint8Array([
-      0x50, 0x4B, 0x05, 0x06,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00,
-    ]);
-    const blob = new Blob([emptyZipHeader], { type: "application/zip" });
+    const header = new Uint8Array([0x50, 0x4b, 0x05, 0x06, ...new Array(16).fill(0)]);
+    const blob = new Blob([header], { type: "application/zip" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = fileName + ".zip";
+    link.download = `${selectedFolderObj.name}.zip`;
     link.click();
   }
 
-  // 검색 및 정렬 처리
-  const filteredFolders = folderList.filter((folder) =>
-    folder.name && folder.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // 검색 + 정렬
+  const filteredFolders: Folder[] = folderList.filter((f) =>
+    f.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const sortedFolders = filteredFolders.slice().sort((a, b) => {
-    let compare = a.name.localeCompare(b.name);
-    return sortOrder === "asc" ? compare : -compare;
-  });
+  const sortedFolders: Folder[] = filteredFolders
+    .slice()
+    .sort((a, b) =>
+      sortOrder === "asc"
+        ? a.name.localeCompare(b.name)
+        : b.name.localeCompare(a.name)
+    );
 
   return (
     <div className="container" onClick={() => setContextMenuPos(null)}>
+      {/* 네비게이션 바 */}
       <header className="navbar">
         <div className="navbar-left">
           <img src="./images/main_logo.png" alt="DolAi Logo" />
         </div>
         <div className="navbar-center">
           <nav className="navbar-icons">
-            <div className={`icon-container ${selected === "home" ? "selected" : ""}`} onClick={() => navigate("/")}>
+            <div
+              className={`icon-container ${selected === "home" ? "selected" : ""}`}
+              onClick={() => navigate("/")}
+            >
               <Home style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            {showModal && ( <CreateMeeting onCreate={(title, startTime) => handleCreateMeeting(title, startTime, setShowModal)} 
-              onClose={() => setShowModal(false)}/>
+            {showModal && (
+              <CreateMeeting
+                onCreate={(title, startTime) =>
+                  handleCreateMeeting(title, startTime, setShowModal)
+                }
+                onClose={() => setShowModal(false)}
+              />
             )}
-            <div className={`icon-container ${selected === "video" ? "selected" : ""}`} onClick={() => setShowModal(true)}>
+            <div
+              className={`icon-container ${selected === "video" ? "selected" : ""}`}
+              onClick={() => setShowModal(true)}
+            >
               <Video style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
-            <div className={`icon-container ${selected === "document" ? "selected" : ""}`} onClick={() => navigate("/documents")}>
+            <div
+              className={`icon-container ${selected === "document" ? "selected" : ""}`}
+              onClick={() => navigate("/documents")}
+            >
               <FileText style={{ width: "1.72vw", height: "1.72vw", cursor: "pointer" }} />
             </div>
           </nav>
         </div>
         <div className="navbar-right">
-        <div className="user-profile">
-        {user?.profile_image ? (
-            <img src={getProfileImageUrl(user?.profile_image)} style={{ width: "2.1vw", borderRadius: "10px", cursor: "pointer"}} onClick={() => navigate("/settings")} />
-            ): (
-          <div style={{ width: "2.1vw", borderRadius: "10px", cursor: "default"}} />
-        )}</div></div>
+          <div className="user-profile">
+            {user?.profile_image ? (
+              <img
+                src={getProfileImageUrl(user.profile_image)}
+                style={{ width: "2.1vw", borderRadius: "10px", cursor: "pointer" }}
+                onClick={() => navigate("/settings")}
+              />
+            ) : (
+              <div style={{ width: "2.1vw", borderRadius: "10px", cursor: "default" }} />
+            )}
+          </div>
+        </div>
       </header>
 
+      {/* 두 번째 바 */}
       <div className={styles.navbarSecondRow}>
         <div className={styles.leftSection}>
           <img src="/images/doc_move_left.png" className={styles.arrowIcon} onClick={() => navigate(-1)} />
@@ -317,19 +325,21 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         <div className={styles.rightSection}>
           <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
           <div className={styles.searchWrapper}>
-          <input
-            type="text"
-            placeholder="문서 검색"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
-          <Search className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="문서 검색"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            <Search className={styles.searchIcon} />
           </div>
         </div>
       </div>
 
+      {/* 본문 */}
       <main className="main">
+        {/* 사이드바 */}
         <aside className={styles.sidebar}>
           {selectedFolderObj ? (
             <div className={styles.selectedFolderDisplay}>
@@ -365,33 +375,34 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           </div>
 
           <div className={styles.info}>색상</div>
-            <div className={styles.colorOptions}>
-              {Object.keys(folderIcons).map((color) => (
-                <div
-                  key={color}
-                  className={styles[`${color}Circle`]}
-                  onClick={() => handleColorChange(color)}
-                />
-              ))}
+          <div className={styles.colorOptions}>
+            {Object.keys(folderIcons).map((color) => (
+              <div
+                key={color}
+                className={styles[`${color}Circle`]}
+                onClick={() => handleColorChange(color)}
+              />
+            ))}
           </div>
 
           <div className={styles.documentOptions}>
-              <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
-              <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} onClick={handleDeleteFolder} />
-              <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} onClick={handleDownloadFolder} />
+            <img src="/images/doc_pdf.png" alt="PDF 변환" className={styles.optionIcon} />
+            <img src="/images/doc_del.png" alt="삭제" className={styles.optionIcon} onClick={handleDeleteFolder} />
+            <img src="/images/doc_down.png" alt="다운받기" className={styles.optionIcon} onClick={handleDownloadFolder} />
           </div>
         </aside>
 
+        {/* 폴더 그리드 */}
         <section className={styles.folderGrid} onContextMenu={handleContextMenu}>
           {sortedFolders.map((folder) => (
             <div
               key={folder.id}
               className={styles.folderItem}
-              onClick={() => {
-                console.log("클릭된 폴더 ID:", folder.id);
+              onClick={() => setSelectedFolderId(folder.id)}
+              onDoubleClick={() => {
                 setSelectedFolderId(folder.id);
+                navigate(`/folder/${encodeURIComponent(folder.name)}`);
               }}
-              onDoubleClick={() => handleFolderClick(folder)}
               onContextMenu={(e) => {
                 e.preventDefault();
                 setSelectedFolderId(folder.id);
@@ -408,7 +419,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           ))}
         </section>
 
-        {/* 컨텍스트 메뉴: 오른쪽 클릭 시 폴더 추가 및 이름 바꾸기 옵션 제공 */}
+        {/* 우클릭 메뉴 */}
         {contextMenuPos && (
           <div
             className={styles.contextMenu}
@@ -431,63 +442,86 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
         {/* 이름 바꾸기 모달 */}
         {showRenameModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h2 className={styles.modalTitle}>폴더 이름 바꾸기</h2>
+              <input
+                type="text"
+                className={styles.modalInput}
+                value={renameInput}
+                onChange={(e) => setRenameInput(e.target.value)}
+                placeholder="새 이름을 입력하세요"
+              />
+              <div className={styles.modalButtons}>
+                <button className={styles.cancelButton} onClick={() => setShowRenameModal(false)}>
+                  취소
+                </button>
+                <button
+                  className={styles.confirmButton}
+                  onClick={() => {
+                    handleRenameFolder(renameInput);
+                    setShowRenameModal(false);
+                    setRenameInput("");
+                  }}
+                >
+                  변경
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 삭제 모달 */}
+      {showDeleteModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h2 className={styles.modalTitle}>폴더 삭제</h2>
+            <p>정말 이 폴더를 삭제하시겠습니까? 모든 문서가 함께 삭제됩니다.</p>
+            <div className={styles.modalButtons}>
+              <button className={styles.cancelButton} onClick={cancelDelete}>
+                취소
+              </button>
+              <button className={styles.confirmButton} onClick={confirmDelete}>
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+       {/* 새 폴더 추가 모달 */}
+{showAddFolderModal && (
   <div className={styles.modalOverlay}>
     <div className={styles.modal}>
-      <h2 className={styles.modalTitle}>폴더 이름 바꾸기</h2>
+      <h2 className={styles.modalTitle}>새 폴더 추가</h2>
       <input
         type="text"
         className={styles.modalInput}
-        value={renameInput}
-        onChange={e => setRenameInput(e.target.value)}
-        placeholder="새 이름을 입력하세요"
+        value={newFolderName}
+        onChange={(e) => setNewFolderName(e.target.value)}
+        placeholder="폴더 이름을 입력하세요"
       />
       <div className={styles.modalButtons}>
         <button
           className={styles.cancelButton}
-          onClick={() => setShowRenameModal(false)}
+          onClick={() => {
+            setShowAddFolderModal(false);
+            setNewFolderName("");
+          }}
         >
           취소
         </button>
         <button
           className={styles.confirmButton}
-          onClick={() => {
-            handleRenameFolder(renameInput);
-            setShowRenameModal(false);
-            setRenameInput("");
-          }}
+          onClick={handleConfirmAddFolder}
         >
-          변경
+          추가
         </button>
       </div>
     </div>
   </div>
 )}
 
-        {/* 새 폴더 추가 모달 */}
-        {showAddFolderModal && (
-          <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
-              <h2>새 폴더 추가</h2>
-              <input
-                type="text"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="폴더 이름을 입력하세요"
-              />
-              <div className={styles.modalButtons}>
-                <button
-                  onClick={() => {
-                    setShowAddFolderModal(false);
-                    setNewFolderName("");
-                  }}
-                >
-                  취소
-                </button>
-                <button onClick={handleConfirmAddFolder}>추가</button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
