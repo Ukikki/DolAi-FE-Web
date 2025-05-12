@@ -13,10 +13,10 @@ export const useLeaveMeeting = (meetingId: string) => {
     try {
       await axios.patch(`/${meetingId}/end`);
     } catch (err: any) {
-      const message = err?.response?.data?.message || "";
+      const status = err?.response?.status;
 
-      if (message === "회의 주최자만 회의를 종료할 수 있어요") {
-        console.warn("⚠️ 주최자가 아니므로 종료 대신 나가기 처리");
+      if (status === 403) {
+        console.warn("⚠️ 주최자가 아니므로 그냥 나가기");
       } else {
         alert("회의 종료에 실패했어요.");
         console.error("회의 종료 실패", err);

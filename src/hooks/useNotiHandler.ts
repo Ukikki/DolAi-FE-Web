@@ -22,9 +22,14 @@ export function useNotiHandler() {
         console.log(res.data.data);
 
         if (res.data.status === "success") {
-          const { meetingId, inviteUrl } = res.data.data;
+          const data = res.data.data;
+
             navigate("/meetings", {
-              state: { meetingId, inviteUrl },
+              state: { 
+                meetingId: data.id, 
+                inviteUrl: data.inviteUrl, 
+                userName: user?.name 
+              },
             });
           } else {
             alert(res.data.message || "회의에 참여할 수 없습니다.");

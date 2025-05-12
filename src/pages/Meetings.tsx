@@ -39,9 +39,12 @@ export default function Meetings() {
   const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
-
-  const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name!);
   const handleLeave = useLeaveMeeting(meetingId);
+
+  
+   // ─── 1) mediasoup 소켓 연결 & joinRoom (한 번만) ───
+   const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name!);
+
 
   // --- 기타 툴 상태 ---
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
@@ -61,11 +64,22 @@ export default function Meetings() {
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
-  // 참가자들 영상 리스트
-  const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
-  const addStream = (stream: MediaStream) => {
-    setRemoteStreams((prev) => [...prev, stream]);
+  // 참가자들
+  type RemoteStreamEntry = {
+    stream: MediaStream;
+    name: string;
+    peerId: string;
   };
+
+  const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
+  const addStream = (stream: MediaStream, name: string, peerId: string) => {
+    setRemoteStreams((prev) => {
+      if (prev.find(s => s.peerId === peerId)) return prev;
+      return [...prev, { stream, name, peerId }];
+    });
+  };
+  
+  
   useMediasoupConsumer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, onStream: addStream })
   useMediasoupProducer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, videoRef, isCameraOn, isMicOn });
   
@@ -142,7 +156,7 @@ export default function Meetings() {
     if(meetingId) {
       fetchGraph(meetingId);
     }
-  }, meetingId);
+  }, [meetingId]);
 
   return (
     <div className="container">
@@ -241,16 +255,26 @@ export default function Meetings() {
     {activeTool !== "board" && (
     <main className="video-container">
       {/* 내 화면 */}
-      <div className="video-box">
-        <video ref={videoRef} autoPlay muted playsInline />
-      </div>
+      <section className="main-video">
+        {isCameraOn ? (
+          <video ref={videoRef} autoPlay muted playsInline />
+        ) : (
+          <div className="video-off">
+            <span>{user?.name}</span>
+          </div>
+        )}
+      </section>
 
-      {/* 참가자들 */}
-      {remoteStreams.map((stream, idx) => (
-        <div className="video-box" key={idx}>
-          <RemoteVideo stream={stream} />
-        </div>
+    {/* 오른쪽 참가자들 */}
+    <aside className="video-sidebar">
+      {remoteStreams.map((streamObj, _idx) => (
+        <RemoteVideo
+          key={streamObj.peerId}
+          stream={streamObj.stream}
+          name={streamObj.name}
+        />
       ))}
+    </aside>
 
     {/* STT 리스너 */}
     {meetingId && (
@@ -289,9 +313,6 @@ export default function Meetings() {
       }}>
       {showGraph ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
     </button>
-
-
-      {isCameraOn && <video ref={videoRef} autoPlay className="video-view"></video>}
     </main>
     )}
 
