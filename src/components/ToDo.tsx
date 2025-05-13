@@ -31,12 +31,7 @@ export const ToDoList: React.FC<ToDoListProps> = ({
     initialStatus === "COMPLETED"   ? 2 : 0
   );
 
-  const colors = ["#B2B2B2", "#FFC0CB", "#87CEEB"];
-  const iconUrls = [
-    "/images/pending.png",   // PENDING
-    "/images/progress.png",  // IN_PROGRESS
-    "/images/completed.png", // COMPLETED
-  ];
+  const colors = ["#E0E0E0", "#FFC5C6", "#ABD7FF"];
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [menuPos, setMenuPos]                 = useState<{ x:number; y:number } | null>(null);
@@ -61,19 +56,18 @@ export const ToDoList: React.FC<ToDoListProps> = ({
     setMenuPos(prev => prev ? null : { x: rect.left, y: rect.bottom + window.scrollY });
   };
 
-  // 메뉴에서 선택 → 서버에 PATCH, 로컬에도 반영
-  const handleSelect = async (idx: number) => {
-    const newStatus = ["PENDING","IN_PROGRESS","COMPLETED"][idx] as ToDoProps["status"];
+  // 상태 선택
+  const handleSelect = async (newStatus: ToDoProps["status"]) => {
     try {
       await axios.patch(`/todo/${id}/status`, { status: newStatus });
+      const idx = ["PENDING", "IN_PROGRESS", "COMPLETED"].indexOf(newStatus);
       setStatusIdx(idx);
       onStatusChange(id, newStatus);
     } catch (err) {
       console.error("상태 변경 실패:", err);
-    } finally {
-      setMenuPos(null);
     }
   };
+  
 
   // 바깥 클릭 → 메뉴 닫기
   useEffect(() => {
@@ -82,35 +76,41 @@ export const ToDoList: React.FC<ToDoListProps> = ({
     return () => document.removeEventListener("click", onClickOutside);
   }, []);
 
+  const STATUS_ITEMS: {
+    key: ToDoProps["status"];
+    img: string;
+    style: React.CSSProperties;
+  }[] = [
+    {
+      key: "PENDING",
+      img: "/images/pending.png",
+      style: { width: "5.1vw", height: "1.8vw" },
+    },
+    {
+      key: "IN_PROGRESS",
+      img: "/images/progress.png",
+      style: { width: "4.8vw", height: "1.8vw" },
+    },
+    {
+      key: "COMPLETED",
+      img: "/images/completed.png",
+      style: { width: "4.1vw", height: "1.8vw" },
+    },
+  ] as const;
+
   // 메뉴를 body 에 포탈로 렌더링 (이미지만)
   const menuPortal = menuPos && createPortal(
-    <div className="status-menu" style={{
-     width:"140px",
-      height:"175px",
-      position:    "absolute",
-      alignItems:    "flex-start",  
-      top:         menuPos.y,
-      left:        menuPos.x,
-      display:     "flex",
-      flexDirection:"column",
-      background:  "#fff",
-      border:      "1px solid #ccc",
-      borderRadius:4,
-      boxShadow:   "0 2px 6px rgba(0,0,0,0.15)",
-      zIndex:      1000,
-    }}>
-      {iconUrls.map((url, idx) => (
-        <div key={idx}
-          onClick={() => handleSelect(idx)}
-          style={{
-            padding:    "4px",
-            cursor:     "pointer",
-            //background: idx === statusIdx ? "#f0f0f0" : "transparent",
-            
-            textAlign:  "left", 
-          }}
+    <div
+      className="status-menu"
+      style={{ top: menuPos.y, left: menuPos.x, position: "absolute" }}
+    >
+      {STATUS_ITEMS.map(({ key, img, style }) => (
+        <div
+          key={key}
+          onClick={() => handleSelect(key as ToDoProps["status"])}
+          className="status-button"
         >
-          <img src={url} alt={`status-${idx}`} style={{ width: 97, height: 35, marginTop: 8   }} />
+          <img src={img} alt={key} style={style} />
         </div>
       ))}
     </div>,
@@ -126,13 +126,6 @@ export const ToDoList: React.FC<ToDoListProps> = ({
           onClick={handleStatusClick}
           style={{
             backgroundColor: colors[statusIdx],
-            position:        "relative",
-            cursor:          "pointer",
-            display:         "flex",
-            alignItems:      "center",
-            justifyContent:  "center",
-            width:           20,
-            height:          20,
           }}
         >
         </div>

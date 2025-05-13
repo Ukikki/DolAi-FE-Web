@@ -36,6 +36,7 @@ const SttListener: React.FC<SttListenerProps> = ({ meetingId, onReceive }) => {
       subscription = stompClient.subscribe(`/topic/stt/${meetingId}`, (message) => {
         const data: SttLog = JSON.parse(message.body);
         console.log("📝 STT 메시지:", data);
+        onReceiveRef.current?.(data);
       });
     });
 
