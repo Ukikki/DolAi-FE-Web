@@ -1,15 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, RefObject } from "react";
 import * as d3 from "d3";
 import { GraphData, Node, Link } from "@/types/graph";
 import "@/styles/meeting/Meeting.css";
 
 interface Props {
   graphData: GraphData;
+  svgRef: RefObject<SVGSVGElement | null>;
 }
 
-const GraphViewing: React.FC<Props> = ({ graphData }) => {
+const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
   const containerRef = useRef<HTMLDivElement>(null); // 화면 크기에 맞게
-  const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;

@@ -35,13 +35,14 @@ export default function Meetings() {
   // 그래프
   const { graph, fetchGraph } = useGraph();
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
+  const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
 
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
   const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
-  const handleLeave = useLeaveMeeting(meetingId);
+  const handleLeave = useLeaveMeeting(meetingId, svgRef);
 
   
    // ─── 1) mediasoup 소켓 연결 & joinRoom (한 번만) ───
@@ -314,7 +315,7 @@ export default function Meetings() {
 
           {/* 그래프 */}
           <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-            {graph && <GraphViewing graphData={graph} />} 
+            {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
           </div>
 
           {/* 회의록 토글 버튼 */}
