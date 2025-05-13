@@ -37,8 +37,21 @@ export const useGraph = () => {
         target: e.to,
         type: e.type
       }));
+      setGraph(null); // 이전 그래프 클리어
 
-      setGraph({ nodes, links });
+      setGraph(prev => {
+        const existingNodeIds = new Set(prev?.nodes.map(n => n.id));
+        const existingLinks = new Set(prev?.links.map(l => `${l.source}-${l.target}-${l.type}`));
+      
+        const filteredNodes = nodes.filter(n => !existingNodeIds.has(n.id));
+        const filteredLinks = links.filter(l => !existingLinks.has(`${l.source}-${l.target}-${l.type}`));
+      
+        return {
+          nodes: [...(prev?.nodes || []), ...filteredNodes],
+          links: [...(prev?.links || []), ...filteredLinks],
+        };
+      });
+      
     } catch (err: any) {
       console.error(err?.response?.data?.message || "그래프 조회 실패");
     }

@@ -2,15 +2,14 @@
 .minutes-container {
   position: absolute;
   left: 1.8vw;
-  top: 5.1vw;
+  top: 4.3vw;
   width: 31.3vw;
-  height: 45.8vw;
+  height: 43vw;
   overflow-y: scroll;
   display: flex;
   flex-direction: column-reverse; /* 아래에서 위로 쌓임 */
   box-sizing: border-box;
-  padding: 2.1vw;
-  z-index: 2;
+  z-index: 2000;
 }
 /* 스크롤바 안보이게 */
 .minutes-container::-webkit-scrollbar {
@@ -23,6 +22,7 @@
   flex-direction: column;
   gap: 1vw;
   color: black;
+  z-index: 2000;
 }
 .minutes-bubble-item {
   width: fit-content;

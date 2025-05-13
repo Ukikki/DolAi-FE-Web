@@ -15,8 +15,10 @@ const GraphViewing: React.FC<Props> = ({ graphData }) => {
     if (!containerRef.current) return;
 
     const react = containerRef.current.getBoundingClientRect();
-    const width = react.width;
-    const height = react.height;
+    // const width = react.width;
+    // const height = react.height;
+    const width = 600;
+    const height = 880;
 
     const svg = d3.select<SVGSVGElement, unknown>(svgRef.current!);
     svg.selectAll("*").remove(); // 기존 요소 제거

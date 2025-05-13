@@ -28,6 +28,8 @@ export default function Meetings() {
   const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
+  const [selectedTransTab, setSelectedTransTab] = useState<"original" | "translated">("original"); // 원문/번역 본 토글 상태
+
   const { user } = useUser();
 
   // 그래프
@@ -85,7 +87,7 @@ export default function Meetings() {
   
   // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
-  const [chatPosition, setChatPosition] = useState({ x:  2000, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
+  const [chatPosition, setChatPosition] = useState({ x:  1500, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
   const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
   
 
@@ -234,15 +236,15 @@ export default function Meetings() {
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
           {/* 항상 보이는 DolAi 아이콘 - 우측 상단에 위치 */}
           <div
-  className="dolai-toggle-icon"
-  onClick={() => setIsDolAiOpen(prev => !prev)}
->
-  <img
-    src="/images/dolai.png"
-    alt="DolAi"
-    className="dolai-icon-image"
-  />
-</div>
+            className="dolai-toggle-icon"
+            onClick={() => setIsDolAiOpen(prev => !prev)}
+          >
+            <img
+              src="/images/dolai.png"
+              alt="DolAi"
+              className="dolai-icon-image"
+            />
+          </div>
 
           {/* 펼쳐지는 채팅 내용 */}
           <div className={`dolai-chat-overlay ${isDolAiOpen ? 'open' : ''}`}>
@@ -250,71 +252,89 @@ export default function Meetings() {
       </div>
         </div>
       </Rnd>
-    
-    {/* 카메라 화면 표시 */}
-    {activeTool !== "board" && (
-    <main className="video-container">
-      {/* 내 화면 */}
-      <section className="main-video">
-        {isCameraOn ? (
-          <video ref={videoRef} autoPlay muted playsInline />
-        ) : (
-          <div className="video-off">
-            <span>{user?.name}</span>
-          </div>
-        )}
-      </section>
 
-    {/* 오른쪽 참가자들 */}
-    <aside className="video-sidebar">
-      {remoteStreams.map((streamObj, _idx) => (
-        <RemoteVideo
-          key={streamObj.peerId}
-          stream={streamObj.stream}
-          name={streamObj.name}
-        />
-      ))}
-    </aside>
-
-    {/* STT 리스너 */}
     {meetingId && (
       <SttListener
         meetingId={meetingId}
         onReceive={(log) => {
-          setMinutesLog((prev) => [...prev, { speaker: log.speaker, text: log.text }]);
+          setMinutesLog((prev) => {
+            const isDuplicate = prev.some(p => p.speaker === log.speaker && p.text === log.text);
+            return isDuplicate ? prev : [...prev, log];  
+          });
         }}
+        
       />
     )}
 
-    {/* 회의록 뷰 */}
-    <div className={`minutes-container-wrapper ${showMinutes ? "slide-in" : "slide-out"}`}>
-      <Minutes minutes={minutesLog} /> 
-    </div>
+    
+    {/* 카메라 화면 표시 */}
+    <main className="video-container">
+      {activeTool === "board" ? (
+        <Whiteboard meetingId={meetingId} />
+      ) : (
+        <>
+          {/* 내 비디오 */}
+          <section className="main-video">
+            {isCameraOn ? (
+              <video ref={videoRef} autoPlay muted playsInline />
+            ) : (
+              <div className="video-off">
+                <span>{user?.name}</span>
+              </div>
+            )}
+          </section>
 
-    {/* 그래프 뷰 */}
-    <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-      {graph && (
-        <GraphViewing graphData={graph} /> 
+          {/* 참가자 영상 */}
+          <aside className="video-sidebar">
+            {remoteStreams.map((streamObj, _idx) => (
+              <RemoteVideo
+                key={streamObj.peerId}
+                stream={streamObj.stream}
+                name={streamObj.name}
+              />
+            ))}
+          </aside>
+
+          {/* 회의록 */}
+          <div className={`minutes-container-wrapper ${showMinutes ? "slide-in" : "slide-out"}`}>
+          <div className="Transtab-container">
+            <button
+              className={`transtab ${selectedTransTab === 'original' ? 'selected' : ''}`}
+              onClick={() => setSelectedTransTab("original")}
+            > 
+            원문 </button>
+            <button
+              className={`transtab ${selectedTransTab === 'translated' ? 'selected' : ''}`}
+              onClick={() => setSelectedTransTab("translated")}
+            > 
+            번역 </button>
+          </div>
+            <Minutes minutes={minutesLog} selectedTab={selectedTransTab} /> 
+          </div>
+
+          {/* 그래프 */}
+          <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
+            {graph && <GraphViewing graphData={graph} />} 
+          </div>
+
+          {/* 회의록 토글 버튼 */}
+          <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
+            style={{
+              left: showMinutes ? "calc(0.1vw + 31.3vw)" : "0vw"
+            }}>
+            {showMinutes ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          </button>
+
+          {/* 그래프 토글 버튼 */}
+          <button className="graph-toggle-btn" onClick={() => setShowGraph(prev => !prev)}
+            style={{
+              left: showGraph ? "calc(100vw - 31.3vw)" : "97vw"
+            }}>
+            {showGraph ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        </>
       )}
-    </div>
-
-    {/* 회의록 화살표 버튼 */}
-    <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
-      style={{
-        left: showMinutes ? "calc(0.1vw + 31.3vw)" : "0vw"
-    }}>
-      {showMinutes ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-    </button>
-
-    {/* 그래프 화살표 버튼 */}
-    <button className="graph-toggle-btn" onClick={() => setShowGraph(prev => !prev)}
-      style={{
-        left: showGraph ? "calc(100vw - 31.3vw)" : "97vw"
-      }}>
-      {showGraph ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-    </button>
     </main>
-    )}
 
     {/* 초대 창 보여짐 */}
     {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} meetingId={meetingId} onClose={() => setActiveTool(null)} />}

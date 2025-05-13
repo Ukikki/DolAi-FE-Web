@@ -87,12 +87,12 @@
 .video-off {
   width: 100%;
   height: 100%;
-  /* background: linear-gradient(
+  background: linear-gradient(
     180deg,
     #f2f5f7 0%,
     #ffd9ec 40%,
     #eaffee 100%
-  ); */
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,7 +128,7 @@
   width: 31.3vw;
   height: 45.8vw;
   transition: transform 0.4s ease;
-  z-index: 2;
+  z-index: 1000;
 }
 
 .slide-in {
@@ -152,6 +152,39 @@
   background: transparent;
   justify-content: center;
   cursor: pointer;
+}
+.Transtab-container{
+  position: absolute;
+  top: 1.3vw;
+  left: 9.4vw;
+  display: flex;
+  width: 10.4vw;
+  height: 2.1vw;
+  border: 1px solid #EFEFEF;
+  border-radius: 30px;
+  background:  rgba(255, 255, 255, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 3000; /* 충분히 위로 올라오게 */
+}
+.transtab {
+  width: 4.6vw;
+  height: 1.6vw;
+  font-size: 0.95rem;
+  background: none;
+  border: none;
+  border-radius: 20px;
+  outline: none;
+  cursor: pointer;
+  color: black;
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+}
+
+.transtab.selected {
+  background: #3572EF;
+  color: white;
+
 }
 
 /* Rnd  */
@@ -199,6 +232,7 @@
 /* 그래프 */
 .graph-container-wrapper {
   position: absolute;
+  top: 1.5vw;
   right: 0;
   width: 31.3vw;
   height: 45.8vw;
@@ -209,7 +243,7 @@
     rgba(255, 255, 255, 0) 100%
   );
   border-radius: 60px;
-  z-index: 800;
+  z-index: 1000;
 }
 .graph-container-wrapper.slide-in {
   transform: translateX(0);
@@ -223,7 +257,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 100;
+  z-index: 1001;
   width: 3vw;
   height: 3vw;
   border: none;
