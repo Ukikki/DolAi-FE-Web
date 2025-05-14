@@ -159,10 +159,12 @@ export const useTodoList = () => {
 
   // 마운트 시 서버 GET → 정확히 매핑
   useEffect(() => {
+    const token = localStorage.getItem("jwt"); // ✅ 로그인 여부 판단
+    if (!token) return; // ❗로그인 안 했으면 요청 안 함
+
     axios
       .get<{ data: Array<{ id:number; title:string; status:string; dueDate?:string }> }>("/todo")
       .then(res => {
-        console.log("🔍 [useTodoList] raw data:", res.data.data);
         const mapped = res.data.data.map(item => {
           // 1) 대소문자 구분 없이 비교하기 위해 항상 대문자로 바꿔줍니다.
           const raw = item.status.toUpperCase();
@@ -175,11 +177,7 @@ export const useTodoList = () => {
           } else {
             status = "PENDING";
           }
-  
-          console.log(
-            `→ id=${item.id} status(raw)=${item.status} → mapped=${status}`
-          );
-  
+
           return {
             id:     item.id,
             task:   item.title,

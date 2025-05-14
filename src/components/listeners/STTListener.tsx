@@ -1,56 +1,29 @@
-import { useEffect, useRef } from "react";
-import SockJS from "sockjs-client";
-import { Client, over } from "stompjs";
+import { useEffect } from "react";
 import { useUser } from "@/hooks/user/useUser";
+import { sttSocketClient } from "@/utils/socketClients";
 
 interface SttLog {
   speaker: string;
   text: string;
 }
 
-interface SttListenerProps {
+interface Props {
   meetingId: string;
   onReceive?: (log: SttLog) => void;
 }
 
-const SttListener: React.FC<SttListenerProps> = ({ meetingId, onReceive }) => {
+const SttListener: React.FC<Props> = ({ meetingId, onReceive }) => {
   const { user } = useUser();
-  const stompClientRef = useRef<Client | null>(null);
-  const onReceiveRef = useRef<((log: SttLog) => void) | undefined>(undefined);
 
   useEffect(() => {
-    onReceiveRef.current = onReceive;
-  }, [onReceive]);
-
-  useEffect(() => {
-    if (!user || !meetingId) return;
-
-    const socket = new SockJS("http://localhost:8081/ws-stt");
-    const stompClient = over(socket);
-    stompClientRef.current = stompClient;
-    let subscription: any;
-
-    stompClient.connect({}, () => {
-      console.log("🎙️ STT 소켓 연결됨");
-
-      subscription = stompClient.subscribe(`/topic/stt/${meetingId}`, (message) => {
-        const data: SttLog = JSON.parse(message.body);
-        console.log("📝 STT 메시지:", data);
-        onReceiveRef.current?.(data);
-      });
-    });
+    if (!user || !meetingId || !onReceive) return;
+    sttSocketClient.subscribe(`/topic/stt/${meetingId}`, onReceive);
 
     return () => {
-      if (subscription) {
-        subscription.unsubscribe(); // ✅ 중복 구독 해제
-      }
-      if (stompClientRef.current?.connected) {
-        stompClientRef.current.disconnect(() => {
-          console.log("🛑 STT WebSocket 연결 종료");
-        });
-      }
+      sttSocketClient.unsubscribe(`/topic/stt/${meetingId}`);
+      sttSocketClient.disconnect();
     };
-  }, [user, meetingId]); // ⚠️ onReceive는 빠짐
+  }, [user, meetingId, onReceive]);
 
   return null;
 };

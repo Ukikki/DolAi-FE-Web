@@ -11,7 +11,6 @@ import RequestsPage from "./pages/RequestsPage";
 import ToastManager from "./components/toast/ToastManager";
 import NotificationListener from "./components/listeners/NotificationListener";
 
-
 import "./App.css";
 
 function AppContent() {
@@ -25,7 +24,7 @@ function AppContent() {
     else if (location.pathname === "/documents") setSelected("document");
     // 라우트가 /folder/:folderId 일 때도 document로 표시할지, 별도 상태로 표시할지 결정
   }, [location.pathname]);
-  
+
   return (
     <Routes>
       <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
@@ -45,7 +44,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastManager>
-        <NotificationListener />
+        <NotificationListener /> {/* ✅ ToastProvider 내부로 들어감 */}
         <AppContent />
       </ToastManager>
     </BrowserRouter>

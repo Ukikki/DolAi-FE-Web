@@ -9,6 +9,8 @@ export const useUser = () => {
   // 내 정보 가져오기
   const fetchUser = useCallback(() => {
     const token = localStorage.getItem("jwt");
+    if (!token) return;
+    
     axios.get("/user/me", {
       headers: {
         Authorization: `Bearer ${token}`,

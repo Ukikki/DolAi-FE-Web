@@ -2,6 +2,7 @@ import axios from "axios";
 
 // axios 인스턴스 생성
 const instance = axios.create({
+  //baseURL: "http://13.209.37.189:8081", // 백엔드 주소
   baseURL: "http://localhost:8081", // 백엔드 주소
   withCredentials: true,
 });
@@ -30,7 +31,7 @@ instance.interceptors.response.use(
 
       // 토큰 만료시 로그아웃 대신 재발급 요청
       try {
-        const res = await axios.post("http://localhost:8081/auth/reissue", null, { 
+        const res = await instance.post("/auth/reissue", null, { 
         headers: {
         "Refresh-Token": refreshToken,
         },
