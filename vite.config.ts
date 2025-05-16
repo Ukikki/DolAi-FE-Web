@@ -1,34 +1,36 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from "path";
+import path from "path"
 
-export default defineConfig({
-  server: {
-    proxy: {
-      '/api': {
-        //target: 'http://13.209.37.189:8081', // Spring Boot 백엔드 포트
-        target: 'http://localhost:8081', // Spring Boot 백엔드 포트
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // /api 없애고 /user/search 처럼 맞추기
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd())
+
+  return {
+    server: {
+      proxy: {
+        '/api': {
+          target: env.VITE_BASE_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+        '/todo': {
+          target: env.VITE_BASE_URL,
+          changeOrigin: true,
+        },
+        '/directories': {
+          target: env.VITE_BASE_URL,
+          changeOrigin: true,
+        },
       },
-      '/todo': {
-               target: 'http://localhost:8081',
-              changeOrigin: true,
-             },
-      '/directories': {
-        target: 'http://localhost:8081',
-        changeOrigin: true,
-      }
-    }
-  },
-  define: {
-    global: 'window',
-  },
-  resolve: {
-    alias : {
-      "@": path.resolve(__dirname, "src")
-    }
-  },
-
-  plugins: [react()],
-});
+    },
+    define: {
+      global: 'window',
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
+      },
+    },
+    plugins: [react()],
+  }
+})

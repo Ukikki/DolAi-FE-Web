@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "@/utils/axiosInstance";
+import { isAxiosError } from "axios";
 
 export interface CalendarEvent {
   title: string;
@@ -34,6 +35,10 @@ export const useCalendar = (year: number, month: number) => {
       });
         setMarkedMap(dayMap);
     } catch (err) {
+      if (isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 401 || status === 500) return; 
+      }
       console.error("❌ 월간 일정 가져오기 실패:", err);
     }
   };

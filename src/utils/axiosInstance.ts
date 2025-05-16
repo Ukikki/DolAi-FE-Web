@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // axios 인스턴스 생성
 const instance = axios.create({
-  //baseURL: "http://13.209.37.189:8081", // 백엔드 주소
-  baseURL: "http://localhost:8081", // 백엔드 주소
+  baseURL: VITE_BASE_URL, // 백엔드 주소
   withCredentials: true,
 });
 
@@ -22,7 +22,13 @@ instance.interceptors.response.use(
     const originalRequest = error.config;
     const refreshToken = localStorage.getItem("refreshToken");
 
+    if (isAxiosError(error) && error.code === "ERR_NETWORK") {
+      return Promise.resolve({ data: null });
+    }
+
+    // 토큰 재발급 처리
     if (
+      isAxiosError(error) &&
       error.response?.status === 401 &&
       !originalRequest._retry &&
       refreshToken
@@ -31,7 +37,7 @@ instance.interceptors.response.use(
 
       // 토큰 만료시 로그아웃 대신 재발급 요청
       try {
-        const res = await axios.post("http://localhost:8081/auth/reissue", null, { 
+        const res = await axios.post(`${VITE_BASE_URL}/auth/reissue`, null, { 
         headers: {
         "Refresh-Token": refreshToken,
         },
@@ -46,14 +52,7 @@ instance.interceptors.response.use(
 
       return instance(originalRequest); // 재요청
     } catch (err) {
-      console.error("❌ 토큰 재발급 실패", err);
-    
-      // jwt, refresh토큰 제거
-      localStorage.removeItem("jwt");
-      localStorage.removeItem("refreshToken");
-      window.location.href = "/";
-      
-      return Promise.reject(err);
+      console.error("토큰 재발급 실패", err);
     }
   }
 

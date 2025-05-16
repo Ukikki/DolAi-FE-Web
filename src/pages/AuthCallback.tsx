@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import axios from '@/utils/axiosInstance';
+import axios from 'axios';
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 import { useNavigate } from 'react-router-dom';
 
 const getAuthCodeFromUrl = (): string | null => {
@@ -16,7 +17,7 @@ const handleSocialLogin = async (provider: 'kakao' | 'google') => {
 
   // 백엔드에 소셜 로그인 인증 코드 전송
   try {
-    const response = await axios.post('/auth/social', {
+    const response = await axios.post(`${VITE_BASE_URL}/auth/social`, {
       provider,  // 'kakao' 또는 'google'
       code,      // 소셜 인증 코드
     }, {
