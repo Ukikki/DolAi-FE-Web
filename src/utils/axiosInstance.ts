@@ -31,7 +31,7 @@ instance.interceptors.response.use(
 
       // 토큰 만료시 로그아웃 대신 재발급 요청
       try {
-        const res = await instance.post("/auth/reissue", null, { 
+        const res = await axios.post("http://localhost:8081/auth/reissue", null, { 
         headers: {
         "Refresh-Token": refreshToken,
         },
@@ -46,7 +46,14 @@ instance.interceptors.response.use(
 
       return instance(originalRequest); // 재요청
     } catch (err) {
-      console.error("토큰 재발급 실패", err);
+      console.error("❌ 토큰 재발급 실패", err);
+    
+      // jwt, refresh토큰 제거
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("refreshToken");
+      window.location.href = "/";
+      
+      return Promise.reject(err);
     }
   }
 

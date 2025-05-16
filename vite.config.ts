@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
+        //target: 'http://13.209.37.189:8081', // Spring Boot 백엔드 포트
         target: 'http://localhost:8081', // Spring Boot 백엔드 포트
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // /api 없애고 /user/search 처럼 맞추기

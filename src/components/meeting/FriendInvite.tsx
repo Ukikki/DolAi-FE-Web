@@ -1,4 +1,4 @@
-import "./FriendInvite.css";
+import "@/styles/meeting/FriendInvite.css";
 import { Link, Search, Check } from "lucide-react";
 import { useState } from "react";
 import { useFriend } from "@/hooks/useFriend";
