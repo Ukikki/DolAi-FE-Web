@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client, over } from "stompjs";
 import { useUser } from "@/hooks/user/useUser";
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface SttLog {
   speaker: string;
@@ -25,7 +26,7 @@ const SttListener: React.FC<SttListenerProps> = ({ meetingId, onReceive }) => {
   useEffect(() => {
     if (!user || !meetingId) return;
 
-    const socket = new SockJS("http://localhost:8081/ws-stt");
+    const socket = new SockJS(`${VITE_BASE_URL}/ws-stt`);
     const stompClient = over(socket);
     stompClientRef.current = stompClient;
     let subscription: any;

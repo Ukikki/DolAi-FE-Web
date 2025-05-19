@@ -1,14 +1,246 @@
 .BO-container {
   display: flex;
-  flex-direction: column;
-  width: 100vw; /* 뷰포트 전체 너비 */
-  height: 100vh; /* 뷰포트 전체 높이 */
-  background-color: #252525;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  box-sizing: border-box;
+  padding: 2.6vw 2.6vw 2.1vw 0;
+  overflow: hidden;
 }
 
+/* 왼쪽 사이드 바 */
+.BO-sidebar {
+  width: 10.4vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .admin-logo {
-  width: 5.05vw;
-  position: absolute;
-  top: 32px;
-  left: 63px;
+  width: 6vw;
+  margin-top: 7.8vw;
+  margin-bottom: 2.8vw;
+  margin-left: 2.6vw;
+}
+.BO-nav {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.BO-nav ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  text-align: center;
+  font-family: "Jamsil_R";
+}
+.BO-nav li {
+  width: 8.9vw;
+  height: 3.1vw;
+  line-height: 3.1vw;
+  border-radius: 20px 0 0 20px;
+  margin-left: 1.6vw;
+  color: #ccc;
+  font-size: 1vw;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.BO-nav li:hover,
+.BO-nav .active {
+  background-color: #262629;
+  color: white;
+}
+.BO-logout {
+  margin: 6vw auto;
+  font-size: 0.9vw;
+  color: white;
+  cursor: pointer;
+}
+
+
+/* 내부 박스 */
+.BO-inner-container {
+  flex: 1;
+  border-radius: 30px;
+  background: #262629;
+  color: white;
+  box-sizing: border-box;
+  padding: 2.1vw 2.6vw 2.1vw 2.6vw;
+}
+.BO-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.BO-title {
+  font-family: "Jamsil_B";
+  font-size: 2.1vw;
+}
+.BO-tab-container{
+  display: flex;
+  width: 15.6vw;
+  height: 3.1vw;
+  gap: 1vw;
+  justify-content: center;
+  align-items: center;
+}
+.BO-tab {
+  width: 7.3vw;
+  height: 3.1vw;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  background: #37373D;
+  color: white;
+  font-family: "Jamsil_R";
+  font-size: 1.3vw;
+}
+.BO-tab.selected {
+  background: black;
+}
+
+
+/* 상단 작은 카드들 */
+.BO-card-wrapper {
+  display: flex;
+  gap: 1.3vw;
+  margin-top: 2.2vw;
+  margin-left: 0.5vw;
+}
+.BO-card {
+  width: 12vw;
+  height: 13vw;
+  background: #37373D;
+  border-radius: 20px;
+  transition: background 0.2s ease;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  padding: 1.8vw 0 2.1vw 1.8vw;
+}
+.BO-card:hover {
+  background: linear-gradient(135deg,
+  rgba(0, 0, 0, 0.3) 0%,
+  rgba(0, 0, 0, 0) 100%
+  );
+}
+.BO-card-icon {
+  width: 2.1vw;
+  height: 2.1vw;
+  stroke-width: 3;
+  color: #90CAFF;
+  margin-bottom: 1vw;
+}
+.BO-card-title {
+  font-size: 1.3vw;
+  font-family: "Jamsil_R";
+}
+.BO-card-value-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.3vw;
+}
+.BO-card-value {
+  font-size: 2.1vw;
+  font-family: "Neo_E";
+  margin-top: 2.3vw;
+  margin-right: 0.5vw;
+}
+.BO-arrow-up {
+  width: 1.6vw;
+  height: 1vw;
+  background-position: center;
+  background-image: url("/images/arrow_up.png");
+  background-size: contain;
+  background-repeat: no-repeat;  
+}
+.BO-arrow-down {
+  width: 1.6vw;
+  height: 1vw;
+  background-position: center;
+  background-image: url("/images/arrow_down.png");
+  background-size: contain;
+  background-repeat: no-repeat;  
+}
+.BO-percent-up {
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  color: #4BD35A;
+}
+.BO-percent-down {
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  color: #C42626;
+}
+
+.BO-device-card {
+  display: flex;
+  flex-direction: column;
+  width: 27.1vw;
+  height: 15.8vw;
+  background: #37373D;
+  border-radius: 20px;
+  margin-left: 0.5vw;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+  padding: 1.8vw;
+  box-sizing: border-box;
+}
+
+.BO-device-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.BO-device-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 1vw;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2vw;
+  font-size: 1vw;
+  color: #ccc;
+  margin-left: 2vw;
+}
+
+.legend-dot {
+  width: 0.8vw;
+  height: 0.8vw;
+  border-radius: 50%;
+}
+.BO-device-chart {
+  width: 70%;
+}
+
+
+/* 차트 카드들*/
+.BO-chart-wrapper {
+  display: flex;
+  gap: 1.6vw;
+  margin-top: 1vw;
+}
+.BO-chart-card {
+  display: flex;
+  flex-direction: column;
+  width: 39.6vw;
+  height: 21.6vw;
+  background: #37373D;
+  border-radius: 20px;
+  margin-left: 0.5vw;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.15);
+}
+.recharts-default-label {
+  font-size: 0.9vw;
+  font-family: "Jamsil_R";
+  fill: white;
 }

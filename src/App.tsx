@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Dashboard from "./pages/Dashboard";
@@ -10,13 +10,18 @@ import AuthCallback from "./pages/AuthCallback";
 import RequestsPage from "./pages/RequestsPage";
 import ToastManager from "./components/toast/ToastManager";
 import NotificationListener from "./components/listeners/NotificationListener";
+import BackOffice from "./pages/BackOffice";
 
+import { useUser } from "./hooks/user/useUser";
 import "./App.css";
 
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selected, setSelected] = useState("home");
+  const { user } = useUser();
+  //const isAdmin = user?.id! === '115262388928733391824';
+  const isAdmin = user?.id! === '';
 
   useEffect(() => {
     if (location.pathname === "/") setSelected("home");
@@ -27,7 +32,7 @@ function AppContent() {
 
   return (
     <Routes>
-      <Route path="/" element={<Dashboard selected={selected} navigate={navigate} />} />
+      <Route path="/" element={isAdmin ? <Navigate to="/backOffice" /> : <Dashboard selected={selected} navigate={navigate} />} />
       <Route path="/meetings" element={<Meetings />} />
       
       <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
@@ -36,6 +41,7 @@ function AppContent() {
       <Route path="/settings/*" element={<Setting navigate={navigate} />}>
         <Route path="request" element={<RequestsPage navigate={navigate} onBack={() => navigate("/settings")} />} />
       </Route>
+      <Route path="/backoffice" element={<BackOffice />} />
     </Routes>
   );
 }
@@ -44,7 +50,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ToastManager>
-        <NotificationListener /> {/* ✅ ToastProvider 내부로 들어감 */}
+        <NotificationListener />
         <AppContent />
       </ToastManager>
     </BrowserRouter>
