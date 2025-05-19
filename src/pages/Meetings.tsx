@@ -44,7 +44,7 @@ export default function Meetings() {
   const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
-  const handleLeave = useLeaveMeeting(meetingId, svgRef);
+  const handleLeave = useLeaveMeeting(meetingId);
 
   // 화면 공유
   const { screenShareStart, screenShareStop } = useScreenShare(meetingId, user?.id!);
@@ -52,7 +52,7 @@ export default function Meetings() {
   // --- 기타 툴 상태 ---
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
   const toggleIconTool = async (tool: typeof activeTool) => {
-  const isActivating = activeTool !== tool;
+    const isActivating = activeTool !== tool;
 
     // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
     if (tool === "board") {
@@ -73,77 +73,102 @@ export default function Meetings() {
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
-  // 참가자들
+  // // 참가자들
   type RemoteStreamEntry = {
     stream: MediaStream;
     name: string;
     peerId: string;
+    kind: "audio" | "video" | "board" | "screen";
   };
-
+  
   const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
-  // 중복 없이 참가자 추가
-  const remoteStreamCache = useRef<Map<string, boolean>>(new Map());
-
-  const addStream = (stream: MediaStream, name: string, peerId: string) => {
-    if (remoteStreamCache.current.has(peerId)) {
-      console.log(`🚫 [addStream] 이미 등록된 peerId: ${peerId}, 무시`);
-      return;
-    }
   
-    remoteStreamCache.current.set(peerId, true);
-    console.log(`✅ [addStream] 스트림 추가됨 → peerId: ${peerId}, name: ${name}`);
-  
-    setRemoteStreams((prev) => [...prev, { stream, name, peerId }]);
-  };
-
-  // ───  mediasoup 소켓 연결  ───
-  const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name!,user?.id!);
-
-  useMediasoupConsumer({ socket: connectRoom?.socket!, device: connectRoom?.device!, onStream: addStream, myUserId: user?.id! });
-  useMediasoupProducer({
-    socket:     connectRoom?.socket!,
-    device:     connectRoom?.device!,
-    stream:     connectRoom?.stream!, 
-    videoRef,
-    isCameraOn,
-    isMicOn,
-  });
-  // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
-const [isDolAiOpen, setIsDolAiOpen] = useState(false);
-const [chatPosition, setChatPosition] = useState({ x:  1500, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
-const [chatSize, setChatSize] = useState({ width: 320, height: 450 }); 
-
-// --- 카메라 on/off 효과 ---
-useEffect(() => {
-  if (isCameraOn) {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      videoStreamRef.current = stream;
+  const addStream = (
+    stream: MediaStream,
+    name: string,
+    peerId: string,
+    kind: "audio" | "video" | "board" | "screen"
+  ) => {
+    setRemoteStreams((prev) => {
+      const key = `${peerId}-${kind}`;
+      if (prev.find((s) => `${s.peerId}-${s.kind}` === key)) return prev;
+      return [...prev, { stream, name, peerId, kind }];
     });
-  } else {
-    // 카메라 off 시 스트림 종료
-    if (videoStreamRef.current) {
-      videoStreamRef.current.getTracks().forEach((track) => track.stop());
-      videoStreamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-  }
-
-  return () => {
-    // 컴포넌트 언마운트 시 스트림 종료
-    if (videoStreamRef.current) {
-      videoStreamRef.current.getTracks().forEach((track) => track.stop());
-      videoStreamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
   };
-}, [isCameraOn]);
+  
+  // 참가자들
+  // type RemoteStreamEntry = {
+  //   stream: MediaStream;
+  //   name: string;
+  //   peerId: string;
+  // };
+
+  // const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
+  // const addStream = (stream: MediaStream, name: string, peerId: string) => {
+  //   setRemoteStreams((prev) => {
+  //     if (prev.find(s => s.peerId === peerId)) return prev;
+  //     return [...prev, { stream, name, peerId }];
+  //   });
+  // };
+  
+    // ─── 1) mediasoup 소켓 연결 & joinRoom ───
+     const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name || "익명", user?.id!); 
+
+     useMediasoupProducer({ socket: connectRoom?.socket!, device: connectRoom?.device!, videoRef, isCameraOn, isMicOn });
+     useMediasoupConsumer({ socket: connectRoom?.socket!, device: connectRoom?.device!, onStream: addStream, myUserId: user?.id! });
+
+    //useMediasoupConsumer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, onStream: addStream })
+
+  // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
+  const [isDolAiOpen, setIsDolAiOpen] = useState(false);
+  const [chatPosition, setChatPosition] = useState({ x:  1500, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
+  const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
+  
+
+  // --- 카메라 on/off 효과 ---
+  useEffect(() => {
+    if (isCameraOn) {
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        videoStreamRef.current = stream;
+      });
+    } else {
+      // 카메라 off 시 스트림 종료
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach((track) => track.stop());
+        videoStreamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    }
+    return () => {
+      // 컴포넌트 언마운트 시 스트림 종료
+      if (videoStreamRef.current) {
+        videoStreamRef.current.getTracks().forEach((track) => track.stop());
+        videoStreamRef.current = null;
+      }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
+  }, [isCameraOn]);
+
+  // --- 마이크 on/off 효과 ---
+  useEffect(() => {
+    if (isMicOn) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          micRef.current = stream;
+          stream.getAudioTracks()[0].enabled = true;
+        })
+        .catch(err => console.error("마이크 접근 실패:", err));
+    } else {
+      micRef.current?.getTracks().forEach(t => t.stop());
+    }
+  }, [isMicOn]);
   
   useEffect(() => {
     if (location.state?.showInvite) {
@@ -154,10 +179,10 @@ useEffect(() => {
 
   useEffect(() => {
     if (!connectRoom) return;
-    const { socket, device } = connectRoom;
+    const { socket, rtpCapabilities } = connectRoom;
   
     console.log("🎉mediasoup 연결 성공:", socket.id);
-    console.log("📡 서버 device:", device);
+    console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
     }, [connectRoom]);
 
   // 그래프 연결
@@ -254,7 +279,6 @@ useEffect(() => {
           </div>
 
           {/* 펼쳐지는 채팅 내용 */}
-          
           <div className={`dolai-chat-overlay ${isDolAiOpen ? 'open' : ''}`}>
         {isDolAiOpen && <ChatDolai />}
       </div>
@@ -296,7 +320,7 @@ useEffect(() => {
           <aside className="video-sidebar">
             {remoteStreams.map((streamObj, _idx) => (
               <RemoteVideo
-                key={streamObj.peerId}
+                key={`${streamObj.peerId}-${streamObj.kind}`}
                 stream={streamObj.stream}
                 name={streamObj.name}
               />
@@ -322,7 +346,7 @@ useEffect(() => {
 
           {/* 그래프 */}
           <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-            {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
+          {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
           </div>
 
           {/* 회의록 토글 버튼 */}
