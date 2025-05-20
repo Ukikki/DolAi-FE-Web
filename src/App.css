@@ -99,6 +99,39 @@ body {
   text-align: center;
   overflow: visible;
 }
+.left-panel-title-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.left-panel-title {
+  font-family: "Jamsil_M";
+  font-size: 1.25vw;
+  color: black;
+  text-align: center;
+  margin: 0;
+  margin-top: 8px;
+}
+
+.all-meetings-icon {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.2vw;
+  height: 1.2vw;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #007bff;
+  }
+}
+
+
+
 
 /* 그래프 영역 */
 .graph-section {
@@ -172,3 +205,64 @@ body {
   border: solid 1px #B2B2B2;
   box-sizing: border-box;
 }
+
+
+/* 전체회의 모달 배경 오버레이 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* 모달 박스 */
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  
+}
+
+/* 타이틀 */
+.modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* 회의 목록을 감싸는 영역 (여기에 스크롤 적용!) */
+.modal-meeting-list {
+  max-height: 320px; /* 회의 항목 4개 분량 */
+  overflow-y: auto;
+  margin-bottom: 16px; /* ✨ 버튼과 간격 */
+}
+.modal-cancel-button {
+  margin-top: 16px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 4px; /* 선택사항: 버튼 모서리 둥글게 */
+  transition: background 0.2s;
+  display: inline-block; /* ✨ 텍스트 정렬의 영향을 받도록 */
+  text-align: center;
+}
+.modal-button-wrapper {
+  text-align: center; /* ✅ 버튼만 가운데 정렬 */
+}
+
+
+.modal-cancel-button:hover {
+  background: #f0f0f0; /* 선택사항: hover 효과 */
+}
+

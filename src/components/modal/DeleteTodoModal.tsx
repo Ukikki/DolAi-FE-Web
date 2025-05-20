@@ -19,8 +19,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <div
         className="confirm-modal"
         style={{
-          width: "150px",
-          height:"90px",       // 전체 모달 너비 조정
+          width: "350px",
+          height:"200px",       // 전체 모달 너비 조정
           maxWidth: "90%",      // 화면에 맞춤
           padding: "16px",      // 내부 여백 줄임
           borderRadius: "8px"   // 테두리 둥글게 유지

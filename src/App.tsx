@@ -36,7 +36,8 @@ function AppContent() {
       <Route path="/meetings" element={<Meetings />} />
       
       <Route path="/documents" element={<DocumentsPage selected={selected} navigate={navigate} />} />
-      <Route path="/folder/:folderId" element={<FolderDetailPage selected={selected} navigate={navigate} />} />
+      <Route path="/folder/:folderId" element={<FolderDetailPage navigate={navigate} />} />
+
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/settings/*" element={<Setting navigate={navigate} />}>
         <Route path="request" element={<RequestsPage navigate={navigate} onBack={() => navigate("/settings")} />} />

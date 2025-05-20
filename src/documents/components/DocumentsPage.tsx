@@ -22,6 +22,16 @@ interface Folder {
   color?: string;
 }
 
+interface DirectoryMetaData {
+  type: string;
+  size: string;
+  meetingTitle?: string;
+  participants: { name: string; email: string }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+
 const initialFolders: Folder[] = [];
 
 const folderIcons: Record<string, string> = {
@@ -39,6 +49,9 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     const stored = localStorage.getItem("folderList");
     return stored ? JSON.parse(stored) : initialFolders;
   });
+
+  const [directoryMeta, setDirectoryMeta] = useState<DirectoryMetaData | null>(null);
+  
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
@@ -86,6 +99,24 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
         console.error("폴더 불러오기 실패:", err);
       });
   };
+
+  useEffect(() => {
+    if (!selectedFolderId) {
+      setDirectoryMeta(null);
+      return;
+    }
+  
+    axios
+      .get(`/directory/${selectedFolderId}/metadata`)
+      .then((res) => {
+        setDirectoryMeta(res.data.data);
+      })
+      .catch((err) => {
+        console.error("디렉터리 메타데이터 조회 실패:", err);
+        setDirectoryMeta(null);
+      });
+  }, [selectedFolderId]);
+  
 
   // 2) 마운트 시, 폴더 로드
   useEffect(() => {
@@ -318,10 +349,15 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
           <img src="/images/doc_move_left.png" className={styles.arrowIcon} onClick={() => navigate(-1)} />
           <img src="/images/doc_move_right.png" className={styles.arrowIcon} onClick={() => navigate(1)} />
           <div className={styles.path}>
-            <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
-            <span className={styles.pathText}>Docs &gt;</span>
-          </div>
+  <img src="/images/bluefolder.png" alt="Docs folder" className={styles.docsFolderIcon} />
+  <span className={styles.pathText}>
+    Docs &gt; {selectedFolderObj ? selectedFolderObj.name : ""}
+  </span>
+</div>
+
         </div>
+
+        
         <div className={styles.rightSection}>
           <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
           <div className={styles.searchWrapper}>
@@ -354,25 +390,35 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
             <h2 className={styles.folderTitle}>문서 선택</h2>
           )}
 
-          <div className={styles.info}>정보</div>
-          <div className={styles.fileInfo}>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>유형</span>
-              <span className={styles.value}>Microsoft Word (.docx)</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>크기</span>
-              <span className={styles.value}>202KB</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>생성일</span>
-              <span className={styles.value}>2024년 2월 8일 15:00</span>
-            </div>
-            <div className={styles.infoRow}>
-              <span className={styles.label}>수정일</span>
-              <span className={styles.value}>2024년 2월 8일 16:10</span>
-            </div>
-          </div>
+<div className={styles.info}>폴더 정보</div>
+<div className={styles.fileInfo}>
+  <div className={styles.infoRow}>
+    <span className={styles.label}>유형</span>
+    <span className={styles.value}>{directoryMeta?.type ?? "-"}</span>
+  </div>
+  <div className={styles.infoRow}>
+    <span className={styles.label}>크기</span>
+    <span className={styles.value}>{directoryMeta?.size ?? "-"}</span>
+  </div>
+  <div className={styles.infoRow}>
+    <span className={styles.label}>생성일</span>
+    <span className={styles.value}>{directoryMeta?.createdAt ?? "-"}</span>
+  </div>
+  <div className={styles.infoRow}>
+    <span className={styles.label}>수정일</span>
+    <span className={styles.value}>{directoryMeta?.updatedAt ?? "-"}</span>
+  </div>
+  <div className={styles.infoRow}>
+    <span className={styles.label}>참여자</span>
+    <span className={styles.value}>
+      {directoryMeta?.participants?.length
+        ? directoryMeta.participants.map((p) => p.name).join(", ")
+        : "-"}
+    </span>
+  </div>
+</div>
+
+
 
           <div className={styles.info}>색상</div>
           <div className={styles.colorOptions}>
@@ -401,8 +447,9 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
               onClick={() => setSelectedFolderId(folder.id)}
               onDoubleClick={() => {
                 setSelectedFolderId(folder.id);
-                navigate(`/folder/${encodeURIComponent(folder.name)}`);
+                navigate(`/folder/${folder.id}`); // ✅ 이걸로 변경
               }}
+              
               onContextMenu={(e) => {
                 e.preventDefault();
                 setSelectedFolderId(folder.id);
