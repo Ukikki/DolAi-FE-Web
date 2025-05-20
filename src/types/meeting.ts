@@ -3,7 +3,8 @@ export interface Meeting {
   title: string;
   startTime: string;
   inviteUrl: string;
-  hostId: string;
-  createdAt: string;
-  updatedAt: string;
+  hostId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  directoryId?: number;
 }

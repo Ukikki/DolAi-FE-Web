@@ -102,7 +102,6 @@ body {
 .left-panel-title-wrapper {
   position: relative;
   width: 100%;
-  margin-bottom: 0.5rem;
 }
 
 .left-panel-title {
@@ -110,8 +109,6 @@ body {
   font-size: 1.25vw;
   color: black;
   text-align: center;
-  margin: 0;
-  margin-top: 8px;
 }
 
 .all-meetings-icon {

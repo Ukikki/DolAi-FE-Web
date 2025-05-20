@@ -89,6 +89,8 @@ export function useMediasoupProducer({
 
       if (mediaTag === "camera" && videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+
         videoRef.current.addEventListener("canplay", function handler() {
           videoRef.current?.play().catch((err) => console.warn("🎥 play 에러:", err));
           videoRef.current?.removeEventListener("canplay", handler);
@@ -108,9 +110,6 @@ export function useMediasoupProducer({
       });
 
       if (mediaTag === "mic") {
-        const audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(new MediaStream([track]));
-        source.connect(audioContext.destination);
         socket.emit("audio-toggle", { enabled: true });
       }
     } catch (e) {
