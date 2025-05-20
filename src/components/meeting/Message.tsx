@@ -1,8 +1,11 @@
 import { Send } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import axios from "@/utils/axiosInstance";
-import "@/styles/meeting/Message.css";
+import SockJS from "sockjs-client";
+import { Client, IMessage } from "@stomp/stompjs";
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 import { useUser } from "@/hooks/user/useUser";
+
+import "@/styles/meeting/Message.css";
 
 interface MessageProps {
   isVisible: boolean;
@@ -16,14 +19,42 @@ interface MessageItem {
 }
 
 export default function Message({ isVisible, meetingId }: MessageProps) {
-  const [messages, setMessages] = useState<MessageItem[]>([
-    { sender: "지혜", text: "다들 학식에서 먹고 싶은 거 있나요?" },
-    { sender: "승희", text: "학식 말고 맘스터치 먹어요. 학식 맛없어!!! ㅠㅠㅜㅜㅜㅜㅜㅜㅜㅜ" },
-    { sender: "지혜", text: "ㄴㄴ 학식" },
-  ]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [input, setInput] = useState("");
   const { user } = useUser();
   const messageEndRef = useRef<HTMLDivElement>(null);
+  const stompClientRef = useRef<Client | null>(null);
+
+  useEffect(() => {
+    if (!isVisible || !user) return;
+
+    const socket = new SockJS(`${VITE_BASE_URL}/ws-chat`);
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        console.log("✅ Connected Message WebSocket");
+
+        client.subscribe(`/topic/chat/${meetingId}`, (message: IMessage) => {
+          const body = JSON.parse(message.body);
+          setMessages((prev) => [...prev, {
+            sender: body.senderName,
+            text: body.content,
+          }]);
+        });
+      },
+      onStompError: (frame) => {
+        console.error("STOMP Error", frame);
+      },
+    });
+
+    client.activate();
+    stompClientRef.current = client;
+
+    return () => {
+      client.deactivate();
+    };
+  }, [isVisible, meetingId, user]);
 
   // 메시지 추가될 때 스크롤 이동
   useEffect(() => {
@@ -33,10 +64,19 @@ export default function Message({ isVisible, meetingId }: MessageProps) {
   if (!isVisible || !user) return null;
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !stompClientRef.current?.connected) return;
 
-    const newMessage = { sender: user?.name, text: input };
-    setMessages((prev) => [...prev, newMessage]);
+    const newMessage = {
+      meetingId,
+      senderName: user?.name,
+      content: input,
+    };
+
+    stompClientRef.current.publish({
+      destination: `/app/chat/${meetingId}`,
+      body: JSON.stringify(newMessage),
+    });
+
     setInput("");
   };
 

@@ -1,38 +1,47 @@
+import { Client, IMessage } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { Client, Message, over } from "stompjs";
 
 type SubscriptionCallback = (data: any) => void;
 
 export class SocketClient {
-  private stompClient: Client | null = null;
+  private client: Client;
   private connected = false;
   private subscriptions: Record<string, () => void> = {};
   private pendingSubscriptions: Record<string, SubscriptionCallback> = {};
 
   constructor(private baseUrl: string) {
-    this.init(); // 생성 시 바로 연결 시도
-  }
+    this.client = new Client({
+      webSocketFactory: () => new SockJS(this.baseUrl),
+      reconnectDelay: 5000,
+      debug: (msg) => console.debug(`[STOMP] ${msg}`),
+    });
 
-  private init(): void {
-    const socket = new SockJS(this.baseUrl);
-    this.stompClient = over(socket);
-
-    this.stompClient.connect({}, () => {
+    this.client.onConnect = () => {
       this.connected = true;
       console.log(`🔌 연결됨: ${this.baseUrl}`);
 
+      // 예약된 구독 처리
       Object.entries(this.pendingSubscriptions).forEach(([topic, cb]) => {
         this.subscribe(topic, cb);
       });
       this.pendingSubscriptions = {};
-    }, (err) => {
-      console.error("❌ 소켓 연결 실패:", err);
-    });
+    };
+
+    this.client.onStompError = (frame) => {
+      console.error("❌ STOMP 오류:", frame.headers["message"]);
+    };
+
+    this.client.onDisconnect = () => {
+      this.connected = false;
+      console.log("🛑 연결 끊김");
+    };
+
+    this.client.activate(); // 연결 시작
   }
 
   public connect(): void {
-    if (!this.connected) {
-      this.init();
+    if (!this.connected && this.client) {
+      this.client.activate();
     }
   }
 
@@ -40,27 +49,26 @@ export class SocketClient {
     return this.connected;
   }
 
-    public subscribe(topic: string, callback: SubscriptionCallback): void {
-    try {
-        if (this.connected && this.stompClient) {
-        if (this.subscriptions[topic]) return;
+  public subscribe(topic: string, callback: SubscriptionCallback): void {
+    if (this.connected && this.client.connected) {
+      if (this.subscriptions[topic]) return; // 이미 구독 중이면 패스
 
-        const subscription = this.stompClient.subscribe(topic, (message: Message) => {
-            const data = JSON.parse(message.body);
-            callback(data);
-        });
+      const subscription = this.client.subscribe(topic, (message: IMessage) => {
+        try {
+          const data = JSON.parse(message.body);
+          callback(data);
+        } catch (err) {
+          console.warn("❗ 메시지 파싱 오류", err);
+        }
+      });
 
-        this.subscriptions[topic] = () => subscription.unsubscribe();
-        console.log(`📌 구독됨: ${topic}`);
-        } else {
-        this.pendingSubscriptions[topic] = callback;
-        console.log(`🕓 구독 예약됨: ${topic}`);
-        }
-    } catch (e) {
-        console.warn("❗구독 실패, 재시도 예약:", topic, e);
-        this.pendingSubscriptions[topic] = callback;
-        }
+      this.subscriptions[topic] = () => subscription.unsubscribe();
+      console.log(`📌 구독됨: ${topic}`);
+    } else {
+      this.pendingSubscriptions[topic] = callback;
+      console.log(`🕓 구독 예약됨: ${topic}`);
     }
+  }
 
   public unsubscribe(topic: string): void {
     if (this.subscriptions[topic]) {
@@ -74,13 +82,12 @@ export class SocketClient {
   }
 
   public disconnect(): void {
-    if (this.stompClient && this.connected) {
-      this.stompClient.disconnect(() => {
-        console.log("🛑 소켓 연결 종료");
-        this.connected = false;
-        this.subscriptions = {};
-        this.pendingSubscriptions = {};
-      });
+    if (this.client && this.connected) {
+      this.client.deactivate();
+      this.connected = false;
+      this.subscriptions = {};
+      this.pendingSubscriptions = {};
+      console.log("🛑 소켓 완전 종료");
     }
   }
 }
