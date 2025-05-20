@@ -2,32 +2,35 @@ import { useEffect, useRef } from "react";
 import { Device } from "mediasoup-client";
 import { Socket } from "socket.io-client";
 
-type MediaKind = "audio" | "video" | "board" | "screen";
+export type MediaKind = "audio" | "video" | "board" | "screen";
 
 interface ProducerInfo {
   producerId: string;
   peerId: string;
   name: string;
   kind: MediaKind;
+  mediaTag: string;
 }
 
 interface Props {
   socket: Socket;
   device: Device;
-  onStream: (stream: MediaStream, name: string, peerId: string, kind: MediaKind) => void;
+  onStream: (stream: MediaStream, name: string, peerId: string, kind: MediaKind, mediaTag: string) => void;
   myUserId: string;
+  allowedTags: string[];
 }
 
-export function useMediasoupConsumer({ socket, device, onStream, myUserId }: Props) {
-  const consumedMap = useRef<Map<string, string>>(new Map()); // key: peerId-kind
+export function useMediasoupConsumer({ socket, device, onStream, myUserId, allowedTags }: Props) {
+  const consumedMap = useRef<Map<string, string>>(new Map()); // key: peerId-mediaTag
 
   useEffect(() => {
     if (!socket || !device) return;
 
-    const run = async ({ producerId, peerId, name, kind }: ProducerInfo) => {
+    const run = async ({ producerId, peerId, name, kind, mediaTag }: ProducerInfo) => {
       if (peerId === myUserId) return;
+      if (!allowedTags.includes(mediaTag)) return;
 
-      const key = `${peerId}-${kind}`;
+      const key = `${peerId}-${mediaTag}`;
       if (consumedMap.current.get(key) === producerId) {
         console.log(`🔁 이미 consume한 producer: ${producerId}`);
         return;
@@ -70,13 +73,13 @@ export function useMediasoupConsumer({ socket, device, onStream, myUserId }: Pro
         });
 
         const stream = new MediaStream([consumer.track]);
-        onStream(stream, name, peerId, kind);
+        onStream(stream, name, peerId, kind, mediaTag);
 
         socket.emit("consumer-resume", {
           serverConsumerId: consumeParams.serverConsumerId,
         });
 
-        console.log(`✅ 소비자 연결 완료 → peerId=${peerId}, kind=${kind}`);
+        console.log(`✅ 소비자 연결 완료 → peerId=${peerId}, kind=${kind}, tag=${mediaTag}`);
       } catch (err) {
         console.error("❌ consumer 연결 중 에러:", err);
       }
@@ -93,5 +96,5 @@ export function useMediasoupConsumer({ socket, device, onStream, myUserId }: Pro
       socket.off("new-producer", run);
       console.log("🧹 useMediasoupConsumer cleanup");
     };
-  }, [socket, device, onStream, myUserId]);
+  }, [socket, device, onStream, myUserId, allowedTags]);
 }

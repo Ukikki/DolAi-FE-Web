@@ -106,9 +106,6 @@ export default function FriendInviteModal({ onClose, onSubmit }: FriendInviteMod
         )}
 
         {searchError && <p className="error-text">{searchError}</p>}
-
-        {/* 기존 "보내기" 버튼도 원하면 추가하고, 그렇지 않다면 취소 버튼만 남깁니다.
-            여기서는 취소 버튼은 위의 X 버튼으로 대체했으므로 별도 버튼은 제거하였습니다. */}
       </div>
     </div>
   );

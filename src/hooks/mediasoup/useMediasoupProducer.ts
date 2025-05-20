@@ -8,6 +8,8 @@ interface Props {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   isCameraOn: boolean;
   isMicOn: boolean;
+  isBoardOn: boolean;
+  isScreenOn: boolean;
 }
 
 export function useMediasoupProducer({
@@ -16,13 +18,13 @@ export function useMediasoupProducer({
   videoRef,
   isCameraOn,
   isMicOn,
+  isBoardOn,
+  isScreenOn,
 }: Props) {
   const sendTransportRef = useRef<any>(null);
-  const videoProducerRef = useRef<any>(null);
-  const audioProducerRef = useRef<any>(null);
+  const producerRefs = useRef<Record<string, any>>({});
   const isTransportConnectedRef = useRef(false);
 
-  // 초기 transport + producer 설정
   useEffect(() => {
     if (!socket || !device) return;
     let isMounted = true;
@@ -58,119 +60,82 @@ export function useMediasoupProducer({
 
     return () => {
       isMounted = false;
-
-      videoProducerRef.current?.close();
-      audioProducerRef.current?.close();
+      Object.values(producerRefs.current).forEach((producer) => producer?.close());
       sendTransportRef.current?.close();
-      videoProducerRef.current = null;
-      audioProducerRef.current = null;
+      producerRefs.current = {};
       sendTransportRef.current = null;
       isTransportConnectedRef.current = false;
     };
   }, [socket, device]);
 
-  // 카메라 토글
-  useEffect(() => {
-    const transport = sendTransportRef.current;
-    const producer = videoProducerRef.current;
-    if (!transport) return;
-
-    if (isCameraOn) {
-      if (producer) {
-        producer.resume();
-      } else {
-        produceVideo();
-      }
-    } else {
-      producer?.pause();
-    }
-  }, [isCameraOn]);
-
-  // 마이크 토글
-  useEffect(() => {
-    const transport = sendTransportRef.current;
-    const producer = audioProducerRef.current;
-    if (!transport) return;
-
-    if (isMicOn) {
-      if (producer) {
-        producer.resume();
-        socket.emit("audio-toggle", { enabled: true });
-      } else {
-        produceAudio();
-      }
-    } else {
-      producer?.pause();
-      socket.emit("audio-toggle", { enabled: false });
-    }
-  }, [isMicOn]);
-
-  // 영상 producer 생성
-  const produceVideo = async () => {
+  const createProducer = async (mediaTag: string, constraints: MediaStreamConstraints) => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          aspectRatio: 16 / 9,
-          width: { ideal: 640 },
-          facingMode: "user"
-        },
-        audio: false
-      });
+      let stream;
+      if (mediaTag === "camera") {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            aspectRatio: 16 / 9,
+            width: { ideal: 640 },
+            facingMode: "user",
+          },
+          audio: false,
+        });
+      } else {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      }
 
-      const track = stream.getVideoTracks()[0];
+      const track =
+        mediaTag === "mic" ? stream.getAudioTracks()[0] : stream.getVideoTracks()[0];
 
-      if (videoRef.current) {
+      if (mediaTag === "camera" && videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.addEventListener("canplay", function handler() {
-          videoRef.current?.play().catch(err => console.warn("🎥 play 에러:", err));
+          videoRef.current?.play().catch((err) => console.warn("🎥 play 에러:", err));
           videoRef.current?.removeEventListener("canplay", handler);
         });
       }
 
-      videoProducerRef.current?.close();
       const producer = await sendTransportRef.current.produce({
         track,
-        appData: { mediaTag: "camera" }
+        appData: { mediaTag },
       });
-      videoProducerRef.current = producer;
+      producerRefs.current[mediaTag] = producer;
 
       producer.on("trackended", () => {
-        console.log("📵 video track ended");
+        console.log(`🔌 track ended: ${mediaTag}`);
         producer.close();
-        videoProducerRef.current = null;
+        producerRefs.current[mediaTag] = null;
       });
+
+      if (mediaTag === "mic") {
+        const audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(new MediaStream([track]));
+        source.connect(audioContext.destination);
+        socket.emit("audio-toggle", { enabled: true });
+      }
     } catch (e) {
-      console.error("🎥 produceVideo error", e);
+      console.error(`❌ produce ${mediaTag} error`, e);
     }
   };
 
-  // 오디오 producer 생성 (+ AudioContext로 로컬 스피커 출력)
-  const produceAudio = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const track = stream.getAudioTracks()[0];
+  const toggleProducer = (mediaTag: string, isOn: boolean, constraints: MediaStreamConstraints) => {
+    const producer = producerRefs.current[mediaTag];
+    if (!sendTransportRef.current) return;
 
-      // ✅ 로컬 오디오도 브라우저로 출력
-      const audioContext = new AudioContext();
-      const source = audioContext.createMediaStreamSource(new MediaStream([track]));
-      source.connect(audioContext.destination); // 소리 출력
-
-      audioProducerRef.current?.close();
-      const producer = await sendTransportRef.current.produce({
-        track,
-        appData: { mediaTag: "mic" }
-      });
-      audioProducerRef.current = producer;
-
-      socket.emit("audio-toggle", { enabled: true });
-
-      producer.on("trackended", () => {
-        console.log("🔇 audio track ended");
-        producer.close();
-        audioProducerRef.current = null;
-      });
-    } catch (e) {
-      console.error("🎙️ produceAudio error", e);
+    if (isOn) {
+      if (producer) {
+        producer.resume();
+      } else {
+        createProducer(mediaTag, constraints);
+      }
+    } else {
+      producer?.pause();
+      if (mediaTag === "mic") socket.emit("audio-toggle", { enabled: false });
     }
   };
+
+  useEffect(() => toggleProducer("camera", isCameraOn, { video: true }), [isCameraOn]);
+  useEffect(() => toggleProducer("mic", isMicOn, { audio: true }), [isMicOn]);
+  useEffect(() => toggleProducer("board", isBoardOn, { video: true }), [isBoardOn]);
+  useEffect(() => toggleProducer("screen", isScreenOn, { video: true }), [isScreenOn]);
 }

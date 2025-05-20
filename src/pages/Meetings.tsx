@@ -25,6 +25,8 @@ export default function Meetings() {
   // --- 미디어 토글 상태 ---
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
+  const [isBoardOn, setIsBoardOn] = useState(false);
+  const [isScreenOn, setIsScreenOn] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null); // 전역 스트림 참조
   const micRef = useRef<MediaStream | null>(null);
@@ -52,24 +54,27 @@ export default function Meetings() {
   // --- 기타 툴 상태 ---
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
   const toggleIconTool = async (tool: typeof activeTool) => {
-    const isActivating = activeTool !== tool;
-
-    // 동일 아이콘 누르면 꺼지고, 다른 거 누르면 바뀜
     if (tool === "board") {
-      if (activeTool !== "board") {
+      const isNextOpen = activeTool !== "board";
+      if (isNextOpen) {
         await axios.post(`/whiteboard/start/${meetingId}`);
+        connectRoom?.socket?.emit("tldraw-start");
         setActiveTool("board");
+        setIsBoardOn(true);
       } else {
         await axios.post(`/whiteboard/end/${meetingId}`);
+        connectRoom?.socket?.emit("tldraw-end", { meetingId });
         setActiveTool(null);
+        setIsBoardOn(false);
       }
     } else if (tool === "monitor") {
-      if (isActivating) await screenShareStart();  // useScreenShare 훅
+      const next = activeTool !== "monitor";
+      if (next) await screenShareStart();
       else await screenShareStop();
-    }
-    else {
+      setActiveTool(next ? "monitor" : null);
+    } else {
       setActiveTool(prev => prev === tool ? null : tool);
-    } 
+    }
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
@@ -95,35 +100,17 @@ export default function Meetings() {
       return [...prev, { stream, name, peerId, kind }];
     });
   };
-  
-  // 참가자들
-  // type RemoteStreamEntry = {
-  //   stream: MediaStream;
-  //   name: string;
-  //   peerId: string;
-  // };
 
-  // const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
-  // const addStream = (stream: MediaStream, name: string, peerId: string) => {
-  //   setRemoteStreams((prev) => {
-  //     if (prev.find(s => s.peerId === peerId)) return prev;
-  //     return [...prev, { stream, name, peerId }];
-  //   });
-  // };
-  
-    // ─── 1) mediasoup 소켓 연결 & joinRoom ───
-     const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name || "익명", user?.id!); 
+  // ─── 1) mediasoup 소켓 연결 & joinRoom ───
+  const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name || "익명", user?.id!); 
 
-     useMediasoupProducer({ socket: connectRoom?.socket!, device: connectRoom?.device!, videoRef, isCameraOn, isMicOn });
-     useMediasoupConsumer({ socket: connectRoom?.socket!, device: connectRoom?.device!, onStream: addStream, myUserId: user?.id! });
-
-    //useMediasoupConsumer({ socket: connectRoom?.socket!, rtpCapabilities: connectRoom?.rtpCapabilities!, onStream: addStream })
+  useMediasoupProducer({ socket: connectRoom?.socket!, device: connectRoom?.device!, videoRef, isCameraOn, isMicOn, isBoardOn, isScreenOn });
+  useMediasoupConsumer({ socket: connectRoom?.socket!, device: connectRoom?.device!, onStream: addStream, myUserId: user?.id!, allowedTags: ["camera", "board", "screen"] });
 
   // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
   const [chatPosition, setChatPosition] = useState({ x:  1500, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
   const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
-  
 
   // --- 카메라 on/off 효과 ---
   useEffect(() => {
@@ -176,7 +163,6 @@ export default function Meetings() {
     }
   }, [location.state]);
 
-
   useEffect(() => {
     if (!connectRoom) return;
     const { socket, rtpCapabilities } = connectRoom;
@@ -191,6 +177,44 @@ export default function Meetings() {
       fetchGraph(meetingId);
     }
   }, [meetingId]);
+
+  // 화이트보드 시작
+  useEffect(() => {
+    const handleBoardStart = () => {
+      console.log("📥 board-started 수신 → 화이트보드 열림");
+  
+      setActiveTool("board");
+      setIsBoardOn(true);
+  
+      // 서버에 join-whiteboard 
+      connectRoom?.socket?.emit("join-whiteboard", { meetingId });
+    };
+  
+    connectRoom?.socket?.on("board-started", handleBoardStart);
+    return () => {
+      connectRoom?.socket?.off("board-started", handleBoardStart);
+    };
+  }, [connectRoom?.socket, meetingId]);
+
+  // 화이트보드 종료
+  useEffect(() => {
+    if (!connectRoom || !connectRoom.socket) return;
+  
+    const socket = connectRoom.socket;
+  
+    const handleBoardEnd = ({ meetingId: endedId }: any) => {
+      if (endedId === meetingId) {
+        console.log("📥 board-ended 수신");
+        setActiveTool(null);
+        setIsBoardOn(false);
+      }
+    };
+  
+    socket.on("board-ended", handleBoardEnd);
+    return () => {
+      socket.off("board-ended", handleBoardEnd);
+    };
+  }, [connectRoom, meetingId]);  
 
   return (
     <div className="container">
@@ -294,15 +318,13 @@ export default function Meetings() {
             return isDuplicate ? prev : [...prev, log];  
           });
         }}
-        
       />
     )}
-
     
     {/* 카메라 화면 표시 */}
     <main className="video-container">
-      {activeTool === "board" ? (
-        <Whiteboard meetingId={meetingId} />
+      {activeTool === "board" && isBoardOn && connectRoom?.socket ?(
+        <Whiteboard meetingId={meetingId} socket={connectRoom?.socket}/>
       ) : (
         <>
           {/* 내 비디오 */}
@@ -370,9 +392,6 @@ export default function Meetings() {
 
     {/* 초대 창 보여짐 */}
     {activeTool === "invite" && <FriendInvite isVisible={true} inviteUrl={inviteUrl} meetingId={meetingId} onClose={() => setActiveTool(null)} />}
-    
-    {/* ─── 화이트보드 모드일 때만 네모칸 + 보드 렌더링 ─── */}
-    {activeTool === "board" && <Whiteboard meetingId={meetingId} />}
 
     {/* 채팅 창 */}
     {activeTool === "message" && <Message isVisible={true} meetingId={meetingId} /> }

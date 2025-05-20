@@ -96,12 +96,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: black;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "Jamsil_M";
   font-size: 1.5vw;
+  text-shadow:
+    -1px -1px 0 white,
+     1px -1px 0 white,
+    -1px  1px 0 white,
+     1px  1px 0 white;
 }
 
 /* 참가자 화면 */
