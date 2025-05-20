@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Plus, X } from "lucide-react";
 import "./Calendar.css";
 import "./Card.css";
 import { useUser } from "@/hooks/user/useUser";
@@ -36,7 +36,7 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
   const { holidays } = useHoliday(currentYear, currentMonth);
 
   // 일정 가져오기
-  const { markedMap, dailyEvents, fetchMonthlyDots, fetchEventsByDate, reserveMeeting } = useCalendar(currentYear, currentMonth);
+  const { markedMap, dailyEvents, fetchMonthlyDots, fetchEventsByDate, reserveMeeting, deleteMeeting } = useCalendar(currentYear, currentMonth);
 
   useEffect(() => {
     const todayStr = today.toLocaleDateString("sv-SE");
@@ -45,11 +45,15 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
     fetchEventsByDate(todayStr);
   }, [currentYear, currentMonth]);
   
-
+  // 날짜 클릭
   const handleDateClick = (date: Date) => {
     const clickedDate = date.toLocaleDateString("sv-SE");
     setSelectedDate(clickedDate);
     fetchEventsByDate(clickedDate);
+  };
+
+  const handleCardClick = (meetingId: string) => {
+    console.log("카드 클릭:", meetingId);
   };
 
   // 캘린더 추가
@@ -147,10 +151,13 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
           {dailyEvents.length === 0 ? null : [...dailyEvents]
             .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()) // 오름차순 정렬
             .map((event, index) => (
-              <div key={index} className="event-card">
+            <div key={index} className="event-card" onClick={() => handleCardClick(event.id)}>
+              <div className="event-content">
                 <span className="todo-time">{formatTime(parseLocalDate(event.start))}</span>
                 <span className="meeting-title">{event.title}</span>
               </div>
+              <X className="event-delete-btn" onClick={() => deleteMeeting(event.id, selectedDate!)} />
+            </div>
           ))}
         </div>
       )}

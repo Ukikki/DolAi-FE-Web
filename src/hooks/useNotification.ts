@@ -14,6 +14,8 @@ export const useNotification = () => {
   useEffect(() => {
     axios.get("/notification")
       .then((res) => {
+        const data = res.data.data || [];
+        if (data.length === 0) return;
         setNoti(res.data.data);
       })
       .catch((err) => {

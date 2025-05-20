@@ -66,10 +66,24 @@
   background: #ffeb99;
   border-radius: 50%;
   width: 2vw;
-  height: 2vw;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 선택된 날짜가 토요일이면 파란색 */
+.react-calendar__tile--active.sat .calendar-day {
+  color: #2E7AF2;
+}
+/* 선택된 날짜가 공휴일이면 빨간색 */
+.react-calendar__tile--active.holiday .calendar-day {
+  color: #F87171;
+}
+
+/* 선택된 날짜가 일요일이면 빨간색 */
+.react-calendar__tile--active.sun .calendar-day {
+  color: #F87171;
 }
 /* 선택하면 나타나는 배경색 제거 */ 
 .react-calendar__tile--active {
@@ -122,16 +136,28 @@
   display: none; 
 }
 .event-card {
-  height: 8.79vh; /* 약 90px */
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items:flex-start;
+  justify-content: space-between;
+  align-items: center;
+  height: 8.79vh;
   background: #F2F5F7;
   border: solid 1px #B2B2B2;
   border-radius: 10px;
   padding-inline: 3vh;
-  margin-bottom: 1.9vh;
+  margin-bottom: 1vw;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.event-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* X 버튼 위치 고정 */
+.event-delete-btn {
+  width: 1.3vw;
+  height: 1.3vw;
+  color: #6D7387;
   cursor: pointer;
 }
 

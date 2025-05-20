@@ -1,17 +1,8 @@
 import { useState } from "react";
 import axios from "@/utils/axiosInstance";
 import { isAxiosError } from "axios";
-
-export interface CalendarEvent {
-  title: string;
-  start: string;
-}
-
-export interface Meeting {
-  id: string;
-  title: string;
-  startTime: string;
-}
+import { Meeting } from "@/types/meeting";
+import { CalendarEvent } from "@/types/calendar";
 
 export interface MeetingRequest {
   title: string;
@@ -47,7 +38,9 @@ export const useCalendar = (year: number, month: number) => {
   const fetchEventsByDate = async (date: string) => {
     const res = await axios.get(`/calendar/day/${date}`);
     const meetings = res.data.data.meetings || [];
+
     const events = meetings.map((m: Meeting) => ({
+      id: m.meetingId,
       title: m.title,
       start: m.startTime,
     }));
@@ -63,11 +56,24 @@ export const useCalendar = (year: number, month: number) => {
     await fetchMonthlyDots();
   };
 
+  // 회의 삭제
+  const deleteMeeting = async (meetingId: string, date: string) => {
+    try {
+      await axios.delete(`/calendar/reserve/${meetingId}`);
+      
+      await fetchEventsByDate(date);
+    } catch (err) {
+      console.error("회의 삭제 실패:", err);
+      alert("일정 삭제에 실패했습니다.");
+    }
+  };
+
   return {
     markedMap, 
     dailyEvents,
     fetchMonthlyDots,
     fetchEventsByDate,
     reserveMeeting, 
+    deleteMeeting,
   };
 };

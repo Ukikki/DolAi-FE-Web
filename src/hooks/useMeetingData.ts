@@ -9,29 +9,27 @@ export const useMeetingData = () => {
 
   useEffect(() => {
     if (!isLoggedIn) return;
-
-    const fetchRecent = async () => {
-      try {
-        const res = await axios.get("/meetings/history-recent");
-        setRecentMeetings(res.data?.data ?? []);
-      } catch (err) {
-        console.error("recent meetings 에러:", err);
-      }
-    };
-
     fetchRecent();
   }, [isLoggedIn]);
 
+  const fetchRecent = async () => {
+    try {
+      const res = await axios.get("/meetings/history-recent");
+      setRecentMeetings(res.data?.data ?? []);
+    } catch (err) {
+      console.error("recent meetings 에러:", err);
+    }
+  };
+
   const fetchAllMeetings = async () => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) return [];
     try {
       const res = await axios.get("/meetings/history");
-      console.log(res.data.data);
       return res.data?.data ?? [];
     } catch (err) {
       console.error("전체 회의 불러오기 실패:", err);
       return [];
-    } 
+    }
   };
 
   return { recentMeetings, fetchAllMeetings };
