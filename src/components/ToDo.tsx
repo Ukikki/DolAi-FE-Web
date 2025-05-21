@@ -38,10 +38,11 @@ export const ToDoList: React.FC<ToDoListProps> = ({
   const statusRef = useRef<HTMLDivElement>(null);
 
   // 우클릭 → 삭제 모달 열기
-  const handleContextMenu = (e: React.MouseEvent) => {
+  /*const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowDeleteConfirm(true);
-  };
+  };*/
+  
   const handleConfirmDelete = () => {
     onDelete(id);
     setShowDeleteConfirm(false);
@@ -119,7 +120,7 @@ export const ToDoList: React.FC<ToDoListProps> = ({
 
   return (
     <>
-      <div className="todo-card" onContextMenu={handleContextMenu}>
+      <div className="todo-card" >
         <div
           ref={statusRef}
           className="todo-status"
@@ -134,6 +135,10 @@ export const ToDoList: React.FC<ToDoListProps> = ({
           <span className="meeting-title">{task}</span>
           
         </div>
+        {/* ❌ 오른쪽 상단 X 버튼 추가 */}
+  <button className="todo-delete-button" onClick={() => setShowDeleteConfirm(true)}>
+    ✕
+  </button>
       </div>
       {menuPortal}
       {showDeleteConfirm && (

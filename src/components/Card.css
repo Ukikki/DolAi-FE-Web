@@ -12,6 +12,18 @@
   transition: transform 0.2s ease-in-out;
 }
 /* todo */
+.todo-delete-button {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1vw;  /* meeting-title과 맞추기 */
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5vw;
+  transition: color 0.2s ease;
+  margin-right: 1vw;
+}
+
 .todo-card {
   position: relative;    /* 절대 위치 기준 요소로 만들어 주고 */
   overflow: visible;     /* 자식 엘리먼트의 오버플로우 허용 */

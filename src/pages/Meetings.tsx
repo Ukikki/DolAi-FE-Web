@@ -21,6 +21,13 @@ import { useUser } from "@/hooks/user/useUser";
 import { useGraph } from "@/hooks/useGraph";
 import { useScreenShare } from "@/hooks/useScreenShare";
 
+type RemoteStreamEntry = {
+  stream: MediaStream;
+  name: string;
+  peerId: string;
+  kind: "audio" | "video" | "board" | "screen";
+};
+
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
   const [isCameraOn, setIsCameraOn] = useState(false);
@@ -156,6 +163,8 @@ export default function Meetings() {
       micRef.current?.getTracks().forEach(t => t.stop());
     }
   }, [isMicOn]);
+
+  
   
   useEffect(() => {
     if (location.state?.showInvite) {
@@ -324,7 +333,15 @@ export default function Meetings() {
     {/* 카메라 화면 표시 */}
     <main className="video-container">
       {activeTool === "board" && isBoardOn && connectRoom?.socket ?(
-        <Whiteboard meetingId={meetingId} socket={connectRoom?.socket}/>
+       <Whiteboard
+            meetingId={meetingId}
+            socket={connectRoom?.socket}
+            isCameraOn={isCameraOn}
+            myStream={videoStreamRef.current}    // ★ 추가
+            remoteStreams={remoteStreams}         // 필터 제거: 전체 배열 전달
+            myPeerId={user?.id!}
+          />
+     
       ) : (
         <>
           {/* 내 비디오 */}

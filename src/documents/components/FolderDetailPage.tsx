@@ -20,6 +20,7 @@ interface FileItem {
   size?: number;
   createdAt?: string;
   updatedAt?: string;
+  summary?: string;
 }
 
 interface Folder {
@@ -37,6 +38,7 @@ interface DocumentMetaData {
   updatedAt: string;
   meetingTitle?: string;
   participants: { name: string; email: string }[];
+  summary?: string;
 }
 
 const fileIcons: Record<string, string> = {
@@ -280,6 +282,14 @@ export default function FolderDetailPage({ navigate }: FolderDetailProps) {
               <span className={styles.label}>수정일</span>
               <span className={styles.value}>{documentMeta?.updatedAt ?? "-"}</span>
             </div>
+            <div className={styles.infoRow}>
+  <span className={styles.label}>요약</span>
+
+<div className={styles.summaryBox}>
+  <span className={styles.summaryValue}>{documentMeta?.summary ?? "-"}</span>
+</div></div>
+
+
           </div>
 
           {/* 삭제/다운 아이콘 */}

@@ -99,7 +99,7 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
               <p>최근 회의가 없습니다.</p>
             ) : (
               recentMeetings.map((meeting) => (
-                <Card key={meeting.id} onClick={() => navigate(`/folder/${meeting.directoryId}`)}>
+                <Card key={meeting.meetingId} onClick={() => navigate(`/folder/${meeting.directoryId}`)}>
                   <div className="meeting-content">
                     <span className="meeting-title">{meeting.title}</span>
                     <span className="meeting-date">
@@ -158,7 +158,7 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
             <div className="modal-meeting-list">
               {allMeetings.map((meeting) => (
                   <div
-                    key={meeting.id}
+                    key={meeting.meetingId}
                     className="modal-meeting-item"
                     onClick={() => {
                       navigate(`/folder/${meeting.directoryId}`);

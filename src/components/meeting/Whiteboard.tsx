@@ -1,27 +1,59 @@
+// src/components/meeting/Whiteboard.tsx
 import { Tldraw, useEditor, TLRecord } from "tldraw";
 import type { TLEventMap } from "tldraw";
 import "tldraw/tldraw.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import "@/styles/meeting/Whiteboard.css";
+
+type RemoteStreamEntry = {
+  stream: MediaStream;
+  name: string;
+  peerId: string;
+  kind: "audio" | "video" | "board" | "screen";
+};
 
 interface WhiteboardProps {
   meetingId: string;
   socket: Socket;
+  isCameraOn: boolean;
+  myStream: MediaStream | null;
+  remoteStreams: RemoteStreamEntry[];
+  myPeerId: string;
 }
 
-export default function Whiteboard({ meetingId, socket }: WhiteboardProps) {
+export default function Whiteboard({
+  meetingId,
+  socket,
+  isCameraOn,
+  myStream,           // ★ 추가
+  remoteStreams,
+  myPeerId,
+}: WhiteboardProps) {
+  // 내 스트림은 prop 으로, 원격 스트림도 prop 으로 전달됩니다.
+  const filteredRemoteVideos = remoteStreams.filter(
+    (s) => s.kind === "video" && s.peerId !== myPeerId
+  );
+
   return (
     <div>
       <div className="wb-placeholder-list">
         <img src="/images/icon-left.png" alt="left" className="wb-icon-arrow-left" />
         <div className="wb-placeholder-items">
-          {[0, 1, 2, 3].map(i => (
-            <div key={i} className="wb-placeholder-box" />
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="wb-placeholder-box">
+              {/* 내 영상(0번째 슬롯) */}
+              {i === 0 && isCameraOn && myStream && <VideoPlayer stream={myStream} />}
+              {/* 원격 참가자 영상(1~3번째 슬롯) */}
+              {i > 0 && filteredRemoteVideos[i - 1] && (
+                <VideoPlayer stream={filteredRemoteVideos[i - 1].stream} />
+              )}
+            </div>
           ))}
         </div>
         <img src="/images/icon-right.png" alt="right" className="wb-icon-arrow-right" />
       </div>
+
       <div className="whiteboard-container">
         <Tldraw persistenceKey={`meeting-${meetingId}`}>
           <TldrawSocketBridge meetingId={meetingId} socket={socket} />
@@ -31,7 +63,13 @@ export default function Whiteboard({ meetingId, socket }: WhiteboardProps) {
   );
 }
 
-function TldrawSocketBridge({ meetingId, socket }: { meetingId: string; socket: Socket }) {
+function TldrawSocketBridge({
+  meetingId,
+  socket,
+}: {
+  meetingId: string;
+  socket: Socket;
+}) {
   const editor = useEditor();
   const changeBuffer = useRef<TLRecord[]>([]);
   const removeBuffer = useRef<string[]>([]);
@@ -39,91 +77,84 @@ function TldrawSocketBridge({ meetingId, socket }: { meetingId: string; socket: 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const flushChanges = () => {
-    if (changeBuffer.current.length === 0 && removeBuffer.current.length === 0) return;
-
+    if (!changeBuffer.current.length && !removeBuffer.current.length) return;
     socket.emit("tldraw-changes", {
       meetingId,
       records: [...changeBuffer.current],
       removed: [...removeBuffer.current],
     });
-
     changeBuffer.current = [];
     removeBuffer.current = [];
   };
 
-  // 드래그 상태 추적
   useEffect(() => {
     if (!editor) return;
-
-    const handlePointerDown = () => { isDrawing.current = true; };
-    const handlePointerUp = () => {
+    const onDown = () => (isDrawing.current = true);
+    const onUp = () => {
       isDrawing.current = false;
       flushChanges();
     };
-
-    editor.on("pointer.down" as keyof TLEventMap, handlePointerDown);
-    editor.on("pointer.up" as keyof TLEventMap, handlePointerUp);
-
+    editor.on("pointer.down" as keyof TLEventMap, onDown);
+    editor.on("pointer.up" as keyof TLEventMap, onUp);
     return () => {
-      editor.off("pointer.down" as keyof TLEventMap, handlePointerDown);
-      editor.off("pointer.up" as keyof TLEventMap, handlePointerUp);
+      editor.off("pointer.down" as keyof TLEventMap, onDown);
+      editor.off("pointer.up" as keyof TLEventMap, onUp);
     };
   }, [editor]);
 
-  // 변경 감지 및 버퍼에 저장
   useEffect(() => {
     if (!editor) return;
-
-    const cleanup = editor.store.listen((entry) => {
-      const { added, updated, removed } = entry.changes;
-      const addedRecords = Object.values(added);
-      const updatedRecords = Object.values(updated).map(([_, next]) => next);
-      const removedIds = Object.keys(removed);
-
-      changeBuffer.current.push(...addedRecords, ...updatedRecords);
-      removeBuffer.current.push(...removedIds);
-    }, { source: "user" });
-
-    // 주기적으로 flush
+    const unsubscribe = editor.store.listen(
+      (entry) => {
+        const { added, updated, removed } = entry.changes;
+        changeBuffer.current.push(...Object.values(added), ...Object.values(updated).map(([_, r]) => r));
+        removeBuffer.current.push(...Object.keys(removed));
+      },
+      { source: "user" }
+    );
     intervalRef.current = setInterval(() => {
       if (!isDrawing.current) flushChanges();
     }, 150);
-
     return () => {
-      cleanup();
+      unsubscribe();
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [editor, socket, meetingId]);
 
-  // 수신 처리
   useEffect(() => {
     if (!editor) return;
-
-    const handler = ({ meetingId: incomingId, records, removed }: any) => {
-      if (incomingId !== meetingId) return;
-      if (!records || !Array.isArray(records)) return;
-
-      const newRecords = records.filter((record: TLRecord) => {
-        const existing = editor.store.get(record.id);
-        return !existing || JSON.stringify(existing) !== JSON.stringify(record);
-      });
-
+    const handler = ({ meetingId: id, records, removed }: any) => {
+      if (id !== meetingId) return;
       editor.batch(() => {
-        if (newRecords.length > 0) editor.store.put(newRecords);
-        if (removed && removed.length > 0) editor.store.remove(removed);
+        if (records?.length) editor.store.put(records);
+        if (removed?.length) editor.store.remove(removed);
       });
     };
-
     socket.on("tldraw-changes", handler);
     return () => {
       socket.off("tldraw-changes", handler);
     };
   }, [editor, socket, meetingId]);
 
-  // 입장 시
   useEffect(() => {
     socket.emit("join-whiteboard", { meetingId });
   }, [socket, meetingId]);
 
   return null;
+}
+
+function VideoPlayer({ stream }: { stream: MediaStream }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.srcObject = stream;
+  }, [stream]);
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "4px" }}
+    />
+  );
 }

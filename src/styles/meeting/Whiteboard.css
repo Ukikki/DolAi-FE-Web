@@ -28,7 +28,7 @@
 .wb-placeholder-items {
   display: flex;
   gap: 0.8vw;
-  overflow-x: auto;
+  overflow-x: visible;
   scroll-behavior: smooth;
 }
 

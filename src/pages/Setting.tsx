@@ -349,6 +349,7 @@ export default function Setting({ navigate }: SettingProps) {
           message={`정말 <strong style="color:#1976f9">'${friendToDeleteName}'</strong>을 삭제하시겠습니까?`}
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
+          
         />
       )}
     </div>
