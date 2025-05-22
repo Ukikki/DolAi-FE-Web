@@ -96,6 +96,7 @@ export function useMediasoupProducer({
           },
           audio: false,
         });
+        console.log(`🎥 카메라 stream 생성됨`, stream);
       } else if (mediaTag === "screen") {
         stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
       } else {
@@ -120,6 +121,8 @@ export function useMediasoupProducer({
         track,
         appData: { mediaTag },
       });
+
+      console.log(`📤 producer 생성됨: ${mediaTag}`, producer);
 
       producerRefs.current[mediaTag] = producer;
 

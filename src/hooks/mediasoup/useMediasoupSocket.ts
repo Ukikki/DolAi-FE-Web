@@ -19,7 +19,7 @@ export function useMediasoupSocket(
   const [connection, setConnection] = useState<MediasoupConnection | null>(null);
 
   useEffect(() => {
-    const socket = io(`wss://${sfuIp}:3000/mediasoup`, {
+    const socket = io(`https://${sfuIp}:3000/mediasoup`, {
       transports: ["websocket"],
     });
 

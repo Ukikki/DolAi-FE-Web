@@ -103,13 +103,13 @@ export default function Meetings() {
     kind: MediaKind,
     mediaTag: string
   ) => {
-    console.log("ADD STREAM", { name, peerId, kind, mediaTag });
+    console.log("ADD STREAM", { name, peerId, kind, mediaTag, stream });
 
     setRemoteStreams((prev) => {
       const key = `${peerId}-${mediaTag}`;
-      if (prev.find((s) => `${s.peerId}-${s.kind}` === key)) return prev;
-        console.log("📺 remoteStreams", remoteStreams);
+      if (prev.find((s) => `${s.peerId}-${s.mediaTag}` === key)) return prev;
 
+      console.log("📺 ADDING stream:", key);
       return [...prev, { stream, name, peerId, kind, mediaTag }];
     });
   };
@@ -375,7 +375,7 @@ export default function Meetings() {
           <aside className="video-sidebar">
             {remoteStreams.map((streamObj, _idx) => (
               <RemoteVideo
-                key={`${streamObj.peerId}-${streamObj.kind}`}
+                key={`${streamObj.peerId}-${streamObj.mediaTag}`}
                 stream={streamObj.stream}
                 name={streamObj.name}
               />

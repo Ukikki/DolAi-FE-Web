@@ -115,6 +115,7 @@
   width: 15.1vw;
   height: 8.3vw;
   border-radius: 0.5vw;
+  overflow: hidden;
 }
 .video-box video {
   width: 100%;
