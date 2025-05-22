@@ -21,7 +21,10 @@ export const useUser = () => {
       setUser(res.data.data);
       setIsLoggedIn(true);
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.code === "ERR_NETWORK") {
+        console.error("🌐 서버 연결 안됨 (ERR_NETWORK)");
+      }
       setUser(null);
       setIsLoggedIn(false);
     });

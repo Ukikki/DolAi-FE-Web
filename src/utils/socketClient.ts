@@ -11,7 +11,14 @@ export class SocketClient {
 
   constructor(private baseUrl: string) {
     this.client = new Client({
-      webSocketFactory: () => new SockJS(this.baseUrl),
+      webSocketFactory: () => {
+        try {
+          return new SockJS(this.baseUrl);
+        } catch (err) {
+          console.error("🚨 SockJS 연결 실패:", err);
+          throw err;
+        }
+      },
       reconnectDelay: 5000,
       debug: (msg) => console.debug(`[STOMP] ${msg}`),
     });

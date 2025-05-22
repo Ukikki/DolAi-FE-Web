@@ -14,6 +14,7 @@ interface MessageProps {
 }
 
 interface MessageItem {
+  senderId: string,
   sender: string;
   text: string;
 }
@@ -38,6 +39,7 @@ export default function Message({ isVisible, meetingId }: MessageProps) {
         client.subscribe(`/topic/chat/${meetingId}`, (message: IMessage) => {
           const body = JSON.parse(message.body);
           setMessages((prev) => [...prev, {
+            senderId: body.senderId,
             sender: body.senderName,
             text: body.content,
           }]);
@@ -67,7 +69,7 @@ export default function Message({ isVisible, meetingId }: MessageProps) {
     if (!input.trim() || !stompClientRef.current?.connected) return;
 
     const newMessage = {
-      meetingId,
+      senderId: user?.id,
       senderName: user?.name,
       content: input,
     };
@@ -85,7 +87,7 @@ export default function Message({ isVisible, meetingId }: MessageProps) {
       <div className="message-list">
         {messages.map((item, i) => (
           <div key={i}
-            className={`message-item ${item.sender === user?.name ? 'my-message' : 'other-message'}`}
+            className={`message-item ${item.sender === user?.id ? 'my-message' : 'other-message'}`}
           >
             <span className="message-sender">{item.sender}:</span>{item.text}
           </div>

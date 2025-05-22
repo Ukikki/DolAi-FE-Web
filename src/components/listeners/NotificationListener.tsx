@@ -8,7 +8,7 @@ const NotificationListener = () => {
   const { addToast } = useToast();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
     if (!notificationSocketClient.isConnected()) {
       notificationSocketClient.connect();
