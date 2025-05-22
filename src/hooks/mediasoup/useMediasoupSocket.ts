@@ -19,8 +19,11 @@ export function useMediasoupSocket(
   const [connection, setConnection] = useState<MediasoupConnection | null>(null);
 
   useEffect(() => {
-    const socket = io(`https://${sfuIp}:3000/mediasoup`, {
-      transports: ["websocket"],
+    const mediaServerUrl = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://smooth-otter-80.loca.lt';
+
+    // ✅ mediaServerUrl 사용
+    const socket = io(`${mediaServerUrl}/mediasoup`, {
+      transports: ["websocket", "polling"], // polling 폴백 추가
     });
 
     const joinRoom = (): Promise<{ rtpCapabilities: RtpCapabilities }> => {

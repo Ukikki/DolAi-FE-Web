@@ -7,6 +7,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     server: {
+      host: '0.0.0.0', // 외부 접속 가능하게!
+      port: 5173,
+      allowedHosts: ['.ngrok-free.app'], // ✅ ngrok 도메인 허용
       proxy: {
         '/api': {
           target: env.VITE_BASE_URL,

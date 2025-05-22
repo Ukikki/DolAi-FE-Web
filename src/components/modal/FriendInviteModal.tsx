@@ -4,6 +4,9 @@ import axios from "axios";
 import { X } from "lucide-react"; // X 아이콘 임포트
 import "../modal/FriendInviteModal.css";
 
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
 interface FriendInviteModalProps {
   onClose: () => void;
   onSubmit: (email: string) => void;
@@ -26,7 +29,7 @@ export default function FriendInviteModal({ onClose, onSubmit }: FriendInviteMod
     const delayDebounce = setTimeout(() => {
       if (emailInput.trim()) {
         axios
-          .get(`/api/user/search?email=${encodeURIComponent(emailInput.trim())}`)
+          .get(`${VITE_BASE_URL}/user/search?email=${encodeURIComponent(emailInput.trim())}`)
           .then((res) => {
             const data = res.data?.data ?? res.data;
             console.log("🔍 API 응답 데이터:", data);

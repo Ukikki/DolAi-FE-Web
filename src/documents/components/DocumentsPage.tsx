@@ -55,7 +55,9 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
-  const [sortKey, setSortKey] = useState<"name">("name");
+// 변경
+type SortKey = "name" | "createdAt" | "updatedAt" | "size";
+const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const [showAddFolderModal, setShowAddFolderModal] = useState(false);
@@ -178,6 +180,8 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
     setSortOrder(newOrder as "asc" | "desc");
   };
 
+  
+
    // 삭제 요청 핸들러: 모달 열기
    function handleDeleteFolder() {
     if (!selectedFolderObj) {
@@ -283,13 +287,29 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
   const filteredFolders: Folder[] = folderList.filter((f) =>
     f.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const sortedFolders: Folder[] = filteredFolders
-    .slice()
-    .sort((a, b) =>
-      sortOrder === "asc"
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name)
-    );
+  const sortedFolders: Folder[] = filteredFolders.slice().sort((a, b) => {
+    let compare = 0;
+  
+    if (sortKey === "name") {
+      compare = a.name.localeCompare(b.name);
+    } else {
+      const aMeta = a.id === selectedFolderId ? directoryMeta : null;
+      const bMeta = b.id === selectedFolderId ? directoryMeta : null;
+  
+      if (sortKey === "createdAt" || sortKey === "updatedAt") {
+        const aDate = aMeta?.[sortKey] ?? "";
+        const bDate = bMeta?.[sortKey] ?? "";
+        compare = aDate.localeCompare(bDate);
+      } else if (sortKey === "size") {
+        const aSize = parseFloat(aMeta?.size ?? "0");
+        const bSize = parseFloat(bMeta?.size ?? "0");
+        compare = aSize - bSize;
+      }
+    }
+  
+    return sortOrder === "asc" ? compare : -compare;
+  });
+  
 
   return (
     <div className="container" onClick={() => setContextMenuPos(null)}>
@@ -357,7 +377,7 @@ export default function DocumentsPage({ selected, navigate }: DocumentsProps) {
 
         </div>
 
-        
+
         <div className={styles.rightSection}>
           <SortMenu sortKey={sortKey} sortOrder={sortOrder} onSortChange={handleSortChange} />
           <div className={styles.searchWrapper}>
