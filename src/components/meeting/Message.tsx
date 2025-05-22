@@ -87,7 +87,7 @@ export default function Message({ isVisible, meetingId }: MessageProps) {
       <div className="message-list">
         {messages.map((item, i) => (
           <div key={i}
-            className={`message-item ${item.sender === user?.id ? 'my-message' : 'other-message'}`}
+            className={`message-item ${item.senderId === user?.id ? 'my-message' : 'other-message'}`}
           >
             <span className="message-sender">{item.sender}:</span>{item.text}
           </div>
