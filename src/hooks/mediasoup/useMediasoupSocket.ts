@@ -19,7 +19,7 @@ export function useMediasoupSocket(
   const [connection, setConnection] = useState<MediasoupConnection | null>(null);
 
   useEffect(() => {
-    const mediaServerUrl = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://smooth-otter-80.loca.lt';
+    const mediaServerUrl = import.meta.env.VITE_MEDIA_SERVER_URL || 'https://15.165.34.239';
 
     // ✅ mediaServerUrl 사용
     const socket = io(`${mediaServerUrl}/mediasoup`, {
