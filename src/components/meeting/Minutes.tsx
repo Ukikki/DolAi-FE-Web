@@ -1,5 +1,5 @@
 import React from "react";
-import "@/styles/meeting/minutes/Minutes.css"
+import "@/styles/meeting/minutes/Minutes.css";
 import { useUser } from "@/hooks/user/useUser";
 
 interface MinutesProps {
