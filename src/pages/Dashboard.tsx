@@ -3,7 +3,6 @@ import { NavigateFunction } from "react-router-dom";
 import { Card } from "@/components/Card";
 import { ToDoList, useTodoList } from "@/components/ToDo";
 import Calendar from "@/components/MyCalendar";
-import GraphView from "@/components/GraphView";
 import { Home, Video, FileText } from "lucide-react";
 import { redirectToSocialAuth } from '@/services/authService';
 import { useUser } from "@/hooks/user/useUser";
@@ -132,7 +131,7 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
         {/* 그래프 영역 */}
         <section className="graph-section">
           {isLoggedIn ? (
-            <GraphView />
+            <span>그래프 띄울 공간입니다...</span>
           ) : (
             <div className="login-container">
               <img src="./images/login_bg.png" alt="login bg" className="login-bg" />
