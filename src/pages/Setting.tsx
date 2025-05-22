@@ -262,7 +262,7 @@ export default function Setting({ navigate }: SettingProps) {
         {/* 중앙 영역: 친구 목록 또는 요청 목록 */}
         <section className="set-middle-section">
         {isRequestPage ? (
-          <RequestsPage onBack={() => navigate("/settings")} navigate={navigate} />
+          <RequestsPage onBack={() => navigate("/settings")} />
         ) : (
           <>
             <div className="friends-header" style={{ marginTop: "2.6vw" }}>

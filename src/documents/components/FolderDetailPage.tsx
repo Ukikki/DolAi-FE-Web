@@ -54,7 +54,7 @@ export default function FolderDetailPage({ navigate }: FolderDetailProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [sortKey, setSortKey] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [folderList, setFolderList] = useState<Folder[]>([]);
+  const [_folderList, setFolderList] = useState<Folder[]>([]);
   const [folderName, setFolderName] = useState<string>("");
   const [documentMeta, setDocumentMeta] = useState<DocumentMetaData | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

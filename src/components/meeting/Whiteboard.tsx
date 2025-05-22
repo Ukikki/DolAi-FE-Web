@@ -2,7 +2,7 @@
 import { Tldraw, useEditor, TLRecord } from "tldraw";
 import type { TLEventMap } from "tldraw";
 import "tldraw/tldraw.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, } from "react";
 import { Socket } from "socket.io-client";
 import "@/styles/meeting/Whiteboard.css";
 

@@ -40,7 +40,7 @@ function AppContent() {
 
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/settings/*" element={<Setting navigate={navigate} />}>
-        <Route path="request" element={<RequestsPage navigate={navigate} onBack={() => navigate("/settings")} />} />
+        <Route path="request" element={<RequestsPage onBack={() => navigate("/settings")} />} />
       </Route>
       <Route path="/backoffice" element={<BackOffice />} />
     </Routes>

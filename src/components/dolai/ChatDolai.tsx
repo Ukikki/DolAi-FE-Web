@@ -13,8 +13,8 @@ interface LocationState {
 }
 
 export default function ChatDolai() {
-  const location = useLocation<LocationState>();
-  const meetingId = location.state?.meetingId;
+  const location = useLocation();
+const meetingId = (location.state && (location.state as LocationState).meetingId) || "";
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");

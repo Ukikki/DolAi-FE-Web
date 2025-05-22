@@ -10,7 +10,6 @@ interface ConfirmModalProps {
 
 const DeleteTodoModal: React.FC<ConfirmModalProps> = ({
   title = "삭제 확인",
-  message,
   onConfirm,
   onCancel,
 }) => {

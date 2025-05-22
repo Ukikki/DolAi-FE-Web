@@ -197,7 +197,7 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
     if (toDeleteId == null) return;
     axios
       .delete(`/directories/${toDeleteId}`)
-      .then((res) => {
+      .then((_res) => {
         //alert(res.data.message);
         setFolderList((prev) => prev.filter((f) => f.id !== toDeleteId));
         setSelectedFolderId(null);

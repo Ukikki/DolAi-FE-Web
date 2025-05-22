@@ -51,19 +51,19 @@ export default function FriendInviteModal({ onClose, onSubmit }: FriendInviteMod
     return () => clearTimeout(delayDebounce);
   }, [emailInput]);
 
-  // "보내기" 버튼은 그대로 남겨둘 수 있고, 개별 사용자의 추가 버튼도 사용합니다.
-  const handleSubmit = () => {
-    if (!emailInput.trim()) {
-      alert("이메일을 입력해주세요.");
-      return;
-    }
-    const matchedUser = foundUsers.find((user) => user.email === emailInput.trim());
-    if (!matchedUser) {
-      alert("해당 이메일의 사용자를 찾을 수 없습니다.");
-      return;
-    }
-    onSubmit(matchedUser.email); // 이메일을 초대 콜백으로 전달
-  };
+  // // "보내기" 버튼은 그대로 남겨둘 수 있고, 개별 사용자의 추가 버튼도 사용합니다.
+  // const handleSubmit = () => {
+  //   if (!emailInput.trim()) {
+  //     alert("이메일을 입력해주세요.");
+  //     return;
+  //   }
+  //   const matchedUser = foundUsers.find((user) => user.email === emailInput.trim());
+  //   if (!matchedUser) {
+  //     alert("해당 이메일의 사용자를 찾을 수 없습니다.");
+  //     return;
+  //   }
+  //   onSubmit(matchedUser.email); // 이메일을 초대 콜백으로 전달
+  // };
 
   return (
     <div className="invite-modal-overlay">

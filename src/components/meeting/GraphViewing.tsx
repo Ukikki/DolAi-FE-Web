@@ -14,7 +14,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const react = containerRef.current.getBoundingClientRect();
+    //const react = containerRef.current.getBoundingClientRect();
     // const width = react.width;
     // const height = react.height;
     const width = 600;

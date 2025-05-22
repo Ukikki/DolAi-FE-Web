@@ -3,8 +3,6 @@ import axios from "../utils/axiosInstance";
 import "../styles/RequestsPage.css";
 import { ChevronLeft, X } from "lucide-react";
 
-type NavigateFunction = (path: string) => void;
-
 interface FriendRequest {
   requestId: number;
   fromUserId: string;
@@ -16,10 +14,9 @@ interface FriendRequest {
 
 interface RequestsPageProps {
   onBack: () => void;
-  navigate: NavigateFunction;
 }
 
-export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
+export default function RequestsPage({ onBack }: RequestsPageProps) {
   const [friendRequestsReceived, setFriendRequestsReceived] = useState<FriendRequest[]>([]);
   const [friendRequestsSent, setFriendRequestsSent] = useState<FriendRequest[]>([]);
 
@@ -88,7 +85,7 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
         {friendRequestsReceived.length === 0 ? (
           <div className="empty-message">받은 친구 요청이 없습니다.</div>
         ) : (
-          friendRequestsReceived.map((req, index) => (
+          friendRequestsReceived.map((req, _index) => (
             <React.Fragment key={req.requestId}>
               <div className="request-item">
                 <div className="item-info">
@@ -128,7 +125,7 @@ export default function RequestsPage({ onBack, navigate }: RequestsPageProps) {
         {friendRequestsSent.length === 0 ? (
           <div className="empty-message">보낸 친구 요청이 없습니다.</div>
         ) : (
-          friendRequestsSent.map((req, index) => (
+          friendRequestsSent.map((req, _index) => (
             <React.Fragment key={req.requestId}>
               <div className="request-item">
                 <div className="item-info">
