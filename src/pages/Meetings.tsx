@@ -14,19 +14,13 @@ import Whiteboard from "@/components/meeting/Whiteboard";
 import Message from "@/components/meeting/Message";
 import RemoteVideo from "@/components/meeting/RemoteVideo";
 import GraphViewing from "@/components/meeting/GraphViewing";
+import ScreenShare from "@/components/meeting/ScreenShare";
 import { useMediasoupSocket } from "@/hooks/mediasoup/useMediasoupSocket";
 import { useMediasoupProducer } from "@/hooks/mediasoup/useMediasoupProducer";
-import { useMediasoupConsumer } from "@/hooks/mediasoup/useMediasoupConsumer";
+import { useMediasoupConsumer, type MediaKind } from "@/hooks/mediasoup/useMediasoupConsumer";
 import { useUser } from "@/hooks/user/useUser";
 import { useGraph } from "@/hooks/useGraph";
 import { useScreenShare } from "@/hooks/useScreenShare";
-
-type RemoteStreamEntry = {
-  stream: MediaStream;
-  name: string;
-  peerId: string;
-  kind: "audio" | "video" | "board" | "screen";
-};
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -75,10 +69,16 @@ export default function Meetings() {
         setIsBoardOn(false);
       }
     } else if (tool === "monitor") {
-      const next = activeTool !== "monitor";
-      if (next) await screenShareStart();
-      else await screenShareStop();
-      setActiveTool(next ? "monitor" : null);
+      const isMineSharing = activeTool === "monitor" && isScreenOn;
+      if (isMineSharing) {
+        await screenShareStop();
+        setIsScreenOn(false);
+        setActiveTool(null);
+      } else {
+        await screenShareStart();
+        setIsScreenOn(true);
+        setActiveTool("monitor");
+      }
     } else {
       setActiveTool(prev => prev === tool ? null : tool);
     }
@@ -90,23 +90,31 @@ export default function Meetings() {
     stream: MediaStream;
     name: string;
     peerId: string;
-    kind: "audio" | "video" | "board" | "screen";
+    kind: MediaKind;
+    mediaTag: string;
   };
   
   const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
-  
+
   const addStream = (
     stream: MediaStream,
     name: string,
     peerId: string,
-    kind: "audio" | "video" | "board" | "screen"
+    kind: MediaKind,
+    mediaTag: string
   ) => {
+    console.log("ADD STREAM", { name, peerId, kind, mediaTag });
+
     setRemoteStreams((prev) => {
-      const key = `${peerId}-${kind}`;
+      const key = `${peerId}-${mediaTag}`;
       if (prev.find((s) => `${s.peerId}-${s.kind}` === key)) return prev;
-      return [...prev, { stream, name, peerId, kind }];
+        console.log("📺 remoteStreams", remoteStreams);
+
+      return [...prev, { stream, name, peerId, kind, mediaTag }];
     });
   };
+    // 화면 공유
+  const screenStream = remoteStreams.find(s => s.mediaTag === "screen");
 
   // ─── 1) mediasoup 소켓 연결 & joinRoom ───
   const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name || "익명", user?.id!); 
@@ -342,6 +350,14 @@ export default function Meetings() {
             myPeerId={user?.id!}
           />
      
+      ) : activeTool === "monitor" && isScreenOn && screenStream ? (
+        <ScreenShare
+          stream={screenStream.stream}
+          presenterName={screenStream.name}
+          isLocal={screenStream.peerId === user?.id}
+          localCameraStream={videoStreamRef.current ?? undefined}
+          minutesLog={minutesLog}
+        />
       ) : (
         <>
           {/* 내 비디오 */}

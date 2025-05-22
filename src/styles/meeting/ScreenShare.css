@@ -1,0 +1,58 @@
+.screen-share-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  background: black;
+}
+
+.screen-share-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.my-video-pip {
+  position: absolute;
+  bottom: 1.5vh;
+  right: 1.5vw;
+  width: 14vw;
+  height: 8vw;
+  background: black;
+  border-radius: 0.6vw;
+  overflow: hidden;
+  z-index: 21;
+}
+
+.presenter-name-overlay {
+  position: absolute;
+  bottom: 10vh;
+  left: 2vw;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1vw;
+  padding: 0.5vw 1vw;
+  border-radius: 0.5vw;
+  z-index: 22;
+}
+
+.stt-log-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 1vw;
+  padding: 1vh 2vw;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5vh;
+  z-index: 22;
+}
+
+.stt-line {
+  line-height: 1.5;
+}

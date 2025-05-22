@@ -11,20 +11,27 @@ export default function RemoteVideo({ stream, name }: Props) {
   const [hasVideo, setHasVideo] = useState(true);
 
   useEffect(() => {
-    if (ref.current) {
-      ref.current.srcObject = stream;
-    }
+    if (!ref.current) return;
+
+    ref.current.srcObject = stream;
 
     const videoTrack = stream.getVideoTracks()[0];
-    setHasVideo(videoTrack?.enabled ?? false); // enabled=false면 꺼진 상태
+    if (!videoTrack) {
+      setHasVideo(false);
+      return;
+    }
 
-    // track 상태 변경 시 감지
-    videoTrack?.addEventListener("mute", () => setHasVideo(false));
-    videoTrack?.addEventListener("unmute", () => setHasVideo(true));
+    setHasVideo(videoTrack.enabled);
+
+    const handleMute = () => setHasVideo(false);
+    const handleUnmute = () => setHasVideo(true);
+
+    videoTrack.addEventListener("mute", handleMute);
+    videoTrack.addEventListener("unmute", handleUnmute);
 
     return () => {
-      videoTrack?.removeEventListener("mute", () => setHasVideo(false));
-      videoTrack?.removeEventListener("unmute", () => setHasVideo(true));
+      videoTrack.removeEventListener("mute", handleMute);
+      videoTrack.removeEventListener("unmute", handleUnmute);
     };
   }, [stream]);
 
