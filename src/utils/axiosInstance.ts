@@ -1,9 +1,10 @@
 import axios, { isAxiosError } from "axios";
-const VITE_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // axios 인스턴스 생성
 const instance = axios.create({
-  baseURL: VITE_BASE_URL, // 백엔드 주소
+  baseURL: VITE_API_BASE_URL, // 백엔드 주소
   withCredentials: true,
 });
 
