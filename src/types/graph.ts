@@ -31,9 +31,9 @@ export const NODE_TYPES = ["meetings", "utterances", "keywords", "topics", "spea
 export type NodeType = typeof NODE_TYPES[number];
 
 export const sizeMap: Record<NodeType, number> = {
-  meetings: 40,
-  utterances: 30,
-  speakers: 35,
-  topics: 30,
-  keywords: 25,
+  meetings: 50,
+  utterances: 40,
+  speakers: 45,
+  topics: 40,
+  keywords: 30,
 };
