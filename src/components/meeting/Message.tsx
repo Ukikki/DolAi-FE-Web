@@ -2,7 +2,7 @@ import { Send } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
-const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
+const VITE_BASE_URL = import.meta.env.VITE_BASE_SOCKET_URL;
 import { useUser } from "@/hooks/user/useUser";
 
 import "@/styles/meeting/Message.css";
