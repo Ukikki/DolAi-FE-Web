@@ -30,7 +30,7 @@
   width: 2vw;
   height: 2vw;
   cursor: pointer;
-  background-image: url("../images/meet_board.png");
+  background-image: url("/images/meet_board.png");
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -38,7 +38,7 @@
   width: 8.3vw;
   cursor: pointer;
   position: absolute;
-  background-image: url("../images/meet_leave.png");
+  background-image: url("/images/meet_leave.png");
   background-size: contain;
   background-repeat: no-repeat;
   right: 15px;
