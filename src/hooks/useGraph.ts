@@ -59,12 +59,12 @@ export const useGraph = (meetingId: string | null) => {
     }
   }, [meetingId]);
 
-  // 3초마다 fetchGraph
+  // 5초마다 fetchGraph
   useEffect(() => {
     if (!meetingId) return;
     const interval = setInterval(() => {
       fetchGraph();
-    }, 3000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [fetchGraph, meetingId]);
