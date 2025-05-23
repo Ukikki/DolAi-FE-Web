@@ -12,7 +12,8 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         '.ngrok-free.app', // 기존 설정
         'ec2-15-165-34-239.ap-northeast-2.compute.amazonaws.com', // EC2 도메인 추가
-        '15.165.34.239', // (선택) 퍼블릭 IP도 직접 추가 가능
+        '3.34.92.187', // (선택) 퍼블릭 IP도 직접 추가 가능
+        '3.34.92.187.nip.io'
       ],
       proxy: {
         '/api': {
