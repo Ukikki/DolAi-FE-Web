@@ -10,10 +10,6 @@ const NotificationListener = () => {
   useEffect(() => {
     if (!user?.id) return;
 
-    if (!notificationSocketClient.isConnected()) {
-      notificationSocketClient.connect();
-    }
-
     notificationSocketClient.subscribe(`/topic/notifications/${user.id}`, (data) => {
       addToast(data.title, data.category, data.url);
     });

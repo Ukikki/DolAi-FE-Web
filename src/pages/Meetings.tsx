@@ -39,17 +39,17 @@ export default function Meetings() {
 
   const { user } = useUser();
 
-  // 그래프
-  const { graph, fetchGraph } = useGraph();
-  const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
-  const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
-
   // --- 친구 초대 상태 & 라우터 상태 ---
   const location = useLocation();
   const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
   const handleLeave = useLeaveMeeting(meetingId);
+
+  // 그래프
+  const { graph } = useGraph(meetingId);
+  const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
+  const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
 
   // 화면 공유
   const { screenShareStart, screenShareStop } = useScreenShare(meetingId, user?.id!);
@@ -204,14 +204,8 @@ useEffect(() => {
   
     console.log("🎉mediasoup 연결 성공:", socket.id);
     console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
-    }, [connectRoom]);
+  }, [connectRoom]);
 
-  // 그래프 연결
-  useEffect(() => {
-    if(meetingId) {
-      fetchGraph(meetingId);
-    }
-  }, [meetingId]);
 
   // 화이트보드 시작
   useEffect(() => {
