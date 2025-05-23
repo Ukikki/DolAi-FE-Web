@@ -21,6 +21,8 @@ import { useMediasoupConsumer, type MediaKind } from "@/hooks/mediasoup/useMedia
 import { useUser } from "@/hooks/user/useUser";
 import { useGraph } from "@/hooks/useGraph";
 import { useScreenShare } from "@/hooks/useScreenShare";
+import { RemoteStreamEntry } from "@/types/remoteStreamEntry.ts";
+
 
 export default function Meetings() {
   // --- 미디어 토글 상태 ---
@@ -51,6 +53,24 @@ export default function Meetings() {
 
   // 화면 공유
   const { screenShareStart, screenShareStop } = useScreenShare(meetingId, user?.id!);
+
+  const [myStream, setMyStream] = useState<MediaStream | null>(null);
+
+useEffect(() => {
+  if (isCameraOn) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      videoRef.current && (videoRef.current.srcObject = stream);
+      setMyStream(stream); // ✅ 상태 갱신
+    });
+  } else {
+    if (videoRef.current) videoRef.current.srcObject = null;
+    myStream?.getTracks().forEach((track) => track.stop());
+    setMyStream(null); // ✅ 상태 초기화
+  }
+}, [isCameraOn]);
+
+
+  
 
   // --- 기타 툴 상태 ---
   const [activeTool, setActiveTool] = useState<"invite" | "board" | "monitor" | "message" | null>(null);
@@ -85,16 +105,13 @@ export default function Meetings() {
   };
   const iconStyle = { width: "2vw", height: "2vw", cursor: "pointer" };
 
-  // // 참가자들
-  type RemoteStreamEntry = {
-    stream: MediaStream;
-    name: string;
-    peerId: string;
-    kind: MediaKind;
-    mediaTag: string;
-  };
-  
+
   const [remoteStreams, setRemoteStreams] = useState<RemoteStreamEntry[]>([]);
+
+   // ✅ 여기에 바로 붙여 넣으세요!
+   useEffect(() => {
+    console.log("🟢 remoteStreams 상태:", remoteStreams);
+  }, [remoteStreams]);
 
   const addStream = (
     stream: MediaStream,
@@ -103,6 +120,7 @@ export default function Meetings() {
     kind: MediaKind,
     mediaTag: string
   ) => {
+    console.log("🟡 addStream 호출됨");
     console.log("ADD STREAM", { name, peerId, kind, mediaTag, stream });
 
     setRemoteStreams((prev) => {
@@ -215,13 +233,18 @@ export default function Meetings() {
 
   // 화이트보드 종료
   useEffect(() => {
-    if (!connectRoom || !connectRoom.socket) return;
-  
-    const socket = connectRoom.socket;
+    const socket = connectRoom?.socket;
+    if (!socket) return;
   
     const handleBoardEnd = ({ meetingId: endedId }: any) => {
       if (endedId === meetingId) {
         console.log("📥 board-ended 수신");
+  
+        // ✅ board 관련 스트림만 제거
+        setRemoteStreams((prev) =>
+          prev.filter((s) => s.mediaTag !== "board")
+        );
+  
         setActiveTool(null);
         setIsBoardOn(false);
       }
@@ -231,7 +254,8 @@ export default function Meetings() {
     return () => {
       socket.off("board-ended", handleBoardEnd);
     };
-  }, [connectRoom, meetingId]);  
+  }, [connectRoom?.socket, meetingId]);
+    
 
   return (
     <div className="container">
@@ -341,14 +365,14 @@ export default function Meetings() {
     {/* 카메라 화면 표시 */}
     <main className="video-container">
       {activeTool === "board" && isBoardOn && connectRoom?.socket ?(
-       <Whiteboard
-            meetingId={meetingId}
-            socket={connectRoom?.socket}
-            isCameraOn={isCameraOn}
-            myStream={videoStreamRef.current}    // ★ 추가
-            remoteStreams={remoteStreams}         // 필터 제거: 전체 배열 전달
-            myPeerId={user?.id!}
-          />
+      <Whiteboard
+      meetingId={meetingId}
+      socket={connectRoom?.socket}
+      isCameraOn={isCameraOn}
+      myStream={myStream} // ✅ 이걸 써야 합니다!
+      remoteStreams={remoteStreams}
+      myPeerId={user?.id!}
+    />
      
       ) : activeTool === "monitor" && isScreenOn && screenStream ? (
         <ScreenShare

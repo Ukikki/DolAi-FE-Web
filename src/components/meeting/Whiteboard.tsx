@@ -5,13 +5,9 @@ import "tldraw/tldraw.css";
 import { useEffect, useRef, } from "react";
 import { Socket } from "socket.io-client";
 import "@/styles/meeting/Whiteboard.css";
+import { RemoteStreamEntry } from "@/types/remoteStreamEntry.ts";
 
-type RemoteStreamEntry = {
-  stream: MediaStream;
-  name: string;
-  peerId: string;
-  kind: "audio" | "video" | "board" | "screen";
-};
+
 
 interface WhiteboardProps {
   meetingId: string;
@@ -32,8 +28,9 @@ export default function Whiteboard({
 }: WhiteboardProps) {
   // 내 스트림은 prop 으로, 원격 스트림도 prop 으로 전달됩니다.
   const filteredRemoteVideos = remoteStreams.filter(
-    (s) => s.kind === "video" && s.peerId !== myPeerId
+    (s) => s.kind === "video" && s.peerId !== myPeerId && s.mediaTag === "camera"
   );
+  
 
   return (
     <div>
