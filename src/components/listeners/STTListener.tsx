@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client, over } from "stompjs";
 import { useUser } from "@/hooks/user/useUser";
-const VITE_BASE_URL = import.meta.env.VITE_BASE_SOCKET_URL;
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface SttLog {
   speaker: string;

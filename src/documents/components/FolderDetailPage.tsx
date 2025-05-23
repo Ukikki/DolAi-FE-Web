@@ -166,7 +166,7 @@ export default function FolderDetailPage({ navigate }: FolderDetailProps) {
   };
   
   const handleViewPdf = (documentId: number) => {
-    const backendBaseUrl = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+    const backendBaseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
     window.open(`${backendBaseUrl}/documents/${documentId}/view-pdf`, "_blank");
   };
   
