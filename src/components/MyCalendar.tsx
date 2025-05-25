@@ -11,9 +11,10 @@ import { formatTime, parseLocalDate } from "@/utils/formatTime";
 
 interface CalendarProps {
   addTodo: (task: string, time: string) => void;
+  onMeetingCardClick: (meetingId: string) => void;
 }
 
-const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
+const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { user } = useUser();
 
@@ -54,6 +55,7 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo }) => {
 
   const handleCardClick = (meetingId: string) => {
     console.log("카드 클릭:", meetingId);
+    onMeetingCardClick(meetingId);
   };
 
   // 캘린더 추가

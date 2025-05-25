@@ -1,9 +1,10 @@
-import { useState } from "react"; 
+import { useState, useEffect, useRef } from "react"; 
 import { NavigateFunction } from "react-router-dom";
 import { Card } from "@/components/Card";
 import { ToDoList, useTodoList } from "@/components/ToDo";
 import Calendar from "@/components/MyCalendar";
 import GraphView from "@/components/GraphView";
+import GraphViewing from "@/components/meeting/GraphViewing";
 import { Home, Video, FileText } from "lucide-react";
 import { redirectToSocialAuth } from '@/services/authService';
 import { useUser } from "@/hooks/user/useUser";
@@ -13,6 +14,7 @@ import { getProfileImageUrl } from "@/utils/getProfileImageUrl";
 import { List } from "lucide-react";
 import { useMeetingData } from "@/hooks/useMeetingData";
 import { Meeting } from "@/types/meeting";
+import { useGraph } from "@/hooks/useGraph"; 
 
 interface DashboardProps {
   selected: String;
@@ -28,6 +30,18 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
   const [allMeetings, setAllMeetings] = useState<Meeting[]>([]);
 
   const { recentMeetings, fetchAllMeetings } = useMeetingData();
+
+  // 그래프 
+  const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null); // 캘린더에서 카드 클릭 시
+  const { graph, fetchGraph } = useGraph();
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  
+  useEffect(() => {
+    if (selectedMeetingId) {
+      fetchGraph(selectedMeetingId); // meetingId 바뀌면 그래프 불러오기
+    }
+  }, [selectedMeetingId]);
 
   const openAllMeetingsModal = async () => {
     const data = await fetchAllMeetings();
@@ -132,7 +146,11 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
         {/* 그래프 영역 */}
         <section className="graph-section">
           {isLoggedIn ? (
-            <GraphView />
+            selectedMeetingId ? (
+              graph && <GraphViewing graphData={graph} svgRef={svgRef} />
+            ) : (
+              <GraphView />
+            )
           ) : (
             <div className="login-container">
               <img src="./images/login_bg.png" alt="login bg" className="login-bg" />
@@ -146,7 +164,7 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
 
         {/* 캘린더 영역 */}
         <aside className="calendar-section">
-          <Calendar addTodo={addTodo} />
+          <Calendar addTodo={addTodo} onMeetingCardClick={setSelectedMeetingId} />
         </aside>
       </main>
 

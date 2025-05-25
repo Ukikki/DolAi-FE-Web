@@ -1,15 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import axios from "@/utils/axiosInstance";
 import { Node, Link, GraphData, NodeType, sizeMap } from "@/types/graph";
 import { getColor } from "@/utils/chorma";
 
-export const useGraph = (meetingId: string | null) => {
+export const useGraph = () => {
   const [graph, setGraph] = useState<GraphData | null>(null);
 
   // 그래프 생성
-  const fetchGraph = useCallback(async () => {
-    if (!meetingId) return;
-
+  const fetchGraph = useCallback(async (meetingId: string) => {
     try {
       const res = await axios.get(`/graph/${meetingId}`);
       const raw = res.data;
@@ -57,26 +55,16 @@ export const useGraph = (meetingId: string | null) => {
     } catch (err: any) {
       console.error(err?.response?.data?.message || "그래프 조회 실패");
     }
-  }, [meetingId]);
-
-  // 5초마다 fetchGraph
-  useEffect(() => {
-    if (!meetingId) return;
-    const interval = setInterval(() => {
-      fetchGraph();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [fetchGraph, meetingId]);
-
-  const syncGraph = useCallback(async () => {
+  }, []);
+  
+  const syncGraph = useCallback(async (meetingId: string) => {
     try {
       const res = await axios.post(`/graph/sync/${meetingId}`);
       return res.data;
     } catch (err: any) {
       console.error(err?.response?.data || "그래프 동기화 실패");
     }
-  }, [meetingId]);
+  }, []);
 
   return { graph, fetchGraph, syncGraph };
 };

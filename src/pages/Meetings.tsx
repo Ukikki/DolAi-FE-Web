@@ -22,6 +22,7 @@ import { useUser } from "@/hooks/user/useUser";
 import { useGraph } from "@/hooks/useGraph";
 import { useScreenShare } from "@/hooks/useScreenShare";
 import { RemoteStreamEntry } from "@/types/remoteStreamEntry.ts";
+import { useGraphPolling } from "@/hooks/useGraphPolling";
 
 
 export default function Meetings() {
@@ -47,9 +48,10 @@ export default function Meetings() {
   const handleLeave = useLeaveMeeting(meetingId);
 
   // 그래프
-  const { graph } = useGraph(meetingId);
+  const { graph } = useGraph();
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
+  useGraphPolling(meetingId); 
 
   // 화면 공유
   const { screenShareStart, screenShareStop } = useScreenShare(meetingId, user?.id!);
