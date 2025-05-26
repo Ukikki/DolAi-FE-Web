@@ -115,6 +115,10 @@ useEffect(() => {
     console.log("🟢 remoteStreams 상태:", remoteStreams);
   }, [remoteStreams]);
 
+  useEffect(() => {
+    console.log("📺 비디오 개수:", document.querySelectorAll(".video-container video").length);
+  }, [remoteStreams]);
+
   const addStream = (
     stream: MediaStream,
     name: string,

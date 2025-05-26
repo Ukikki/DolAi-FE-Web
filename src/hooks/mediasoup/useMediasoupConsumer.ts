@@ -111,10 +111,10 @@ export function useMediasoupConsumer({
         onStream(stream, name, peerId, kind, mediaTag);
 
         // 🚩 onStream 호출 후 DOM 확인
-        console.log(
+       /* console.log(
           "✅ onStream 호출 후 비디오 개수:",
           document.querySelectorAll("#video-container video").length
-        );
+        );*/
 
         socket.emit("consumer-resume", {
           serverConsumerId: consumeParams.serverConsumerId,
