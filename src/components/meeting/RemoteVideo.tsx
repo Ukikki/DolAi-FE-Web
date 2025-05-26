@@ -13,6 +13,9 @@ export default function RemoteVideo({ stream, name }: Props) {
   useEffect(() => {
     if (!ref.current) return;
 
+    console.log("🔍 RemoteVideo stream tracks:", stream.getTracks());
+  console.log("🔍 hasVideo 상태:", hasVideo);
+
     ref.current.srcObject = stream;
 
     const videoTrack = stream.getVideoTracks()[0];

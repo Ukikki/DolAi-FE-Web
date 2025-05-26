@@ -116,8 +116,12 @@ useEffect(() => {
   }, [remoteStreams]);
 
   useEffect(() => {
-    console.log("📺 비디오 개수:", document.querySelectorAll(".video-container video").length);
+    const timer = setTimeout(() => {
+      console.log("📺 (지연) 비디오 개수:", document.querySelectorAll(".video-container video").length);
+    }, 100);
+    return () => clearTimeout(timer);
   }, [remoteStreams]);
+  
 
   const addStream = (
     stream: MediaStream,
