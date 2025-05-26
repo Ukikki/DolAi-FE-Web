@@ -242,7 +242,7 @@
   right: 0;
   width: 31.3vw;
   height: 45.8vw;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease;
   border: 1px solid #EFEFEF;
   background: linear-gradient(135deg,
     rgba(255, 255, 255, 0.4) 0%,
@@ -250,13 +250,18 @@
   );
   border-radius: 60px;
   z-index: 1000;
+  opacity: 1;
 }
-.graph-container-wrapper.slide-in {
-  transform: translateX(0);
-}
-
 .graph-container-wrapper.slide-out {
   transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.graph-container-wrapper.slide-in {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .graph-toggle-btn {

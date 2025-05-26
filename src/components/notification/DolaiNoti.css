@@ -1,0 +1,59 @@
+.dolai-noti-container {
+  position: absolute;
+  left: -150px;
+  top: 40px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  animation: fadeIn 0.4s ease forwards;
+  opacity: 0.4;
+}
+
+.dolai-noti-bubble {
+  position: relative;
+  background: white;
+  border-radius: 1vw;
+  width: 20.1vw;
+  min-height: 6.7vw;
+  padding: 34px 30px;
+  box-sizing: border-box;
+  box-shadow: 0 0px 5px rgba(0, 0, 0, 0.4);
+}
+.dolai-noti-text {
+  line-height: 1.5;
+  font-family: "Jamsil_R";
+  font-size: 1vw;
+  color: black;
+}
+.dolai-noti-close {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dolai-noti-tail {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 12px solid white;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.4;
+    transform: translateY(-50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}

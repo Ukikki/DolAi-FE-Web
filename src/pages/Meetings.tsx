@@ -23,6 +23,7 @@ import { useGraph } from "@/hooks/useGraph";
 import { useScreenShare } from "@/hooks/useScreenShare";
 import { RemoteStreamEntry } from "@/types/remoteStreamEntry.ts";
 import { useGraphPolling } from "@/hooks/useGraphPolling";
+import DolaiNotification from "@/components/notification/DolaiNoti";
 
 
 export default function Meetings() {
@@ -48,28 +49,33 @@ export default function Meetings() {
   const handleLeave = useLeaveMeeting(meetingId);
 
   // 그래프
-  const { graph } = useGraph();
+  const { graph, fetchGraph } = useGraph();
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
+  const [graphVisible, setGraphVisible] = useState(false); 
   useGraphPolling(meetingId); 
+
+  // 돌아이 알림
+  const [showDolaiNoti, setShowDolaiNoti] = useState(false);
 
   // 화면 공유
   const { screenShareStart, screenShareStop } = useScreenShare(meetingId, user?.id!);
 
   const [myStream, setMyStream] = useState<MediaStream | null>(null);
 
-useEffect(() => {
-  if (isCameraOn) {
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      videoRef.current && (videoRef.current.srcObject = stream);
-      setMyStream(stream); // ✅ 상태 갱신
-    });
-  } else {
-    if (videoRef.current) videoRef.current.srcObject = null;
-    myStream?.getTracks().forEach((track) => track.stop());
-    setMyStream(null); // ✅ 상태 초기화
-  }
-}, [isCameraOn]);
+
+  useEffect(() => {
+    if (isCameraOn) {
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        videoRef.current && (videoRef.current.srcObject = stream);
+        setMyStream(stream); // ✅ 상태 갱신
+      });
+    } else {
+      if (videoRef.current) videoRef.current.srcObject = null;
+      myStream?.getTracks().forEach((track) => track.stop());
+      setMyStream(null); // ✅ 상태 초기화
+    }
+  }, [isCameraOn]);
 
 
   
@@ -200,7 +206,12 @@ useEffect(() => {
     }
   }, [isMicOn]);
 
-  
+  // 그래프 연결
+  useEffect(() => {
+    if(meetingId) {
+      fetchGraph(meetingId);
+    }
+  }, [meetingId]);
   
   useEffect(() => {
     if (location.state?.showInvite) {
@@ -215,6 +226,25 @@ useEffect(() => {
     console.log("🎉mediasoup 연결 성공:", socket.id);
     console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
   }, [connectRoom]);
+
+
+  useEffect(() => {
+    if (showGraph) {
+      setGraphVisible(true);
+    } else {
+      const timeout = setTimeout(() => setGraphVisible(false), 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [showGraph]);
+
+  useEffect(() => {
+    if (showDolaiNoti) {
+      const timer = setTimeout(() => {
+        setShowDolaiNoti(false);
+      }, 5000); 
+      return () => clearTimeout(timer);
+    }
+  }, [showDolaiNoti]);
 
 
   // 화이트보드 시작
@@ -243,7 +273,7 @@ useEffect(() => {
     const handleBoardEnd = ({ meetingId: endedId }: any) => {
       if (endedId === meetingId) {
         console.log("📥 board-ended 수신");
-  
+
         // ✅ board 관련 스트림만 제거
         setRemoteStreams((prev) =>
           prev.filter((s) => s.mediaTag !== "board")
@@ -312,47 +342,53 @@ useEffect(() => {
         </nav>
       </header>
 
-      {/* DolAi 채팅창 (드래그·리사이징 유지하되 위에서 아래로 열리도록 수정) */}
-      <Rnd
-        size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
-        position={chatPosition}
-        minWidth={65}
-        minHeight={59}
-        bounds="parent"
-        enableResizing={isDolAiOpen}
-        onResizeStop={(_, __, ref, ___, pos) => {
-          setChatSize({ width: ref.offsetWidth, height: ref.offsetHeight });
-          setChatPosition({ x: pos.x, y: pos.y });
-        }}
-        onDragStop={(_, data) => {
-          setChatPosition({ x: data.x, y: data.y });
-        }}
+      <div
         style={{
+          position: "absolute",
+          left: chatPosition.x,
+          top: chatPosition.y,
           zIndex: 9999,
-          transition: "height 0.3s ease",
-          overflow: "visible",
-          padding: "20px"  // 아이콘이 컨테이너 밖으로 나가도록 패딩 추가
         }}
       >
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          {/* 항상 보이는 DolAi 아이콘 - 우측 상단에 위치 */}
-          <div
-            className="dolai-toggle-icon"
-            onClick={() => setIsDolAiOpen(prev => !prev)}
-          >
-            <img
-              src="/images/dolai.png"
-              alt="DolAi"
-              className="dolai-icon-image"
-            />
+       {showDolaiNoti && <DolaiNotification />}
+       
+        <Rnd
+          size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
+          position={{ x: 0, y: 0 }} // 내부 고정
+          enableResizing={isDolAiOpen}
+          onResizeStop={(_, __, ref, ___, pos) => {
+            setChatSize({ width: ref.offsetWidth, height: ref.offsetHeight })
+            setChatPosition({
+              x: chatPosition.x + pos.x,
+              y: chatPosition.y + pos.y,
+            })
+          }}
+          onDragStop={(_, data) => {
+            setChatPosition({
+              x: chatPosition.x + data.x,
+              y: chatPosition.y + data.y,
+            })
+          }}
+          style={{
+            transition: "height 0.3s ease",
+            overflow: "visible",
+            padding: "20px"
+          }}
+        >
+          <div style={{ position: "relative", width: "100%", height: "100%" }}>
+            <div
+              className="dolai-toggle-icon"
+              onClick={() => setIsDolAiOpen(prev => !prev)}
+            >
+              <img src="/images/dolai.png" alt="DolAi" className="dolai-icon-image" />
+            </div>
+            <div className={`dolai-chat-overlay ${isDolAiOpen ? "open" : ""}`}>
+              {isDolAiOpen && <ChatDolai />}
+            </div>
           </div>
-
-          {/* 펼쳐지는 채팅 내용 */}
-          <div className={`dolai-chat-overlay ${isDolAiOpen ? 'open' : ''}`}>
-        {isDolAiOpen && <ChatDolai />}
+        </Rnd>
       </div>
-        </div>
-      </Rnd>
+
 
     {meetingId && (
       <SttListener
@@ -381,10 +417,10 @@ useEffect(() => {
       ) : activeTool === "monitor" && isScreenOn && screenStream ? (
         <ScreenShare
           stream={screenStream.stream}
-          presenterName={screenStream.name}
           isLocal={screenStream.peerId === user?.id}
           localCameraStream={videoStreamRef.current ?? undefined}
           minutesLog={minutesLog}
+          remoteStreams={remoteStreams}
         />
       ) : (
         <>
@@ -428,9 +464,12 @@ useEffect(() => {
           </div>
 
           {/* 그래프 */}
-          <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-          {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
-          </div>
+          {graphVisible && (
+            <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
+              {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
+            </div>
+          )}
+
 
           {/* 회의록 토글 버튼 */}
           <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
