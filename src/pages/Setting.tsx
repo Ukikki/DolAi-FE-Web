@@ -94,13 +94,29 @@ export default function Setting({ navigate }: SettingProps) {
     try {
       const res = await axios.get(`/user/search?email=${encodeURIComponent(email)}`);
       const data = res.data?.data ?? [];
+  
       const userFound = Array.isArray(data)
         ? data.find((u: any) => u.email === email)
         : data;
+  
       if (!userFound || !userFound.id) {
-        alert("해당 이메일의 사용자를 찾을 수 없습니다.");
+        //alert("해당 이메일의 사용자를 찾을 수 없습니다.");
         return;
       }
+  
+      // ✅ 이미 친구인지 확인
+      const isAlreadyFriend = friends.some((f) => f.id === userFound.id);
+      if (isAlreadyFriend) {
+        //alert("이미 친구인 사용자입니다.");
+        return;
+      }
+  
+      // ✅ 자기 자신인지 확인
+      if (userFound.id === user?.id) {
+        //alert("자기 자신에게는 친구 요청을 보낼 수 없습니다.");
+        return;
+      }
+  
       await axios.post("/friends/request", { targetUserId: userFound.id });
       alert("친구 요청을 보냈습니다.");
       setShowInviteModal(false);
@@ -109,6 +125,7 @@ export default function Setting({ navigate }: SettingProps) {
       alert("친구 요청 보내기에 실패했습니다.");
     }
   };
+  
 
   const handleDeleteFriendClick = (friendId: string) => {
     const friend = friends.find((f) => f.id === friendId);
@@ -338,10 +355,13 @@ export default function Setting({ navigate }: SettingProps) {
       </main>
 
       {showInviteModal && (
-        <FriendInviteModal
-          onClose={() => setShowInviteModal(false)}
-          onSubmit={handleInviteSubmit}
-        />
+       <FriendInviteModal
+       onClose={() => setShowInviteModal(false)}
+       onSubmit={handleInviteSubmit}
+       currentUserId={user!.id}
+       currentFriends={friends}
+     />
+     
       )}
 
       {showDeleteConfirm && friendToDeleteName && (

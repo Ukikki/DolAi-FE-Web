@@ -45,10 +45,10 @@ export function useMediasoupConsumer({
       const key = `${peerId}-${mediaTag}`;
 
       // 이미 consume 검사 잠시 비활성화
-      // if (consumedMap.current.get(key) === producerId) {
-      //   console.log(`🔁 이미 consume한 producer: ${producerId}`);
-      //   return;
-      // }
+       if (consumedMap.current.get(key) === producerId) {
+         console.log(`🔁 이미 consume한 producer: ${producerId}`);
+         return;
+       }
 
       consumedMap.current.set(key, producerId);
 
@@ -111,10 +111,8 @@ export function useMediasoupConsumer({
         onStream(stream, name, peerId, kind, mediaTag);
 
         // 🚩 onStream 호출 후 DOM 확인
-       /* console.log(
-          "✅ onStream 호출 후 비디오 개수:",
-          document.querySelectorAll("#video-container video").length
-        );*/
+        console.log("📺 참가자 비디오 개수:", document.querySelectorAll(".video-sidebar video").length);
+
 
         socket.emit("consumer-resume", {
           serverConsumerId: consumeParams.serverConsumerId,
