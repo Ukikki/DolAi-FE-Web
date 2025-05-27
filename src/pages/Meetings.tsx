@@ -51,7 +51,6 @@ export default function Meetings() {
   const { graph, fetchGraph } = useGraph();
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
-  const [graphVisible, setGraphVisible] = useState(false); 
   useGraphPolling(meetingId); 
 
   // 회의 종료
@@ -211,20 +210,6 @@ export default function Meetings() {
     };
   }, [isCameraOn]);
 
-  // --- 마이크 on/off 효과 ---
-  useEffect(() => {
-    if (isMicOn) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          micRef.current = stream;
-          stream.getAudioTracks()[0].enabled = true;
-        })
-        .catch(err => console.error("마이크 접근 실패:", err));
-    } else {
-      micRef.current?.getTracks().forEach(t => t.stop());
-    }
-  }, [isMicOn]);
-
   // 그래프 연결
   useEffect(() => {
     if(meetingId) {
@@ -245,16 +230,6 @@ export default function Meetings() {
     console.log("🎉mediasoup 연결 성공:", socket.id);
     console.log("📡 서버 RTP Capabilities:", rtpCapabilities);
   }, [connectRoom]);
-
-
-  useEffect(() => {
-    if (showGraph) {
-      setGraphVisible(true);
-    } else {
-      const timeout = setTimeout(() => setGraphVisible(false), 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [showGraph]);
 
   useEffect(() => {
     if (showDolaiNoti) {
@@ -483,11 +458,9 @@ export default function Meetings() {
           </div>
 
           {/* 그래프 */}
-          {graphVisible && (
-            <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-              {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
-            </div>
-          )}
+          <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
+            {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
+          </div>
 
 
           {/* 회의록 토글 버튼 */}

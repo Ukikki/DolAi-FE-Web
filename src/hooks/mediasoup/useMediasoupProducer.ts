@@ -123,17 +123,6 @@ export function useMediasoupProducer({
         delete producerRefs.current[mediaTag];
       });
 
-      if (mediaTag === "mic") {
-        // 확인용 audio element 추가
-        const audioEl = document.createElement("audio");
-        audioEl.srcObject = new MediaStream([track]);
-        audioEl.autoplay = true;
-        audioEl.muted = false;
-        audioEl.volume = 1;
-        document.body.appendChild(audioEl);
-
-        socket.emit("audio-toggle", { enabled: true });
-      }
     } catch (e) {
       console.error(`❌ produce ${mediaTag} 실패`, e);
     } finally {
