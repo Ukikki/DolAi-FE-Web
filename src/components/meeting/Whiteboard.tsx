@@ -1,6 +1,6 @@
 // src/components/meeting/Whiteboard.tsx
 import { Tldraw, useEditor, TLRecord } from "tldraw";
-import type { TLEventMap } from "tldraw";
+import type { Editor, TLEventMap } from "tldraw";
 import "tldraw/tldraw.css";
 import { useEffect, useRef, } from "react";
 import { Socket } from "socket.io-client";
@@ -16,6 +16,7 @@ interface WhiteboardProps {
   myStream: MediaStream | null;
   remoteStreams: RemoteStreamEntry[];
   myPeerId: string;
+  onEditorMount?: (editor: Editor) => void;
 }
 
 export default function Whiteboard({
@@ -25,6 +26,7 @@ export default function Whiteboard({
   myStream,           // ★ 추가
   remoteStreams,
   myPeerId,
+  onEditorMount,
 }: WhiteboardProps) {
   // 내 스트림은 prop 으로, 원격 스트림도 prop 으로 전달됩니다.
   const filteredRemoteVideos = remoteStreams.filter(
@@ -53,7 +55,7 @@ export default function Whiteboard({
 
       <div className="whiteboard-container">
         <Tldraw persistenceKey={`meeting-${meetingId}`}>
-          <TldrawSocketBridge meetingId={meetingId} socket={socket} />
+          <TldrawSocketBridge meetingId={meetingId} socket={socket} onEditorMount={onEditorMount} />
         </Tldraw>
       </div>
     </div>
@@ -63,9 +65,11 @@ export default function Whiteboard({
 function TldrawSocketBridge({
   meetingId,
   socket,
+  onEditorMount,
 }: {
   meetingId: string;
   socket: Socket;
+  onEditorMount?: (editor: Editor) => void;
 }) {
   const editor = useEditor();
   const changeBuffer = useRef<TLRecord[]>([]);
@@ -83,6 +87,12 @@ function TldrawSocketBridge({
     changeBuffer.current = [];
     removeBuffer.current = [];
   };
+
+  useEffect(() => {
+    if (editor && onEditorMount) {
+      onEditorMount(editor);
+    }
+  }, [editor, onEditorMount]);
 
   useEffect(() => {
     if (!editor) return;
