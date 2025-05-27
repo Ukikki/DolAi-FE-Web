@@ -8,6 +8,7 @@ export const useLeaveMeeting = (meetingId: string, svgRef: RefObject<SVGSVGEleme
   const navigate = useNavigate();
 
   const handleLeaveMeeting = async () => {
+    console.log("🟡 handleLeaveMeeting 실행됨");
     if (!meetingId || !svgRef.current) return;
 
     try {
@@ -18,7 +19,7 @@ export const useLeaveMeeting = (meetingId: string, svgRef: RefObject<SVGSVGEleme
       const formData = new FormData();
       formData.append("image", blob, `graph-${meetingId}.png`);
       await axios.post(`/meetings/${meetingId}/graph-image`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+       // headers: { "Content-Type": "multipart/form-data" },
       });
       console.log("서버 업로드");
 
