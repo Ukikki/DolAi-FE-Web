@@ -45,6 +45,7 @@ const fileIcons: Record<string, string> = {
   docx: "/images/bluedocx.png",
   pdf: "/images/redpdf.png",
   image: "/images/png.png",
+  png: "/images/png.png",
   txt: "/images/purpletxt.png",
 };
 
