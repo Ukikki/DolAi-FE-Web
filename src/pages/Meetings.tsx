@@ -34,7 +34,6 @@ export default function Meetings() {
   const [isScreenOn, setIsScreenOn] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null); // 전역 스트림 참조
-  const micRef = useRef<MediaStream | null>(null);
   const [showMinutes, setShowMinutes] = useState(false); // 회의록 버튼 상태
   const [minutesLog, setMinutesLog] = useState<{ speaker: string; text: string }[]>([]); // 회의록 아이템 상태
   const [selectedTransTab, setSelectedTransTab] = useState<"original" | "translated">("original"); // 원문/번역 본 토글 상태
