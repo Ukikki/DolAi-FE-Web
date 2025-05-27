@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useGraph } from "./useGraph";
 
-export const useGraphPolling = (meetingId: string) => {
+export const useGraphPolling = (meetingId: string | undefined) => {
   const { fetchGraph } = useGraph();
 
   useEffect(() => {
@@ -11,8 +11,10 @@ export const useGraphPolling = (meetingId: string) => {
 
     const interval = setInterval(() => {
       fetchGraph(meetingId);
-    }, 7000); // 7초마다 
+    }, 7000);
 
-    return () => clearInterval(interval);
-  }, [meetingId, fetchGraph]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [meetingId]);
 };

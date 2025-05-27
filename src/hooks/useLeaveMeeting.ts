@@ -12,6 +12,7 @@ export const useLeaveMeeting = (meetingId: string, svgRef: RefObject<SVGSVGEleme
 
     try {
       const blob = await exportGraphBlob(svgRef.current);
+      if(!blob) return;
 
       // 서버로 업로드
       const formData = new FormData();
