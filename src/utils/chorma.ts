@@ -7,10 +7,10 @@ export function getColor(
   parentId?: string
 ): string {
   // 연관된 키워드는 색상 비슷하게
-  const key = type === "utterances" ? parentId! : parentId ?? `${type}_fallback`;
+  const key = type === "speakers" ? parentId! : parentId ?? `${type}_fallback`;
 
   // utterances
-  if (type === "utterances") {
+  if (type === "speakers") {
     if (!ColorMap.has(key)) {
       ColorMap.set(key, chroma.random());
     }

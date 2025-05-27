@@ -16,5 +16,5 @@ export const useGraphPolling = (meetingId: string | undefined) => {
     return () => {
       clearInterval(interval);
     };
-  }, [meetingId]);
+  }, [meetingId, fetchGraph]);
 };

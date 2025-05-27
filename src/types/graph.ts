@@ -11,6 +11,7 @@ export interface Node extends SimulationNodeDatum {
   topics?: string[];
   color?: string;
   size?: number;
+  tooltipUtterances?: string[];
 }
 
 // D3 그래프 엣지
@@ -31,9 +32,9 @@ export const NODE_TYPES = ["meetings", "utterances", "keywords", "topics", "spea
 export type NodeType = typeof NODE_TYPES[number];
 
 export const sizeMap: Record<NodeType, number> = {
-  meetings: 50,
-  utterances: 40,
-  speakers: 45,
+  meetings: 55,
+  utterances: 0,
+  speakers: 50,
   topics: 40,
   keywords: 30,
 };

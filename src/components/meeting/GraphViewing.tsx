@@ -1,6 +1,7 @@
 import { useEffect, useRef, RefObject } from "react";
 import * as d3 from "d3";
 import { GraphData, Node, Link } from "@/types/graph";
+import { preprocessGraphData } from "@/utils/preprocessGraph";
 import "@/styles/meeting/Meeting.css";
 
 interface Props {
@@ -13,6 +14,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const cleanedGraph = preprocessGraphData(graphData); // utterances 제거 및 tooltip 데이터 포함
 
     //const react = containerRef.current.getBoundingClientRect();
     // const width = react.width;
@@ -42,14 +44,25 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     );
 
     // 중앙 고정할 미팅 노드
-    const centerNode = graphData.nodes.find(n => n.type === "meetings");
+    const centerNode = cleanedGraph.nodes.find(n => n.type === "meetings");
     if (centerNode) {
       centerNode.fx = width / 2;
       centerNode.fy = height / 2;
     }
 
-    const simulation = d3.forceSimulation(graphData.nodes)
-      .force("link", d3.forceLink<Node, Link>(graphData.links).id(d => d.id).distance(120))
+    const nodeMap = new Map<string, Node>();
+    cleanedGraph.nodes.forEach(n => nodeMap.set(n.id, n));
+
+
+    const simulation = d3.forceSimulation(cleanedGraph.nodes)
+      .force("link", d3.forceLink<Node, Link>(cleanedGraph.links)
+        .id(d => d.id)
+        .distance(link => {
+          // 키워드 ↔ 스피커는 짧고, 미팅 ↔ 키워드는 길게 같은 커스터마이징 가능
+          if (link.type === "meeting_to_speaker_via_utterance") return 140;
+          else if (link.type.includes("topic")) return 180;
+          return 140;
+        }))
       .force("charge", d3.forceManyBody().strength(-150))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide<Node>().radius(d => (d.size ?? 10) + 8)); // 충돌 방지
@@ -58,7 +71,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     const linkGroup = container.append("g");
     const linkElements = linkGroup
       .selectAll("line")
-      .data(graphData.links)
+      .data(cleanedGraph.links)
       .enter()
       .append("line")
       .attr("stroke", "#ccc")
@@ -83,7 +96,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     // 노드 그룹
     const nodeGroup = container.append("g")
       .selectAll<SVGGElement, Node>("g")
-      .data(graphData.nodes)
+      .data(cleanedGraph.nodes)
       .enter()
       .append("g")
       .style("cursor", "pointer")
@@ -110,7 +123,6 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     const circleSelection = nodeGroup
       .append("circle")
       .attr("fill", d => d.color || "#69b3a2")
-      .attr("r", 0) // 반지름 0부터 시작 (애니메이션용)
       .attr("opacity", 0);
 
     // 원 애니메이션 등장 효과
@@ -129,7 +141,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     .attr("dominant-baseline", "middle")
     .attr("pointer-events", "none")
     .attr("fill", "white")
-    .attr("font-size", 10) 
+    .attr("font-size", 14) 
     .text(d => {
       const label = d.label?.trim();
       if (
@@ -146,13 +158,14 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     // 마우스 호버 시 전체 라벨 tooltip
     nodeGroup
       .append("title")
-      .text(d => d.label);
+      .text(d => d.tooltipUtterances?.join("\n") || d.label);
+
 
     // 마우스오버 강조 효과
     nodeGroup
       .on("mouseover", (_event, d) => {
         const connectedIds = new Set<string>([d.id]);
-        graphData.links.forEach(link => {
+        cleanedGraph.links.forEach(link => {
           const sourceId = typeof link.source === "string" ? link.source : link.source.id;
           const targetId = typeof link.target === "string" ? link.target : link.target.id;
           if (sourceId === d.id || targetId === d.id) {
@@ -176,12 +189,12 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     // 시뮬레이션 tick마다 위치 업데이트
     simulation.on("tick", () => {
       linkElements
-        .attr("x1", d => (typeof d.source === "string" ? 0 : d.source.x!))
-        .attr("y1", d => (typeof d.source === "string" ? 0 : d.source.y!))
-        .attr("x2", d => (typeof d.target === "string" ? 0 : d.target.x!))
-        .attr("y2", d => (typeof d.target === "string" ? 0 : d.target.y!));
+        .attr("x1", d => (typeof d.source === "object" ? d.source.x! : nodeMap.get(d.source)?.x ?? 0))
+        .attr("y1", d => (typeof d.source === "object" ? d.source.y! : nodeMap.get(d.source)?.y ?? 0))
+        .attr("x2", d => (typeof d.target === "object" ? d.target.x! : nodeMap.get(d.target)?.x ?? 0))
+        .attr("y2", d => (typeof d.target === "object" ? d.target.y! : nodeMap.get(d.target)?.y ?? 0));
 
-      nodeGroup.attr("transform", (d: Node) => `translate(${d.x},${d.y})`);
+      nodeGroup.attr("transform", d => `translate(${d.x},${d.y})`);
     });
   }, [graphData]);
 
