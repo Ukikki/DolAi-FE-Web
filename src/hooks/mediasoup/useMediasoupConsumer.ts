@@ -33,7 +33,7 @@ export function useMediasoupConsumer({
   myUserId,
   allowedTags,
 }: Props) {
-  const consumedMap = useRef<Map<string, string>>(new Map()); // key: peerId-mediaTag
+  const consumedMap = useRef<Map<string, string>>(new Map()); 
 
   useEffect(() => {
     if (!socket || !device) return;
