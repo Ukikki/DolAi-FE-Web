@@ -141,6 +141,21 @@ export default function Meetings() {
     console.log("🟡 addStream 호출됨");
     console.log("ADD STREAM", { name, peerId, kind, mediaTag, stream });
 
+    if (kind === "audio" || mediaTag === "mic") {
+      console.log("🔊 오디오 스트림 재생 시도:", stream);
+
+      const audioEl = document.createElement("audio");
+      audioEl.srcObject = stream;
+      audioEl.autoplay = true;
+      audioEl.muted = false;
+      audioEl.volume = 1;
+      audioEl.play().catch((err) => {
+        console.warn("🎧 오디오 재생 실패:", err);
+      });
+
+      document.body.appendChild(audioEl);
+    }
+
     setRemoteStreams((prev) => {
       const key = `${peerId}-${mediaTag}`;
       if (prev.find((s) => `${s.peerId}-${s.mediaTag}` === key)) return prev;
@@ -149,6 +164,8 @@ export default function Meetings() {
       return [...prev, { stream, name, peerId, kind, mediaTag }];
     });
   };
+
+
     // 화면 공유
   const screenStream = remoteStreams.find(s => s.mediaTag === "screen");
 
