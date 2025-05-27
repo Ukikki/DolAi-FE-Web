@@ -24,9 +24,8 @@ export function useMediasoupProducer({
   const sendTransportRef = useRef<any>(null);
   const producerRefs = useRef<Record<string, any>>({});
   const isTransportConnectedRef = useRef(false);
-  const screenProduceLock = useRef(false); // 화면 공유 중복 방지용
+  const screenProduceLock = useRef(false);
 
-  // transport 초기화
   useEffect(() => {
     if (!socket || !device) return;
     let isMounted = true;
@@ -70,16 +69,10 @@ export function useMediasoupProducer({
     };
   }, [socket, device]);
 
-  // Producer 생성 함수
   const createProducer = async (mediaTag: string, constraints: MediaStreamConstraints) => {
     try {
       if (!sendTransportRef.current) {
-        console.warn(`⚠️ sendTransport 준비 안됨`);
-        return;
-      }
-
-      if (producerRefs.current[mediaTag]) {
-        console.warn(`⚠️ 이미 ${mediaTag} producer 있음`);
+        console.warn("❗ sendTransport 없음");
         return;
       }
 
@@ -89,14 +82,9 @@ export function useMediasoupProducer({
       let stream: MediaStream;
       if (mediaTag === "camera") {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            aspectRatio: 16 / 9,
-            width: { ideal: 640 },
-            facingMode: "user",
-          },
+          video: { aspectRatio: 16 / 9, width: { ideal: 640 }, facingMode: "user" },
           audio: false,
         });
-        console.log(`🎥 카메라 stream 생성됨`, stream);
       } else if (mediaTag === "screen") {
         stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
       } else {
@@ -106,8 +94,12 @@ export function useMediasoupProducer({
       const track =
         mediaTag === "mic" ? stream.getAudioTracks()[0] : stream.getVideoTracks()[0];
 
-      if (!track || track.readyState === "ended") {
-        console.warn(`⚠️ ${mediaTag} 트랙이 유효하지 않음`);
+      if (!track) {
+        console.warn(`⚠️ ${mediaTag} 트랙이 없음`);
+        return;
+      }
+      if (track.readyState !== "live" || !track.enabled) {
+        console.warn(`⚠️ ${mediaTag} 트랙이 유효하지 않음`, track);
         return;
       }
 
@@ -123,43 +115,55 @@ export function useMediasoupProducer({
       });
 
       console.log(`📤 producer 생성됨: ${mediaTag}`, producer);
-
       producerRefs.current[mediaTag] = producer;
 
       producer.on("trackended", () => {
         console.log(`🔌 track ended: ${mediaTag}`);
         producer.close();
-        producerRefs.current[mediaTag] = null;
+        delete producerRefs.current[mediaTag];
       });
 
       if (mediaTag === "mic") {
+        // 확인용 audio element 추가
+        const audioEl = document.createElement("audio");
+        audioEl.srcObject = new MediaStream([track]);
+        audioEl.autoplay = true;
+        audioEl.muted = false;
+        audioEl.volume = 1;
+        document.body.appendChild(audioEl);
+
         socket.emit("audio-toggle", { enabled: true });
       }
     } catch (e) {
-      console.error(`❌ produce ${mediaTag} error`, e);
+      console.error(`❌ produce ${mediaTag} 실패`, e);
     } finally {
       if (mediaTag === "screen") screenProduceLock.current = false;
     }
   };
 
-  const toggleProducer = (mediaTag: string, isOn: boolean, constraints: MediaStreamConstraints) => {
-    const producer = producerRefs.current[mediaTag];
+  const toggleProducer = async (mediaTag: string, isOn: boolean, constraints: MediaStreamConstraints) => {
+    const existing = producerRefs.current[mediaTag];
+
+    console.log(`🎛️ toggle: ${mediaTag} | isOn=${isOn} | producer=${!!existing}`);
+
     if (!sendTransportRef.current) return;
 
     if (isOn) {
-      if (producer) {
-        producer.resume();
+      if (!existing || existing.closed) {
+        await createProducer(mediaTag, constraints);
       } else {
-        createProducer(mediaTag, constraints);
+        await existing.resume();
       }
     } else {
-      producer?.pause();
-      if (mediaTag === "mic") socket.emit("audio-toggle", { enabled: false });
+      if (existing && !existing.closed) {
+        await existing.pause();
+        if (mediaTag === "mic") socket.emit("audio-toggle", { enabled: false });
+      }
     }
   };
 
-  useEffect(() => toggleProducer("camera", isCameraOn, { video: true }), [isCameraOn]);
-  useEffect(() => toggleProducer("mic", isMicOn, { audio: true }), [isMicOn]);
-  useEffect(() => toggleProducer("board", isBoardOn, { video: true }), [isBoardOn]);
-  useEffect(() => toggleProducer("screen", isScreenOn, { video: true }), [isScreenOn]);
+  useEffect(() => { toggleProducer("camera", isCameraOn, { video: true }); }, [isCameraOn]);
+  useEffect(() => { toggleProducer("mic", isMicOn, { audio: true }); }, [isMicOn]);
+  useEffect(() => { toggleProducer("board", isBoardOn, { video: true }); }, [isBoardOn]);
+  useEffect(() => { toggleProducer("screen", isScreenOn, { video: true }); }, [isScreenOn]);
 }
