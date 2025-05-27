@@ -46,7 +46,6 @@ export default function Meetings() {
   const { meetingId, inviteUrl } = location.state; // meetingID, 초대 링크, ip 주소 받음
   const roomId = inviteUrl.split("/sfu/")[1];
   const sfuIp = inviteUrl.match(/^https?:\/\/([^:/]+)/)?.[1];
-  const handleLeave = useLeaveMeeting(meetingId);
 
   // 그래프
   const { graph, fetchGraph } = useGraph();
@@ -54,6 +53,9 @@ export default function Meetings() {
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
   const [graphVisible, setGraphVisible] = useState(false); 
   useGraphPolling(meetingId); 
+
+  // 회의 종료
+  const handleLeave = useLeaveMeeting(meetingId, svgRef);
 
   // 돌아이 알림
   const [showDolaiNoti, setShowDolaiNoti] = useState(false);
@@ -351,7 +353,7 @@ export default function Meetings() {
         }}
       >
        {showDolaiNoti && <DolaiNotification />}
-       
+
         <Rnd
           size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
           position={{ x: 0, y: 0 }} // 내부 고정

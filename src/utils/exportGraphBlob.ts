@@ -5,7 +5,7 @@ export const exportGraphBlob = async (
 ): Promise<Blob> => {
   const uri = await svgAsPngUri(svgEl, {
     backgroundColor: "#ffffff",
-    scale: 2,
+    scale: 1,
   });
 
   const res = await fetch(uri);
