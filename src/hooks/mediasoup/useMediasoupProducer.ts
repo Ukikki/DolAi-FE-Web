@@ -145,18 +145,36 @@ export function useMediasoupProducer({
   const toggleProducer = (mediaTag: string, isOn: boolean, constraints: MediaStreamConstraints) => {
     const producer = producerRefs.current[mediaTag];
     if (!sendTransportRef.current) return;
-
+  
     if (isOn) {
       if (producer) {
-        producer.resume();
+        // 마이크 트랙이 중지된 경우 재생 불가하므로 recreate
+        const trackEnded = producer.track?.readyState === "ended";
+        if (trackEnded) {
+          console.warn(`🔄 ${mediaTag} 트랙이 종료되어 재생성`);
+          producer.close();
+          delete producerRefs.current[mediaTag];
+          createProducer(mediaTag, constraints);
+        } else {
+          producer.resume();
+        }
       } else {
         createProducer(mediaTag, constraints);
       }
     } else {
       producer?.pause();
-      if (mediaTag === "mic") socket.emit("audio-toggle", { enabled: false });
+      if (mediaTag === "mic") {
+        socket.emit("audio-toggle", { enabled: false });
+        // 🔐 여기서 트랙 종료 시 producer도 제거
+        if (producer?.track) {
+          producer.track.stop(); // 실제 트랙도 정지
+          producer.close();
+          delete producerRefs.current[mediaTag];
+        }
+      }
     }
   };
+  
 
   useEffect(() => toggleProducer("camera", isCameraOn, { video: true }), [isCameraOn]);
   useEffect(() => toggleProducer("mic", isMicOn, { audio: true }), [isMicOn]);

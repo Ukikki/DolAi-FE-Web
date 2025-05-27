@@ -22,7 +22,8 @@ export const useLeaveMeeting = (meetingId: string, svgRef: RefObject<SVGSVGEleme
       console.log("서버 업로드");
 
       // 회의 종료
-      await axios.patch(`/${meetingId}/end`);
+      await axios.patch(`/meetings/${meetingId}/end`);
+
     } catch (err: any) {
       console.error("회의 종료 실패:", err);
     }
