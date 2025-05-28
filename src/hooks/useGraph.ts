@@ -23,7 +23,7 @@ export const useGraph = () => {
           (e: any) => e.to === n.id && e.type.startsWith("utterance_to_")
         )?.from;
         
-        const type = n.type as NodeType
+        const type = n.type as NodeType;
 
         return {
           ...n,
