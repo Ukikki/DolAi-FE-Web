@@ -5,10 +5,10 @@ function isMeaningfulLabel(label?: string): boolean {
   const trimmed = label?.trim();
   if (!trimmed) return false;
   
-  const shortWords = ["오", "네", "아", "왜", "이", "수", "도",
-              "가", "더", "리", "좀", "나", "안녕", "못", "건", "안", 
-              "건", "의", "내", "여기", "진짜", "부터", "전", "것", "오늘",
-              "를", "뭐", "제", "지금", "거려", "해"
+  if (trimmed.length === 1) return false;
+
+  const shortWords = ["오", "네", "아", "왜", "이", "수", "도", "가", "더", "리", "좀", "나", "안녕", "못", "건", "안", 
+              "건", "의", "내", "여기", "진짜", "부터", "전", "것", "오늘", "를", "뭐", "제", "지금", "거려", "해", "저", "그", ""
           ];
   if (shortWords.includes(trimmed)) return false;
 
@@ -28,7 +28,7 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("텍스트를 입력해") &&
     !trimmed.includes("결과를 알려") &&
     !trimmed.includes("회의가 입력") &&
-    !trimmed.includes("회의가 텍스트가 입력") &&
+    !trimmed.includes("회의 텍스트가 입력") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
     !trimmed.includes("핵심 키워드") 
