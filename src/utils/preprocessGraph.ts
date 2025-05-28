@@ -19,10 +19,17 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("회의 내용 없음") &&
     !trimmed.includes("텍스트를 입력하시면") &&
     !trimmed.includes("텍스트를 입력해") &&
+    !trimmed.includes("결과를 알려") &&
     !trimmed.includes("회의가 입력") &&
+    !trimmed.includes("회의가 텍스트가 입력") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
-    !trimmed.includes("핵심 키워드")
+    !trimmed.includes("핵심 키워드") &&
+    trimmed !== "오" &&
+    trimmed !== "네"&&
+    trimmed !== "아" &&
+    trimmed !== "여기" &&
+    trimmed !== "나"
   );
 }
 
