@@ -102,7 +102,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
       .call(
         d3.drag<SVGGElement, Node>()
           .on("start", (event, d) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
+            if (!event.active) simulation.alphaTarget(0.2).restart();
             d.fx = d.x;
             d.fy = d.y;
           })
@@ -156,7 +156,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
         .append("tspan")
         .text(line)
         .attr("x", 0)
-        .attr("dy", i === 0 ? 0 : "0.6vw");
+        .attr("dy", i === 0 ? "0" : "1.5em");
     });
   });
 
