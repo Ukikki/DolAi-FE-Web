@@ -29,6 +29,7 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("결과를 알려") &&
     !trimmed.includes("회의가 입력") &&
     !trimmed.includes("회의 텍스트가 입력") &&
+    !trimmed.includes("해당 텍스트는") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
     !trimmed.includes("핵심 키워드") 
@@ -41,6 +42,7 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
   // 노드 필터링 (utterances 제외, label 없는 노드 제거, speaker 중복 제거)
   originalData.nodes.forEach(n => {
     if (n.type === "utterances") return;
+    if (n.type === "keywords") return;
     if (!isMeaningfulLabel(n.label)) return;
 
     const isSpeaker = n.id.startsWith("speakers/");
@@ -77,14 +79,14 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
     const sourceId = typeof link.source === "string" ? link.source : link.source.id;
     const targetId = typeof link.target === "string" ? link.target : link.target.id;
 
-    // utterance → keyword/topic 변환
-    if (sourceId.startsWith("utterances/") && (targetId.startsWith("keywords/") || targetId.startsWith("topics/"))) {
+    // 🔥 utterance → topic만 추출
+    if (sourceId.startsWith("utterances/") && targetId.startsWith("topics/")) {
       const utterance = originalData.nodes.find(n => n.id === sourceId);
-      const keywordOrTopic = nodeMap.get(targetId);
-      if (!utterance || !keywordOrTopic) return;
+      const topic = nodeMap.get(targetId);
+      if (!utterance || !topic) return;
 
-      keywordOrTopic.tooltipUtterances = Array.from(
-        new Set([...(keywordOrTopic.tooltipUtterances ?? []), utterance.label])
+      topic.tooltipUtterances = Array.from(
+        new Set([...(topic.tooltipUtterances ?? []), utterance.label])
       );
 
       const parentIds = [
