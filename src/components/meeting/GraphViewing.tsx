@@ -53,13 +53,12 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     const nodeMap = new Map<string, Node>();
     cleanedGraph.nodes.forEach(n => nodeMap.set(n.id, n));
 
-
     const simulation = d3.forceSimulation(cleanedGraph.nodes)
       .force("link", d3.forceLink<Node, Link>(cleanedGraph.links)
         .id(d => d.id)
         .distance(link => {
           // 키워드 ↔ 스피커는 짧고, 미팅 ↔ 키워드는 길게 같은 커스터마이징 가능
-          if (link.type === "meeting_to_speaker_via_utterance") return 140;
+          if (link.type === "meeting_to_speaker_via_utterance") return 180; // 스피커
           else if (link.type.includes("topic")) return 180;
           return 140;
         }))

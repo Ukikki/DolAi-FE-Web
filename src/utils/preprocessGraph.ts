@@ -1,27 +1,32 @@
 import { GraphData, Node, Link } from "@/types/graph";
 
-// D3 그래프에서 utterance 제거하고 tooltip 처리하는 전처리 함수
 export function preprocessGraphData(originalData: GraphData): GraphData {
-  const nodes = originalData.nodes.filter(n => n.type !== "utterances");
-
+  // 1. 중복 제거 + 빈 label 제거 + utterance, 특정 label 제거
   const nodeMap = new Map<string, Node>();
-  originalData.nodes.forEach(n => nodeMap.set(n.id, n));
 
-  // utteranceId -> speakerId / meetingId 추적용
+  for (const n of originalData.nodes) {
+    if (
+      !n.id ||
+      n.type === "utterances" ||
+      n.label === "제시된 단계와" ||
+      !n.label?.trim()
+    ) {
+      continue;
+    }
+
+    // speaker 중복 제거
+    if (n.id.startsWith("speakers/")) {
+      const baseId = n.id.split("(")[0].trim(); // "speakers/xxx (1)" → "speakers/xxx"
+      if (!nodeMap.has(baseId)) {
+        nodeMap.set(baseId, { ...n, id: baseId });
+      }
+    } else {
+      nodeMap.set(n.id, n);
+    }
+  }
+
   const utteranceSpeakerMap = new Map<string, string>();
   const utteranceMeetingMap = new Map<string, string>();
-
-  originalData.links.forEach(link => {
-    const fromId = typeof link.source === "string" ? link.source : link.source.id;
-    const toId = typeof link.target === "string" ? link.target : link.target.id;
-
-    if (link.type === "speaker_to_utterance" || link.type === "utterance_to_speaker") {
-      utteranceSpeakerMap.set(fromId.startsWith("utterances/") ? fromId : toId, fromId.startsWith("speakers/") ? fromId : toId);
-    } else if (link.type === "meeting_to_utterance") {
-      utteranceMeetingMap.set(toId, fromId);
-    }
-  });
-
   const linkSet = new Set<string>();
   const links: Link[] = [];
 
@@ -29,13 +34,12 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
     const sourceId = typeof link.source === "string" ? link.source : link.source.id;
     const targetId = typeof link.target === "string" ? link.target : link.target.id;
 
-    // utterance → keyword/topic 관계만 필터링
+    // utterance → keyword/topic
     if (sourceId.startsWith("utterances/") && (targetId.startsWith("keywords/") || targetId.startsWith("topics/"))) {
-      const utterance = nodeMap.get(sourceId);
+      const utterance = originalData.nodes.find(n => n.id === sourceId);
       const keywordOrTopic = nodeMap.get(targetId);
       if (!utterance || !keywordOrTopic) return;
 
-      // tooltip에 utterance 내용 추가 (중복 제거)
       keywordOrTopic.tooltipUtterances = Array.from(
         new Set([...(keywordOrTopic.tooltipUtterances ?? []), utterance.label])
       );
@@ -48,48 +52,51 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
       for (const pid of parentIds) {
         const key = `${pid}->${targetId}`;
         if (!linkSet.has(key)) {
-          links.push({
-            source: pid!,
-            target: targetId,
-            type: link.type,
-          });
+          links.push({ source: pid!, target: targetId, type: link.type });
           linkSet.add(key);
         }
       }
     }
-    // utterance 관계가 아닌 기존 link는 유지
-    else if (!sourceId.startsWith("utterances/") && !targetId.startsWith("utterances/")) {
-      // speaker 노드 관련 링크만 유지
-      if (
-        sourceId.startsWith("speakers/") ||
-        targetId.startsWith("speakers/") ||
-        sourceId.startsWith("meetings/") ||
-        targetId.startsWith("meetings/") ||
-        sourceId.startsWith("keywords/") ||
-        targetId.startsWith("keywords/") ||
-        sourceId.startsWith("topics/") ||
-        targetId.startsWith("topics/")
-      ) {
-        links.push(link);
-      }
+
+    // 기본 유지 링크
+    else if (
+      !sourceId.startsWith("utterances/") &&
+      !targetId.startsWith("utterances/") &&
+      nodeMap.has(sourceId) &&
+      nodeMap.has(targetId)
+    ) {
+      links.push({ source: sourceId, target: targetId, type: link.type });
+    }
+
+    // utterance 연결 추적용
+    if (link.type === "speaker_to_utterance" || link.type === "utterance_to_speaker") {
+      const utteranceId = sourceId.startsWith("utterances/") ? sourceId : targetId;
+      const speakerId = sourceId.startsWith("speakers/") ? sourceId : targetId;
+      utteranceSpeakerMap.set(utteranceId, speakerId.split("(")[0].trim());
+    } else if (link.type === "meeting_to_utterance") {
+      utteranceMeetingMap.set(targetId, sourceId);
     }
   });
 
-  // meeting ↔ speaker 연결 추가
+  // speaker ↔ meeting 연결
   utteranceSpeakerMap.forEach((speakerId, utteranceId) => {
     const meetingId = utteranceMeetingMap.get(utteranceId);
     if (!meetingId) return;
-
     const key = `${meetingId}->${speakerId}`;
     if (!linkSet.has(key)) {
-      links.push({
-        source: meetingId,
-        target: speakerId,
-        type: "meeting_to_speaker_via_utterance",
-      });
+      links.push({ source: meetingId, target: speakerId, type: "meeting_to_speaker_via_utterance" });
       linkSet.add(key);
     }
   });
 
-  return { nodes, links };
+  // 연결된 노드만 남기기
+  const connectedNodeIds = new Set<string>();
+  links.forEach(link => {
+    connectedNodeIds.add(typeof link.source === "string" ? link.source : link.source.id);
+    connectedNodeIds.add(typeof link.target === "string" ? link.target : link.target.id);
+  });
+
+  const filteredNodes = Array.from(nodeMap.values()).filter(n => connectedNodeIds.has(n.id));
+
+  return { nodes: filteredNodes, links };
 }

@@ -133,12 +133,14 @@ body {
 /* 그래프 영역 */
 .graph-section {
   width: 37.9vw;
+  height: 46.1vw;
   background: white;
   border-radius: 20px;
   text-align: center;
   border: solid 1px #B2B2B2;
   position:relative;
   box-sizing: border-box;
+  overflow: hidden;
 }
 /* 배경 이미지 */
 .login-bg {
