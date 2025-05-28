@@ -259,7 +259,7 @@ export default function Meetings() {
     if (showDolaiNoti) {
       const timer = setTimeout(() => {
         setShowDolaiNoti(false);
-      }, 5000); 
+      }, 4000); 
       return () => clearTimeout(timer);
     }
   }, [showDolaiNoti]);
@@ -363,8 +363,8 @@ export default function Meetings() {
       <div
         style={{
           position: "absolute",
-          left: chatPosition.x,
-          top: chatPosition.y,
+          left: "75vw",
+          top: "4vw",
           zIndex: 9999,
         }}
       >
@@ -491,10 +491,11 @@ export default function Meetings() {
           </div>
 
           {/* 그래프 */}
-          <div className={`graph-container-wrapper ${showGraph ? "slide-in" : "slide-out"}`}>
-            {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
-          </div>
-
+          {showGraph && (
+            <div className="graph-container-wrapper slide-in">
+              {graph && <GraphViewing graphData={graph} svgRef={svgRef} />}
+            </div>
+          )}
 
           {/* 회의록 토글 버튼 */}
           <button className="minutes-toggle-btn" onClick={() => setShowMinutes(prev => !prev)}
@@ -507,7 +508,7 @@ export default function Meetings() {
           {/* 그래프 토글 버튼 */}
           <button className="graph-toggle-btn" onClick={() => setShowGraph(prev => !prev)}
             style={{
-              left: showGraph ? "calc(100vw - 31.3vw)" : "97vw"
+              right: showGraph ? "calc(0.1vw + 31.3vw)" : "1vw"
             }}>
             {showGraph ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>

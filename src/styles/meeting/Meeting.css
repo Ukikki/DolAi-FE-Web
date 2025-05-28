@@ -202,7 +202,7 @@
 .dolai-toggle-icon {
   position: absolute;
   top: 2.1vw;
-  right: 5vw;
+  right: 0;
   width: 3.4vw;
   height: 3.1vw;
   cursor: pointer;
@@ -242,7 +242,7 @@
   right: 0;
   width: 31.3vw;
   height: 45.8vw;
-  transition: transform 0.4s ease, opacity 0.4s ease;
+  transition: transform 0.4s ease, opacity 0.4s ease, max-width 0.4s ease, max-height 0.4s ease, padding 0.4s ease;
   border: 1px solid #EFEFEF;
   background: linear-gradient(135deg,
     rgba(255, 255, 255, 0.4) 0%,
@@ -255,6 +255,7 @@
 .graph-container-wrapper.slide-out {
   transform: translateX(100%);
   opacity: 0;
+  width: 0;
   pointer-events: none;
 }
 
