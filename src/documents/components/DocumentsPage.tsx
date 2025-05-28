@@ -96,6 +96,7 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
         }));
         setFolderList(folders);
         localStorage.setItem("folderList", JSON.stringify(folders));
+        
       })
       .catch((err) => {
         console.error("폴더 불러오기 실패:", err);
@@ -138,32 +139,44 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
     setContextMenuPos(null);
   };
   const handleConfirmAddFolder = () => {
+    
     if (!newFolderName.trim()) {
       setShowAddFolderModal(false);
       return;
     }
+  
     axios
       .post("/directories", {
         name: newFolderName.trim(),
         parentDirectoryId: null,
         type: "PERSONAL",
         meetingId: null,
-        
       })
       .then((res) => {
-        const item = res.data;
-        console.log("📦 /directories 응답 전체:", res);
-        console.log("▶️ res.data:", res.data);
-        setFolderList((prev) => [
-          ...prev,
-          {
-            id: item.directoryId,
-            name: item.name,
-            parentDirectoryId: item.parentDirectoryId?.toString() ?? null,
-            type: "PERSONAL",
-            color: item.color, 
-          },
-        ]);
+        const item = res.data.data;
+        
+        if (!item?.directoryId || !item?.name) {
+          console.error("❗ 폴더 생성 응답 데이터가 잘못되었습니다:", item);
+          return;
+        }
+  
+        const newFolder: Folder = {
+          id: item.directoryId,
+          name: item.name,
+          parentDirectoryId: item.parentDirectoryId?.toString() ?? null,
+          type: "PERSONAL" as const,
+          color: (item.color ?? "blue").toLowerCase(),
+        };
+  
+        // 상태와 localStorage 동기화
+        setFolderList((prev) => {
+          const updated = [...prev, newFolder];
+          localStorage.setItem("folderList", JSON.stringify(updated));
+          return updated;
+        });
+  
+        setSelectedFolderId(item.directoryId);
+        setSearchTerm("");
       })
       .catch((err) => {
         console.error("폴더 추가 실패:", err);
@@ -173,7 +186,7 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
         setNewFolderName("");
       });
   };
-
+  
   // 정렬 변경
   const handleSortChange = (newKey: string, newOrder: string) => {
     setSortKey(newKey as "name");
@@ -284,9 +297,9 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
   }
 
   // 검색 + 정렬
-  const filteredFolders: Folder[] = folderList.filter((f) =>
-    f.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredFolders: Folder[] = folderList
+  .filter((f): f is Folder => !!f && typeof f.name === "string") // ✅ 타입 가드
+  .filter((f) => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const sortedFolders: Folder[] = filteredFolders.slice().sort((a, b) => {
     let compare = 0;
   
@@ -593,3 +606,5 @@ const [sortKey, setSortKey] = useState<SortKey>("name");
     </div>
   );
 }
+
+
