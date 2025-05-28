@@ -455,9 +455,7 @@ export default function Meetings() {
 
           {/* 참가자 영상 */}
           <aside className="video-sidebar">
-          {remoteStreams
-            .filter((streamObj) => streamObj.kind === "video" || streamObj.mediaTag === "camera")
-            .map((streamObj) => (
+            {remoteStreams.map((streamObj, _idx) => (
               <RemoteVideo
                 key={`${streamObj.peerId}-${streamObj.mediaTag}`}
                 stream={streamObj.stream}
