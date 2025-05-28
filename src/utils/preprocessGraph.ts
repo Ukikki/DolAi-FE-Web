@@ -5,7 +5,10 @@ function isMeaningfulLabel(label?: string): boolean {
   const trimmed = label?.trim();
   if (!trimmed) return false;
   
-  const shortWords = ["오", "네", "아", "왜", "이", "수", "도", "가", "더", "리", "좀", "나"];
+  const shortWords = ["오", "네", "아", "왜", "이", "수", "도",
+              "가", "더", "리", "좀", "나", "안녕", "못", "건", "안", 
+              "건", ""
+  ];
   if (shortWords.includes(trimmed)) return false;
 
   return (

@@ -20,7 +20,7 @@ export function getColor(
   // topics, keywords → utterance 기반 색에서 변형
   if ((type === "topics" || type === "keywords") && parentId && ColorMap.has(parentId)) {
     const base = ColorMap.get(parentId)!;
-    return base.brighten(0.3 + Math.random() * 0.3).saturate(0.3 + Math.random() * 0.3).hex();
+    return base.darken(0.3 + Math.random() * 0.3).brighten(0.2 + Math.random() * 0.3).saturate(0.3 + Math.random() * 0.3).hex();
   }
 
   // speakers, meetings, fallback
