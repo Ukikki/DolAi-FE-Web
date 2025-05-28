@@ -141,18 +141,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     .attr("pointer-events", "none")
     .attr("fill", "white")
     .attr("font-size", 14) 
-    .text(d => {
-      const label = d.label?.trim();
-      if (
-        !label ||
-        label.toLowerCase() === "null" ||
-        label.includes("응답하지") ||
-        label.includes("답변하지") ||
-        label.includes("(")
-      ) return "";
-  
-      return label.length > 12 ? label.slice(0, 12) + "..." : label;
-    });
+    .text(d => d.label ?? "");
 
     // 마우스 호버 시 전체 라벨 tooltip
     nodeGroup

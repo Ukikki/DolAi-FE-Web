@@ -1,32 +1,58 @@
 import { GraphData, Node, Link } from "@/types/graph";
 
+// 라벨 유효성 검사 함수
+function isMeaningfulLabel(label?: string): boolean {
+  const trimmed = label?.trim();
+  if (!trimmed) return false;
+
+  return (
+    trimmed.toLowerCase() !== "null" &&
+    !trimmed.includes("응답하지") &&
+    !trimmed.includes("답변하지") &&
+    !trimmed.includes("아무것도") &&
+    !trimmed.includes("않았습니다.") &&
+    !trimmed.includes("텍스트 추출") &&
+    !trimmed.includes("Thank you") &&
+    !trimmed.includes("Bye") &&
+    !trimmed.includes("핵심 키워드")
+  );
+}
+
 export function preprocessGraphData(originalData: GraphData): GraphData {
-  // 1. 중복 제거 + 빈 label 제거 + utterance, 특정 label 제거
   const nodeMap = new Map<string, Node>();
 
-  for (const n of originalData.nodes) {
-    if (
-      !n.id ||
-      n.type === "utterances" ||
-      n.label === "제시된 단계와" ||
-      !n.label?.trim()
-    ) {
-      continue;
-    }
+  // 노드 필터링 (utterances 제외, label 없는 노드 제거, speaker 중복 제거)
+  originalData.nodes.forEach(n => {
+    if (n.type === "utterances") return;
+    if (!isMeaningfulLabel(n.label)) return;
 
-    // speaker 중복 제거
-    if (n.id.startsWith("speakers/")) {
-      const baseId = n.id.split("(")[0].trim(); // "speakers/xxx (1)" → "speakers/xxx"
-      if (!nodeMap.has(baseId)) {
-        nodeMap.set(baseId, { ...n, id: baseId });
-      }
-    } else {
-      nodeMap.set(n.id, n);
-    }
-  }
+    const isSpeaker = n.id.startsWith("speakers/");
+    const baseId = isSpeaker ? n.id.split("(")[0].trim() : n.id;
 
+    if (!nodeMap.has(baseId)) {
+      nodeMap.set(baseId, { ...n, id: baseId });
+    }
+  });
+
+  // utterance 관계 맵
   const utteranceSpeakerMap = new Map<string, string>();
   const utteranceMeetingMap = new Map<string, string>();
+
+  originalData.links.forEach(link => {
+    const fromId = typeof link.source === "string" ? link.source : link.source.id;
+    const toId = typeof link.target === "string" ? link.target : link.target.id;
+
+    if (link.type === "speaker_to_utterance" || link.type === "utterance_to_speaker") {
+      const utteranceId = fromId.startsWith("utterances/") ? fromId : toId;
+      const rawSpeakerId = fromId.startsWith("speakers/") ? fromId : toId;
+      const speakerId = rawSpeakerId.split("(")[0].trim();
+      utteranceSpeakerMap.set(utteranceId, speakerId);
+    } else if (link.type === "meeting_to_utterance") {
+      utteranceMeetingMap.set(toId, fromId);
+    }
+  });
+
+  // 링크 구성
   const linkSet = new Set<string>();
   const links: Link[] = [];
 
@@ -34,7 +60,7 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
     const sourceId = typeof link.source === "string" ? link.source : link.source.id;
     const targetId = typeof link.target === "string" ? link.target : link.target.id;
 
-    // utterance → keyword/topic
+    // utterance → keyword/topic 변환
     if (sourceId.startsWith("utterances/") && (targetId.startsWith("keywords/") || targetId.startsWith("topics/"))) {
       const utterance = originalData.nodes.find(n => n.id === sourceId);
       const keywordOrTopic = nodeMap.get(targetId);
@@ -58,7 +84,7 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
       }
     }
 
-    // 기본 유지 링크
+    // 일반 링크 유지
     else if (
       !sourceId.startsWith("utterances/") &&
       !targetId.startsWith("utterances/") &&
@@ -67,18 +93,9 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
     ) {
       links.push({ source: sourceId, target: targetId, type: link.type });
     }
-
-    // utterance 연결 추적용
-    if (link.type === "speaker_to_utterance" || link.type === "utterance_to_speaker") {
-      const utteranceId = sourceId.startsWith("utterances/") ? sourceId : targetId;
-      const speakerId = sourceId.startsWith("speakers/") ? sourceId : targetId;
-      utteranceSpeakerMap.set(utteranceId, speakerId.split("(")[0].trim());
-    } else if (link.type === "meeting_to_utterance") {
-      utteranceMeetingMap.set(targetId, sourceId);
-    }
   });
 
-  // speaker ↔ meeting 연결
+  // meeting ↔ speaker 연결 추가
   utteranceSpeakerMap.forEach((speakerId, utteranceId) => {
     const meetingId = utteranceMeetingMap.get(utteranceId);
     if (!meetingId) return;
@@ -89,14 +106,16 @@ export function preprocessGraphData(originalData: GraphData): GraphData {
     }
   });
 
-  // 연결된 노드만 남기기
+  // 고아 노드 제거
   const connectedNodeIds = new Set<string>();
   links.forEach(link => {
-    connectedNodeIds.add(typeof link.source === "string" ? link.source : link.source.id);
-    connectedNodeIds.add(typeof link.target === "string" ? link.target : link.target.id);
+    const s = typeof link.source === "string" ? link.source : link.source.id;
+    const t = typeof link.target === "string" ? link.target : link.target.id;
+    connectedNodeIds.add(s);
+    connectedNodeIds.add(t);
   });
 
-  const filteredNodes = Array.from(nodeMap.values()).filter(n => connectedNodeIds.has(n.id));
+  const filteredNodes = Array.from(nodeMap.values());
 
   return { nodes: filteredNodes, links };
 }
