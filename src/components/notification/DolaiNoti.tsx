@@ -32,7 +32,7 @@ export default function DolaiNotification() {
     <div className="dolai-noti-container">
       <div className="dolai-noti-bubble">
         <X className="dolai-noti-close" onClick={() => setVisible(false)} />
-        <span className="dolai-noti-text">지피티야 죽어 님에게 할 일이 추가되었습니다.</span>
+        <span className="dolai-noti-text">{message}</span>
         <div className="dolai-noti-tail" />
       </div>
     </div>
