@@ -141,7 +141,24 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     .attr("pointer-events", "none")
     .attr("fill", "white")
     .attr("font-size", 14) 
-    .text(d => d.label ?? "");
+  .each(function (d) {
+    const label = d.label?.trim() ?? "";
+    const maxChars = 10;
+    const words = [];
+
+    for (let i = 0; i < label.length; i += maxChars) {
+      words.push(label.slice(i, i + maxChars));
+    }
+
+    const textEl = d3.select(this);
+    words.forEach((line, i) => {
+      textEl
+        .append("tspan")
+        .text(line)
+        .attr("x", 0)
+        .attr("dy", i === 0 ? 0 : "0.6vw");
+    });
+  });
 
     // 마우스 호버 시 전체 라벨 tooltip
     nodeGroup

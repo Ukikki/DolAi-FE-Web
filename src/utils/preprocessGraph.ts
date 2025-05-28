@@ -12,6 +12,10 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("아무것도") &&
     !trimmed.includes("않았습니다.") &&
     !trimmed.includes("텍스트 추출") &&
+    !trimmed.includes("키워드 없음") &&
+    !trimmed.includes("키워드를 추출") &&
+    !trimmed.includes("없습니다.") &&
+    !trimmed.includes("회의 내용 없음") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
     !trimmed.includes("핵심 키워드")
