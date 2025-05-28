@@ -143,7 +143,7 @@ const GraphViewing: React.FC<Props> = ({ graphData, svgRef }) => {
     .attr("font-size", 14) 
   .each(function (d) {
     const label = d.label?.trim() ?? "";
-    const maxChars = 10;
+    const maxChars = 8;
     const words = [];
 
     for (let i = 0; i < label.length; i += maxChars) {
