@@ -53,7 +53,7 @@ export default function Meetings() {
   const { graph, fetchGraph } = useGraph();
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
-  useGraphPolling(meetingId); 
+  useGraphPolling(meetingId, fetchGraph);
 
   // 돌아이 알림
   const [showDolaiNoti, setShowDolaiNoti] = useState(false);
