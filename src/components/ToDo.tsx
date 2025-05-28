@@ -153,63 +153,58 @@ export const ToDoList: React.FC<ToDoListProps> = ({
 export const useTodoList = () => {
   const [todos, setTodos] = useState<ToDoProps[]>([]);
 
-  // 로컬 ISO 포맷
   const getCurrentLocalIso = () => {
     const now = new Date();
     const offset = now.getTimezoneOffset();
-    return new Date(now.getTime() - offset*60000)
+    return new Date(now.getTime() - offset * 60000)
       .toISOString()
-      .slice(0,19);
+      .slice(0, 19);
   };
 
-  // 마운트 시 서버 GET → 정확히 매핑
+  // ✅ 1. fetchTodos 함수로 분리
+  const fetchTodos = async () => {
+    const token = localStorage.getItem("jwt");
+    if (!token) return;
+
+    try {
+      const res = await axios.get<{
+        data: Array<{ id: number; title: string; status: string; dueDate?: string }>;
+      }>("/todo");
+
+      const mapped = res.data.data.map((item) => {
+        const raw = item.status.toUpperCase();
+        const status: ToDoProps["status"] =
+          raw === "IN_PROGRESS" ? "IN_PROGRESS" :
+          raw === "COMPLETED" || raw === "DONE" ? "COMPLETED" :
+          "PENDING";
+
+        return {
+          id: item.id,
+          task: item.title,
+          time: item.dueDate?.replace("T", " ").slice(0, 16) ?? "",
+          status,
+        };
+      });
+
+      setTodos(mapped);
+    } catch (err) {
+      console.error("할 일 목록 로드 실패:", err);
+    }
+  };
+
+  // ✅ 2. 마운트 시 한번 실행
   useEffect(() => {
-    const token = localStorage.getItem("jwt"); // ✅ 로그인 여부 판단
-    if (!token) return; // ❗로그인 안 했으면 요청 안 함
-
-    axios
-      .get<{ data: Array<{ id:number; title:string; status:string; dueDate?:string }> }>("/todo")
-      .then(res => {
-        const mapped = res.data.data.map(item => {
-          // 1) 대소문자 구분 없이 비교하기 위해 항상 대문자로 바꿔줍니다.
-          const raw = item.status.toUpperCase();
-  
-          let status: ToDoProps["status"];
-          if (raw === "IN_PROGRESS") {
-            status = "IN_PROGRESS";
-          } else if (raw === "COMPLETED" || raw === "DONE") {
-            status = "COMPLETED";
-          } else {
-            status = "PENDING";
-          }
-
-          return {
-            id:     item.id,
-            task:   item.title,
-            time:   item.dueDate?.replace("T"," ").slice(0,16) ?? "",
-            status,
-          };
-        });
-  
-        setTodos(mapped);
-      })
-      .catch(err => console.error("할 일 목록 로드 실패:", err));
+    fetchTodos();
   }, []);
 
+  // ✅ 3. 할 일 추가 후 새로 불러오기
   const addTodo = async (task: string, time: string) => {
     try {
       const payload: any = { title: task };
       payload.dueDate = time ? `${time}:00` : getCurrentLocalIso();
-      const res = await axios.post<{ data:{ id:number } }>("/todo", payload);
-      setTodos(prev => [
-        ...prev,
-        {
-          id:     res.data.data.id,
-          task,
-          time:   payload.dueDate.replace("T"," ").slice(0,16),
-          status: "PENDING",
-        }
-      ]);
+      await axios.post<{ data: { id: number } }>("/todo", payload);
+
+      await fetchTodos(); // 🔄 추가 후 다시 로딩
     } catch (err) {
       console.error("할 일 추가 실패:", err);
     }
@@ -218,17 +213,18 @@ export const useTodoList = () => {
   const deleteTodo = async (id: number) => {
     try {
       await axios.delete(`/todo/${id}`);
-      setTodos(prev => prev.filter(t => t.id !== id));
+      setTodos((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error("할 일 삭제 실패:", err);
     }
   };
 
   const updateStatus = (id: number, newStatus: ToDoProps["status"]) => {
-    setTodos(prev =>
-      prev.map(t => t.id === id ? { ...t, status: newStatus } : t)
+    setTodos((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
     );
   };
 
   return { todos, addTodo, deleteTodo, updateStatus };
 };
+

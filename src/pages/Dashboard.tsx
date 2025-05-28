@@ -110,23 +110,23 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
               <p className="left-panel-title">최근 회의</p>
             </div>
             {recentMeetings.length === 0 ? (
-              <p>최근 회의가 없습니다.</p>
+                <p>최근 회의가 없습니다.</p>
             ) : (
-              recentMeetings.map((meeting) => (
-                <Card key={meeting.meetingId} onClick={() => navigate(`/folder/${meeting.directoryId}`)}>
-                  <div className="meeting-content">
-                    <span className="meeting-title">{meeting.title}</span>
-                    <span className="meeting-date">
-                      {new Date(meeting.startTime).toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </Card>
-              ))
-            )}
+              recentMeetings.map((meeting, index) => (
+              <Card key={meeting.meetingId ?? `meeting-${index}`} onClick={() => navigate(`/folder/${meeting.directoryId}`)}>
+                   <div className="meeting-content">
+                       <span className="meeting-title">{meeting.title}</span>
+                        <span className="meeting-date">
+                          {new Date(meeting.startTime).toLocaleDateString("ko-KR", {
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "2-digit",
+                       })}
+                        </span>
+                    </div>
+              </Card>
+                     ))
+              )}
           </div>
 
           {/* 좌측 패널 (To Do 리스트) */}
