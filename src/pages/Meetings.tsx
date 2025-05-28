@@ -455,14 +455,18 @@ export default function Meetings() {
 
           {/* 참가자 영상 */}
           <aside className="video-sidebar">
-            {remoteStreams.map((streamObj, _idx) => (
-              <RemoteVideo
-                key={`${streamObj.peerId}-${streamObj.mediaTag}`}
-                stream={streamObj.stream}
-                name={streamObj.name}
-              />
-            ))}
-          </aside>
+  {[...new Map(
+    remoteStreams
+      .filter((s) => s.kind === "video" || s.mediaTag === "camera") // 비디오만 필터링
+      .map((s) => [s.peerId, s]) // peerId 기준 중복 제거
+  ).values()].map((streamObj) => (
+    <RemoteVideo
+      key={`${streamObj.peerId}-${streamObj.mediaTag}`}
+      stream={streamObj.stream}
+      name={streamObj.name}
+    />
+  ))}
+</aside>
 
           {/* 회의록 */}
           <div className={`minutes-container-wrapper ${showMinutes ? "slide-in" : "slide-out"}`}>
