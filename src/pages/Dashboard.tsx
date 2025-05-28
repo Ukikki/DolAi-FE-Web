@@ -152,13 +152,13 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
               <GraphView />
             )
           ) : (
-            <div className="login-container">
+            <>
               <img src="./images/login_bg.png" alt="login bg" className="login-bg" />
               <div className="login-form">
-                <button className="login-btn" onClick={() => redirectToSocialAuth('kakao')} />
-                <button className="login-btn2" onClick={() => redirectToSocialAuth('google')} />
+                <button className="login-btn" onClick={() => redirectToSocialAuth("kakao")} />
+                <button className="login-btn2" onClick={() => redirectToSocialAuth("google")} />
               </div>
-            </div>
+            </>
           )}
         </section>
 
