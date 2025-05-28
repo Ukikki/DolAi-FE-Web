@@ -1,6 +1,6 @@
 import { Camera, CameraOff, Mic, MicOff, UserPlus, MonitorUp, MessageSquareText, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "@/styles/meeting/Meeting.css";
 import "@/components/dolai/ChatDolai.css";
 import FriendInvite from "@/components/meeting/FriendInvite";
@@ -27,6 +27,9 @@ import DolaiNotification from "@/components/notification/DolaiNoti";
 
 
 export default function Meetings() {
+
+
+  const navigate = useNavigate(); 
   // --- 미디어 토글 상태 ---
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
@@ -51,9 +54,6 @@ export default function Meetings() {
   const [showGraph, setShowGraph] = useState(false); // 그래프 버튼 상태
   const svgRef = useRef<SVGSVGElement | null>(null); // 그래프 저장용
   useGraphPolling(meetingId); 
-
-  // 회의 종료
-  const handleLeave = useLeaveMeeting(meetingId, svgRef);
 
   // 돌아이 알림
   const [showDolaiNoti, setShowDolaiNoti] = useState(false);
@@ -169,6 +169,31 @@ export default function Meetings() {
 
   // ─── 1) mediasoup 소켓 연결 & joinRoom ───
   const connectRoom = useMediasoupSocket(roomId, sfuIp, meetingId, user?.name || "익명", user?.id!); 
+
+  // 회의 종료
+  const handleLeave = useLeaveMeeting(meetingId, svgRef, connectRoom?.socket);
+
+  useEffect(() => {
+    if (!connectRoom?.socket) return;
+  
+    const socket = connectRoom.socket;
+  
+    console.log("📌 socket.id for force-leave listener:", socket.id);
+  
+    const handleForceLeave = ({ reason }: { reason: string }) => {
+      console.log("🛑 force-leave 수신됨", reason);
+      alert(reason);
+      navigate("/documents");
+    };
+  
+    socket.on("force-leave", handleForceLeave);
+  
+    return () => {
+      socket.off("force-leave", handleForceLeave);
+    };
+  }, [connectRoom?.socket?.id]);
+  
+  
 
   useMediasoupProducer({ socket: connectRoom?.socket!, device: connectRoom?.device!, videoRef, isCameraOn, isMicOn, isBoardOn, isScreenOn });
   useMediasoupConsumer({ socket: connectRoom?.socket!, device: connectRoom?.device!, onStream: addStream, myUserId: user?.id!, allowedTags: ["camera", "mic", "board", "screen"] });
