@@ -4,6 +4,9 @@ import { GraphData, Node, Link } from "@/types/graph";
 function isMeaningfulLabel(label?: string): boolean {
   const trimmed = label?.trim();
   if (!trimmed) return false;
+  
+  const shortWords = ["오", "네", "아", "왜", "이", "수", "도", "가", "더", "리", "좀", "나"];
+  if (shortWords.includes(trimmed)) return false;
 
   return (
     trimmed.toLowerCase() !== "null" &&
@@ -24,12 +27,7 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("회의가 텍스트가 입력") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
-    !trimmed.includes("핵심 키워드") &&
-    trimmed !== "오" &&
-    trimmed !== "네"&&
-    trimmed !== "아" &&
-    trimmed !== "여기" &&
-    trimmed !== "나"
+    !trimmed.includes("핵심 키워드") 
   );
 }
 
