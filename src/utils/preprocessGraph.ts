@@ -29,6 +29,8 @@ function isMeaningfulLabel(label?: string): boolean {
     !trimmed.includes("결과를 알려") &&
     !trimmed.includes("회의가 입력") &&
     !trimmed.includes("회의 텍스트가 입력") &&
+    !trimmed.includes("처리할 텍스트가") &&
+    !trimmed.includes("제공된 텍스트가") &&
     !trimmed.includes("해당 텍스트는") &&
     !trimmed.includes("Thank you") &&
     !trimmed.includes("Bye") &&
