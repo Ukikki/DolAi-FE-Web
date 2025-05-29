@@ -7,7 +7,7 @@ interface NodeDatum extends d3.SimulationNodeDatum {
   label: string;
   color: string;
   size: number;
-  type: "main" | "sub" | "content";
+  type: "main" | "sub" | "content" | "team";
 }
 
 interface LinkDatum extends d3.SimulationLinkDatum<NodeDatum> {
@@ -41,36 +41,97 @@ const GraphView = () => {
 
     svg.selectAll("*").remove();
 
-    // ---- 이하 그래프 코드 동일 ----
-    const sizeMap: Record<"main" | "sub" | "content", number> = {
-      main: 70,
-      sub: 50,
+    const sizeMap: Record<"main" | "sub" | "content" | "team", number> = {
+      main: 65,
+      sub: 45,
       content: 35,
+      team: 45,
     };
 
-    const nodes: NodeDatum[] = [
-      { id: "main1", label: "AI 서비스", type: "main", color: getColor("utterances", "main1"), size: sizeMap.main },
-      { id: "sub1", label: "STT", type: "sub", color: getColor("topics", "sub1"), size: sizeMap.sub },
-      { id: "sub2", label: "API", type: "sub", color: getColor("topics", "sub2"), size: sizeMap.sub },
-      { id: "msg1", label: "OpenAI\\nWhisper", type: "content", color:  getColor("keywords", "sub1"), size: sizeMap.content },
-      { id: "msg2", label: "Azure\\nTranslator", type: "content", color: getColor("keywords", "sub1"), size: sizeMap.content },
-      { id: "msg3", label: "Gemini", type: "content", color:  getColor("keywords", "main1"), size: sizeMap.content },
-      { id: "msg4", label: "헬로", type: "content", color:  getColor("keywords", "main1"), size: sizeMap.content }
-    ];
+  const nodes: NodeDatum[] = [
+    // Main
+    { id: "main1", label: "Dolai", type: "main", color: getColor("utterances", "main1"), size: sizeMap.main },
+
+    // Sub
+    { id: "sub1", label: "Frontend", type: "sub", color: getColor("topics", "sub1"), size: sizeMap.sub },
+    { id: "sub2", label: "SFU", type: "sub", color: getColor("topics", "sub2"), size: sizeMap.sub },
+    { id: "sub3", label: "STT / AI", type: "sub", color: getColor("topics", "sub3"), size: sizeMap.sub },
+    { id: "sub4", label: "Backend", type: "sub", color: getColor("topics", "sub4"), size: sizeMap.sub },
+
+
+    // sub1 - Frontend
+    { id: "msg1", label: "React", type: "content", color: getColor("keywords", "sub1"), size: sizeMap.content },
+    { id: "msg4", label: "D3.js", type: "content", color: getColor("keywords", "sub1"), size: sizeMap.content },
+    { id: "msg6", label: "Tldraw", type: "content", color: getColor("keywords", "sub1"), size: sizeMap.content },
+
+    // sub2 - SFU
+    { id: "msg7", label: "WebRTC", type: "content", color: getColor("keywords", "sub2"), size: sizeMap.content },
+    { id: "msg8", label: "Mediasoup", type: "content", color: getColor("keywords", "sub2"), size: sizeMap.content },
+    { id: "msg9", label: "TURN\\nServer", type: "content", color: getColor("keywords", "sub2"), size: sizeMap.content },
+
+    // sub3 - STT / AI
+    { id: "msg10", label: "OpenAI\\nWhisper", type: "content", color: getColor("keywords", "sub3"), size: sizeMap.content },
+    { id: "msg11", label: "Azure\\nTranslator", type: "content", color: getColor("keywords", "sub3"), size: sizeMap.content },
+    { id: "msg12", label: "Gemini\\nLLM", type: "content", color: getColor("keywords", "sub3"), size: sizeMap.content },
+
+    // sub4 - Backend
+    { id: "msg13", label: "Spring\\nBoot", type: "content", color: getColor("keywords", "sub4"), size: sizeMap.content },
+
+    // Database
+    { id: "sub6", label: "Database", type: "sub", color: getColor("topics", "sub6"), size: sizeMap.sub },
+    { id: "msg19", label: "MySQL", type: "content", color: getColor("keywords", "sub6"), size: sizeMap.content },
+    { id: "msg20", label: "Redis", type: "content", color: getColor("keywords", "sub6"), size: sizeMap.content },
+    { id: "msg21", label: "ArangoDB", type: "content", color: getColor("keywords", "sub6"), size: sizeMap.content },
+
+    // Team
+    { id: "team1", label: "송희", type: "team", color: getColor("speakers", "송희"), size: sizeMap.team },
+    { id: "team2", label: "성현", type: "team", color: getColor("speakers", "성현"), size: sizeMap.team },
+    { id: "team3", label: "지운", type: "team", color: getColor("speakers", "지운"), size: sizeMap.team },
+    { id: "team4", label: "지혜", type: "team", color: getColor("speakers", "지혜"), size: sizeMap.team },
+  ];
+
 
     const links: LinkDatum[] = [
+      // Main → Sub
       { source: "main1", target: "sub1" },
       { source: "main1", target: "sub2" },
+      { source: "main1", target: "sub3" },
+      { source: "main1", target: "sub4" },
+      { source: "main1", target: "sub6" },
+
+      // Sub → Content
       { source: "sub1", target: "msg1" },
-      { source: "sub1", target: "msg2" },
-      { source: "main1", target: "msg3" },
-      { source: "main1", target: "msg4" },
+      { source: "sub1", target: "msg4" },
+      { source: "sub1", target: "msg6" },
+      { source: "sub1", target: "msg7" },
+
+      { source: "sub2", target: "msg8" },
+      { source: "sub2", target: "msg9" },
+
+      { source: "sub3", target: "msg10" },
+      { source: "sub3", target: "msg11" },
+      { source: "sub3", target: "msg12" },
+      { source: "sub4", target: "msg13" },
+
+      { source: "sub6", target: "msg19" },
+      { source: "sub6", target: "msg20" },
+      { source: "sub6", target: "msg21" },
+
+      // 팀원 → 담당
+      { source: "team1", target: "sub1" }, // 송희 → Frontend
+      { source: "team2", target: "sub1" }, // 성현 → Frontend
+      { source: "team3", target: "sub2" }, // 지운 → SFU
+      { source: "team3", target: "sub4" }, // 지운 → Backend
+      { source: "team3", target: "sub6" }, // 지운 → Database
+      { source: "team4", target: "sub3" }, // 지혜 → STT/AI
+      { source: "team4", target: "sub4" }, // 지혜 → Backend
+      { source: "team4", target: "sub6" }, // 지혜 → Database
     ];
 
     const simulation = d3
       .forceSimulation<NodeDatum>(nodes)
-      .force("link", d3.forceLink<NodeDatum, LinkDatum>(links).id((d) => d.id).distance(200).strength(1))
-      .force("charge", d3.forceManyBody().strength(-300))
+      .force("link", d3.forceLink<NodeDatum, LinkDatum>(links).id((d) => d.id).distance(100).strength(1))
+      .force("charge", d3.forceManyBody().strength(-210))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide<NodeDatum>().radius(d => d.size + 10))
       .alphaDecay(0.015);
@@ -96,7 +157,6 @@ const GraphView = () => {
       .append("line")
       .attr("stroke", "#ccc")
       .attr("stroke-width", 2)
-      .attr("marker-end", "url(#arrow)");
 
     const nodeElements = nodeGroup.selectAll<SVGGElement, NodeDatum>("g")
       .data(nodes)
@@ -139,7 +199,7 @@ const GraphView = () => {
       .attr("font-size", function () {
         const group = this.parentNode as SVGGElement;
         const datum = d3.select(group).datum() as NodeDatum;
-        const map = { main: "24px", sub: "20px", content: "14px" };
+        const map = { main: "24px", sub: "20px", content: "14px", team: "22px"};
         return map[datum.type];
       })
       .attr("fill", "#fff")
