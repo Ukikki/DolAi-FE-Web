@@ -127,8 +127,26 @@ body {
     color: #007bff;
   }
 }
+.todo-scroll-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vh; /* 카드 사이 간격 */
+}
+/* ToDo 카드 스타일 (예: ToDoList 내부) */
+.todo-card {
+  width: 90%; /* 또는 적당한 너비 */
+  margin-bottom: 1vh;
+  flex-shrink: 0; /* ✅ 카드 줄어들지 않게 */
+}
 
-
+.todo-scroll-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
 
 
 /* 그래프 영역 */

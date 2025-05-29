@@ -37,8 +37,7 @@
   align-items: center;
   transition: transform 0.2s ease-in-out;
 
-  /* 내용이 넘칠 때 세로 스크롤바 표시 */
-  overflow-y: auto;
+  
   /* 가로 스크롤 숨기기 */
   overflow-x: hidden;
 }

@@ -131,7 +131,8 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
 
           {/* 좌측 패널 (To Do 리스트) */}
           <div className="left-panel">
-            <p>To Do</p>
+          <p>To Do</p>
+          <div className="todo-scroll-wrapper">
             {todos.map((todo) => (
               <ToDoList
                 key={todo.id}
@@ -141,6 +142,9 @@ export default function Dashboard({ selected, navigate }: DashboardProps) {
               />
             ))}
           </div>
+        </div>
+
+
         </aside>
 
         {/* 그래프 영역 */}
