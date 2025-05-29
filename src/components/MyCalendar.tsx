@@ -15,15 +15,15 @@ interface CalendarProps {
 }
 
 const statusToImage: Record<string, string> = {
-  RESERVED: "scheduled.png",
-  IN_PROGRESS: "ongoing.png",
+  SCHEDULED: "scheduled.png",
+  ONGOING: "ongoing.png",
   ENDED: "ended.png",
 };
 
 const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { user } = useUser();
-
+  
   // 다이얼로그
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('tab1');
@@ -145,6 +145,7 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) =>
             const dots = Array(Math.min(count, 3)).fill(0).map((_, i) => (
               <div key={i} className={`dot dot-${i + 1}`} />
             ));
+            
             return <>
               <div className="calendar-day">{date.getDate()}</div>
               {dots}
@@ -155,45 +156,46 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) =>
       </div>
 
       {selectedDate && (
-  <div className="event-container">
-  {dailyEvents.length === 0
-    ? null
-    : [...dailyEvents]
-        .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-        .map((event, index) => (
-          <div
-            key={index}
-            className="event-card"
-            onClick={() => handleCardClick(event.id)}
-          >
-            <div className="event-content">
-              <span className="todo-time">{formatTime(parseLocalDate(event.start))}</span>
-              <span className="meeting-title">{event.title}</span>
-            </div>
+        <div className="event-container">
+          {dailyEvents.length === 0
+        ? null
+        : [...dailyEvents]
+            .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+            .map((event, index) => {
+              return (
+                <div
+                  key={index}
+                  className="event-card"
+                  onClick={() => handleCardClick(event.id)}
+                >
+                  <div className="event-content">
+                    <span className="todo-time">{formatTime(parseLocalDate(event.start))}</span>
+                    <span className="meeting-title">{event.title}</span>
+                  </div>
 
-            {/* ✅ 이미지 + X 버튼 묶기 */}
-            <div className="event-actions">
-              {event.status && (
-                <img
-                  src={`/images/${statusToImage[event.status]}`}
-                  alt={event.status}
-                  className="event-status-icon"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
-              <X
-                className="event-delete-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteMeeting(event.id, selectedDate!);
-                }}
-              />
-            </div>
-          </div>
-        ))}
-</div>
-
-)}
+                  {/* ✅ 이미지 + X 버튼 묶기 */}
+                  <div className="event-actions">
+                    {event.status && (
+                      <img
+                      src={`/images/${statusToImage[(event.status)]}`}
+                        alt={event.status}
+                        className="event-status-icon"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                    <X
+                      className="event-delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteMeeting(event.id, selectedDate!);
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+      </div>
+      )}
 
 
       {isDialogOpen && (
