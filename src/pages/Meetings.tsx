@@ -200,7 +200,10 @@ export default function Meetings() {
 
   // --- DolAi 채팅창 열림 상태 & 크기/위치 ---
   const [isDolAiOpen, setIsDolAiOpen] = useState(false);
-  const [chatPosition, setChatPosition] = useState({ x:  1500, y: 80 });   //Leave 밑에 돌아이 처음위치 100%->1500, 80%->2000
+  const [chatPosition, setChatPosition] = useState(() => ({
+    x: window.innerWidth - 360, // 항상 오른쪽 여백 확보
+    y: 80,
+  }));
   const [chatSize, setChatSize] = useState({ width: 320, height: 450 });
 
   // --- 카메라 on/off 효과 ---
@@ -360,53 +363,37 @@ export default function Meetings() {
         </nav>
       </header>
 
-      <div
+      {showDolaiNoti && <DolaiNotification />}
+
+      <Rnd
+        size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
+        position={chatPosition} 
+        enableResizing={isDolAiOpen}
+        onResizeStop={(_, __, ref, ___, pos) => {
+          setChatSize({ width: ref.offsetWidth, height: ref.offsetHeight });
+          setChatPosition(pos); 
+        }}
+        onDragStop={(_, data) => {
+          setChatPosition({ x: data.x, y: data.y });
+        }}
         style={{
-          position: "absolute",
-          left: "75vw",
-          top: "4vw",
+          position: "fixed", // 화면 기준으로 떠 있게
           zIndex: 9999,
+          transition: "height 0.3s ease",
+          overflow: "visible",
+          padding: "20px",
         }}
       >
-       {showDolaiNoti && <DolaiNotification />}
-
-        <Rnd
-          size={{ width: chatSize.width, height: isDolAiOpen ? chatSize.height : 59 }}
-          position={{ x: 0, y: 0 }} // 내부 고정
-          enableResizing={isDolAiOpen}
-          onResizeStop={(_, __, ref, ___, pos) => {
-            setChatSize({ width: ref.offsetWidth, height: ref.offsetHeight })
-            setChatPosition({
-              x: chatPosition.x + pos.x,
-              y: chatPosition.y + pos.y,
-            })
-          }}
-          onDragStop={(_, data) => {
-            setChatPosition({
-              x: chatPosition.x + data.x,
-              y: chatPosition.y + data.y,
-            })
-          }}
-          style={{
-            transition: "height 0.3s ease",
-            overflow: "visible",
-            padding: "20px"
-          }}
-        >
-          <div style={{ position: "relative", width: "100%", height: "100%" }}>
-            <div
-              className="dolai-toggle-icon"
-              onClick={() => setIsDolAiOpen(prev => !prev)}
-            >
-              <img src="/images/dolai.png" alt="DolAi" className="dolai-icon-image" />
-            </div>
-            <div className={`dolai-chat-overlay ${isDolAiOpen ? "open" : ""}`}>
-              {isDolAiOpen && <ChatDolai />}
-            </div>
-          </div>
-        </Rnd>
+      <div
+        className="dolai-toggle-icon"
+        onClick={() => setIsDolAiOpen((prev) => !prev)}
+      >
+      <img src="/images/dolai.png" alt="DolAi" className="dolai-icon-image" />
       </div>
-
+      <div className={`dolai-chat-overlay ${isDolAiOpen ? "open" : ""}`}>
+        {isDolAiOpen && <ChatDolai />}
+      </div>
+    </Rnd>
 
     {meetingId && (
       <SttListener

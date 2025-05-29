@@ -193,11 +193,6 @@
 
 }
 
-/* Rnd  */
-.rnd-wrapper {
-  overflow: visible;
-}
-
 /* DolAi 토글 아이콘 */
 .dolai-toggle-icon {
   position: absolute;
@@ -226,7 +221,7 @@
   height: 0;
   overflow: hidden;
   background-color: rgba(0,0,0,0.6);
-  border-radius: 0.83vw;
+  border-radius: 2vw;
   transition: height 0.3s ease;
   z-index: 1000;
 }
