@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Plus, X } from "lucide-react";
@@ -8,6 +9,7 @@ import { useUser } from "@/hooks/user/useUser";
 import { useCalendar } from "@/hooks/useCalendar";
 import { useHoliday } from "@/hooks/useHoliday";
 import { formatTime, parseLocalDate } from "@/utils/formatTime";
+import axios from "@/utils/axiosInstance";
 
 interface CalendarProps {
   addTodo: (task: string, time: string) => void;
@@ -23,6 +25,7 @@ const statusToImage: Record<string, string> = {
 const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { user } = useUser();
+  const navigate = useNavigate(); 
   
   // 다이얼로그
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -59,9 +62,37 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) =>
     fetchEventsByDate(clickedDate);
   };
 
-  const handleCardClick = (meetingId: string) => {
-    console.log("카드 클릭:", meetingId);
-    onMeetingCardClick(meetingId);
+  // 카드 클릭
+  const handleCardClick = async (event: any) => {
+    console.log("초대링크로 회의 참가 시도:", event.inviteUrl);
+
+    if (event.status === "ONGOING") {
+      try {
+
+        const res = await axios.post("/join", {
+          inviteUrl: event.inviteUrl,
+          userId: user?.id,
+        });
+
+        if (res.data.status === "success") {
+          const data = res.data.data;
+          navigate("/meetings", {
+            state: {
+              meetingId: data.id,
+              inviteUrl: data.inviteUrl,
+              userName: user?.name,
+            },
+          });
+        } else {
+          alert(res.data.message || "회의에 참여할 수 없습니다.");
+        }
+      } catch (err: any) {
+        console.error("❌ 회의 참가 실패:", err);
+        alert(err?.response?.data?.message || "서버 오류로 회의에 참가할 수 없습니다.");
+      }
+    } else {
+      onMeetingCardClick(event.id);
+    }
   };
 
   // 캘린더 추가
@@ -166,7 +197,7 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) =>
                 <div
                   key={index}
                   className="event-card"
-                  onClick={() => handleCardClick(event.id)}
+                  onClick={() => handleCardClick(event)}
                 >
                   <div className="event-content">
                     <span className="todo-time">{formatTime(parseLocalDate(event.start))}</span>
@@ -187,7 +218,7 @@ const MyCalendar: React.FC<CalendarProps> = ({ addTodo, onMeetingCardClick }) =>
                       className="event-delete-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteMeeting(event.id, selectedDate!);
+                        deleteMeeting(event.meetingId, selectedDate!);
                       }}
                     />
                   </div>

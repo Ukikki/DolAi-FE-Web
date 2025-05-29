@@ -45,6 +45,7 @@ export const useCalendar = (year: number, month: number) => {
         title: m.title,
         start: m.startTime,
         status: m.status,
+        inviteUrl: m.inviteUrl,
       }));
       setDailyEvents(events);
     } catch (err) {

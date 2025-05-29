@@ -1,6 +1,7 @@
 export interface CalendarEvent {
-  id: string;
+  meetingId: string;
   title: string;
   start: string;
   status: "SCHEDULED" | "ONGOING" | "ENDED";
+  inviteUrl?: string;
 }
