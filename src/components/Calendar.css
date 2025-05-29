@@ -153,6 +153,27 @@
   flex-direction: column;
   justify-content: center;
 }
+.event-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5vw; /* 이미지와 X 버튼 사이 간격 */
+}
+
+.event-status-icon {
+  width: 3.5vw; 
+  height: 1.4vw; 
+  object-fit: contain;
+}
+
+.event-delete-btn {
+  width: 1.3vw;
+  height: 1.3vw;
+  color: #6D7387;
+  cursor: pointer;
+}
+
+
+
 /* X 버튼 위치 고정 */
 .event-delete-btn {
   width: 1.3vw;

@@ -7,4 +7,5 @@ export interface Meeting {
   createdAt?: string;
   updatedAt?: string;
   directoryId?: number;
+  status?: "RESERVED" | "IN_PROGRESS" | "ENDED"; 
 }

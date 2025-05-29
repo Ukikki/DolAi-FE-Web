@@ -44,6 +44,7 @@ export const useCalendar = (year: number, month: number) => {
         id: m.meetingId,
         title: m.title,
         start: m.startTime,
+        status: m.status,
       }));
       setDailyEvents(events);
     } catch (err) {
